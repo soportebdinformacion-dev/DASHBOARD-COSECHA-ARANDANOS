@@ -1,4 +1,4 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -463,16 +463,13 @@
     let chartSexoObj = null;
     let chartTransporteLinesObj = null;
 
-    // HELPER: Formatea cualquier string o Date al formato dd/mm/yy
+    // HELPER OPTIMIZADO: Formatea cualquier string o Date al formato dd/mm/yy
     function formatDateDDMMYY(dateStr) {
       if (!dateStr) return '';
       const str = String(dateStr).split('T')[0];
       const parts = str.split('-');
       if (parts.length === 3) {
-        const yyyy = parts[0];
-        const mm = parts[1];
-        const dd = parts[2];
-        return `${dd}/${mm}/${yyyy.substring(2)}`;
+        return `${parts[2]}/${parts[1]}/${parts[0].substring(2)}`;
       }
       const d = new Date(dateStr);
       if (!isNaN(d.getTime())) {
@@ -718,33 +715,84 @@
       filteredDetalle = rawDetalleData.filter(d => matchesFilter(d, true));
       filteredTdp = rawTdpData.filter(d => matchesFilter(d, false));
 
-      if (activeTab === 1) renderPage1();
-      else if (activeTab === 2) renderPage2();
-      else if (activeTab === 3) renderPage3();
-      else if (activeTab === 4) renderPage4();
-      else if (activeTab === 5) renderPage5();
-      else if (activeTab === 6) renderPage6();
+      requestAnimationFrame(() => {
+        if (activeTab === 1) renderPage1();
+        else if (activeTab === 2) renderPage2();
+        else if (activeTab === 3) renderPage3();
+        else if (activeTab === 4) renderPage4();
+        else if (activeTab === 5) renderPage5();
+        else if (activeTab === 6) renderPage6();
+      });
     }
 
     function renderPage1() {
-      const totalKg = filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['TOTAL KG.']) || 0), 0);
-      const totalCosechadores = new Set(filteredDetalle.map(r => r.DNI)).size;
+      let totalKg = 0;
+      let totalCumpSum = 0;
+      const cosechadoresSet = new Set();
       
-      const avgCump = filteredDetalle.length > 0 
-        ? (filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['CUMP. %']) || 0), 0) / filteredDetalle.length) * 100 
-        : 0;
+      const modGroup = {};
+      const sexoGroup = {};
+      const fechaGroup = {};
+      const modData = {};
+      const cosMap = {};
+
+      for (let i = 0; i < filteredDetalle.length; i++) {
+        const r = filteredDetalle[i];
+        const kg = parseFloat(r['TOTAL KG.']) || 0;
+        const cump = parseFloat(r['CUMP. %']) || 0;
+        const dni = r.DNI;
+
+        totalKg += kg;
+        totalCumpSum += cump;
+        if (dni) cosechadoresSet.add(dni);
+
+        // MODALIDAD
+        const m = r.MODALIDAD || 'SIN REGISTRO';
+        if (!modGroup[m]) modGroup[m] = new Set();
+        if (dni) modGroup[m].add(dni);
+
+        // SEXO
+        let s = (r.SEXO || '').toUpperCase().trim();
+        if (s === 'M' || s === 'MASCULINO') s = 'MASCULINO';
+        else if (s === 'F' || s === 'FEMENINO') s = 'FEMENINO';
+        else s = 'NO ESPECIFICA';
+
+        if (!sexoGroup[s]) sexoGroup[s] = new Set();
+        if (dni) sexoGroup[s].add(dni);
+
+        // FECHAS
+        const rawF = r.FECHA ? r.FECHA.split('T')[0] : 'SIN FECHA';
+        if (!fechaGroup[rawF]) fechaGroup[rawF] = { kgSum: 0, count: 0, dnis: new Set() };
+        fechaGroup[rawF].kgSum += kg;
+        fechaGroup[rawF].count++;
+        if (dni) fechaGroup[rawF].dnis.add(dni);
+
+        // MODALIDAD RESUMEN
+        if (!modData[m]) modData[m] = { dnis: new Set(), cumpSum: 0, count: 0, dias: new Set(), kgSum: 0 };
+        if (dni) modData[m].dnis.add(dni);
+        modData[m].cumpSum += cump;
+        modData[m].count++;
+        if (r.FECHA) modData[m].dias.add(rawF);
+        modData[m].kgSum += kg;
+
+        // TOP 10
+        if (dni) {
+          if (!cosMap[dni]) cosMap[dni] = { nom: r['APELLIDOS Y NOMBRES'], mod: r.MODALIDAD, dias: new Set(), cumpSum: 0, count: 0, kgSum: 0 };
+          if (r.FECHA) cosMap[dni].dias.add(rawF);
+          cosMap[dni].cumpSum += cump;
+          cosMap[dni].count++;
+          cosMap[dni].kgSum += kg;
+        }
+      }
+
+      const totalCosechadores = cosechadoresSet.size;
+      const avgCump = filteredDetalle.length > 0 ? (totalCumpSum / filteredDetalle.length) * 100 : 0;
 
       document.getElementById('kpiTotalKg').innerHTML = `${totalKg.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2})} <span class="text-sm font-normal">kg</span>`;
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = totalCosechadores;
 
-      // MODALIDAD
-      const modGroup = {};
-      filteredDetalle.forEach(r => {
-        const m = r.MODALIDAD || 'SIN REGISTRO';
-        if (!modGroup[m]) modGroup[m] = new Set();
-        modGroup[m].add(r.DNI);
-      });
+      // MODALIDAD GRAPH
       const modLabels = Object.keys(modGroup);
       const modCounts = modLabels.map(m => modGroup[m].size);
       const totalModCount = modCounts.reduce((a, b) => a + b, 0);
@@ -778,17 +826,7 @@
         }
       });
 
-      // SEXO
-      const sexoGroup = {};
-      filteredDetalle.forEach(r => {
-        let s = (r.SEXO || '').toUpperCase().trim();
-        if (s === 'M' || s === 'MASCULINO') s = 'MASCULINO';
-        else if (s === 'F' || s === 'FEMENINO') s = 'FEMENINO';
-        else s = 'NO ESPECIFICA';
-
-        if (!sexoGroup[s]) sexoGroup[s] = new Set();
-        sexoGroup[s].add(r.DNI);
-      });
+      // SEXO GRAPH
       const sexoKeys = Object.keys(sexoGroup);
       const sexoCounts = sexoKeys.map(s => sexoGroup[s].size);
       const totalSexoCount = sexoCounts.reduce((a, b) => a + b, 0);
@@ -822,26 +860,14 @@
         }
       });
 
-      // TABLA RESUMEN POR FECHA (dd/mm/yy)
-      const fechaGroup = {};
-      filteredDetalle.forEach(r => {
-        const rawF = r.FECHA ? r.FECHA.split('T')[0] : 'SIN FECHA';
-        if (!fechaGroup[rawF]) fechaGroup[rawF] = { kgSum: 0, count: 0, dnis: new Set() };
-        const kg = parseFloat(r['TOTAL KG.']) || 0;
-        fechaGroup[rawF].kgSum += kg;
-        fechaGroup[rawF].count++;
-        fechaGroup[rawF].dnis.add(r.DNI);
-      });
-
-      const tbodyFecha = document.getElementById('tblResumenFecha');
-      tbodyFecha.innerHTML = '';
-      Object.keys(fechaGroup).sort().forEach(rawF => {
+      // TABLA RESUMEN POR FECHA (formato dd/mm/yy)
+      const tbodyFechaHtml = Object.keys(fechaGroup).sort().map(rawF => {
         const d = fechaGroup[rawF];
         const cantCosechadores = d.dnis.size;
         const promTotalKg = cantCosechadores > 0 ? (d.kgSum / cantCosechadores) : 0;
         const formattedFecha = formatDateDDMMYY(rawF);
 
-        tbodyFecha.innerHTML += `
+        return `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold flex items-center space-x-1.5">
               <i class="fa-regular fa-calendar-check text-indigo-500"></i>
@@ -860,23 +886,11 @@
               ${cantCosechadores}
             </td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblResumenFecha').innerHTML = tbodyFechaHtml;
 
       // TABLA RESUMEN POR MODALIDAD
-      const modData = {};
-      filteredDetalle.forEach(r => {
-        const m = r.MODALIDAD || 'OTRO';
-        if (!modData[m]) modData[m] = { dnis: new Set(), cumpSum: 0, count: 0, dias: new Set(), kgSum: 0 };
-        modData[m].dnis.add(r.DNI);
-        modData[m].cumpSum += (parseFloat(r['CUMP. %']) || 0);
-        modData[m].count++;
-        if (r.FECHA) modData[m].dias.add(r.FECHA.split('T')[0]);
-        modData[m].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
-      });
-
-      const tbodyMod = document.getElementById('tblModalidadResumen');
-      tbodyMod.innerHTML = '';
-      Object.keys(modData).forEach(m => {
+      const tbodyModHtml = Object.keys(modData).map(m => {
         const d = modData[m];
         const totalCosechadoresMod = d.dnis.size;
         const totalDiasMod = d.dias.size;
@@ -887,7 +901,7 @@
 
         const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
 
-        tbodyMod.innerHTML += `
+        return `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold">${m}</td>
             <td class="p-2 border text-right">${totalCosechadoresMod}</td>
@@ -896,37 +910,22 @@
             <td class="p-2 border text-right font-medium">${promKgDia.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblModalidadResumen').innerHTML = tbodyModHtml;
 
       // TOP 10 MEJORES COSECHADORES
-      const cosMap = {};
-      filteredDetalle.forEach(r => {
-        const key = r.DNI;
-        if (!cosMap[key]) cosMap[key] = { nom: r['APELLIDOS Y NOMBRES'], mod: r.MODALIDAD, dias: new Set(), cumpSum: 0, count: 0, kgSum: 0 };
-        if (r.FECHA) cosMap[key].dias.add(r.FECHA.split('T')[0]);
-        cosMap[key].cumpSum += (parseFloat(r['CUMP. %']) || 0);
-        cosMap[key].count++;
-        cosMap[key].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
-      });
-
       const top10 = Object.values(cosMap).sort((a,b) => b.kgSum - a.kgSum).slice(0, 10);
-      const tbodyTop = document.getElementById('tblTop10');
-      tbodyTop.innerHTML = '';
-      
       const medalIcons = ['🥇', '🥈', '🥉'];
       
-      top10.forEach((c, i) => {
+      const tbodyTopHtml = top10.map((c, i) => {
         const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
         const totalPromedioCump = c.count > 0 ? (c.cumpSum / c.count) * 100 : 0;
         
-        let rankBadge = '';
-        if (i < 3) {
-          rankBadge = `<span class="text-base">${medalIcons[i]}</span>`;
-        } else {
-          rankBadge = `<span class="inline-block w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-center leading-5 text-[10px]">${i+1}</span>`;
-        }
+        const rankBadge = i < 3 
+          ? `<span class="text-base">${medalIcons[i]}</span>` 
+          : `<span class="inline-block w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-center leading-5 text-[10px]">${i+1}</span>`;
 
-        tbodyTop.innerHTML += `
+        return `
           <tr class="hover:bg-amber-50/50 transition-colors">
             <td class="p-2 border text-center font-bold">${rankBadge}</td>
             <td class="p-2 border font-medium text-gray-800">${c.nom || 'S/N'}</td>
@@ -936,7 +935,8 @@
             <td class="p-2 border text-right text-blue-600 font-bold">${totalPromedioCump.toFixed(1)} %</td>
             <td class="p-2 border text-right font-black text-green-800">${c.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblTop10').innerHTML = tbodyTopHtml;
 
       // DISTRIBUCIÓN CATEG. 2026
       const catEvalMap = {
@@ -946,21 +946,20 @@
         'EXCELENTE': { dnis: new Set(), cumpSum: 0, count: 0 }
       };
 
-      filteredDetalle.forEach(r => {
+      for (let i = 0; i < filteredDetalle.length; i++) {
+        const r = filteredDetalle[i];
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badgeObj = getCumplimientoBadge(cumpVal);
         const catKey = badgeObj.text;
         
         if (catEvalMap[catKey]) {
-          catEvalMap[catKey].dnis.add(r.DNI);
+          if (r.DNI) catEvalMap[catKey].dnis.add(r.DNI);
           catEvalMap[catKey].cumpSum += cumpVal;
           catEvalMap[catKey].count++;
         }
-      });
+      }
 
-      const tbodyCat = document.getElementById('tblCategResumen');
-      tbodyCat.innerHTML = '';
-      Object.keys(catEvalMap).forEach(catName => {
+      const tbodyCatHtml = Object.keys(catEvalMap).map(catName => {
         const d = catEvalMap[catName];
         const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
         const totalCosechadoresCat = d.dnis.size;
@@ -970,24 +969,24 @@
         if (catName === 'BUENO') badgeCls = 'badge-bueno';
         if (catName === 'EXCELENTE') badgeCls = 'badge-excelente';
 
-        tbodyCat.innerHTML += `
+        return `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold"><span class="px-2 py-0.5 rounded ${badgeCls}">${catName}</span></td>
             <td class="p-2 border text-right font-medium">${totalCosechadoresCat}</td>
             <td class="p-2 border text-right font-bold text-indigo-700">${avgC.toFixed(1)} %</td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblCategResumen').innerHTML = tbodyCatHtml;
     }
 
     function renderPage2() {
-      const tbody = document.getElementById('tblDetalle');
-      tbody.innerHTML = '';
-      filteredDetalle.slice(0, 100).forEach(r => {
+      const slice = filteredDetalle.slice(0, 100);
+      const rowsHtml = slice.map(r => {
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badge = getCumplimientoBadge(cumpVal);
         const formattedFecha = formatDateDDMMYY(r.FECHA);
 
-        tbody.innerHTML += `
+        return `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border">${formattedFecha}</td>
             <td class="p-2 border font-mono">${r.DNI || ''}</td>
@@ -1003,15 +1002,19 @@
             <td class="p-2 border text-center font-bold">${badge.text}</td>
             <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblDetalle').innerHTML = rowsHtml;
     }
 
     function renderPage3() {
       const fechas = [...new Set(filteredTdp.map(r => r.FECHA ? r.FECHA.split('T')[0] : '').filter(Boolean))].sort();
       const rowsMap = {};
 
-      filteredTdp.forEach(r => {
+      for (let i = 0; i < filteredTdp.length; i++) {
+        const r = filteredTdp[i];
         const key = r.DNI;
+        if (!key) continue;
+
         if (!rowsMap[key]) {
           rowsMap[key] = { dni: r.DNI, nombre: r['APELLIDOS Y NOMBRES'], modalidad: r.MODALIDAD, categ: r['CATEG. 2026'], placa: r.PLACA, origen: r.RUTA, fechasKg: {}, cumpSum: 0, count: 0, totalKg: 0 };
         }
@@ -1021,19 +1024,17 @@
         rowsMap[key].totalKg += kg;
         rowsMap[key].cumpSum += (parseFloat(r['CUMP. %']) || 0);
         rowsMap[key].count++;
-      });
+      }
 
-      const thead = document.getElementById('theadFechas');
       let thHTML = `<tr><th class="p-2 border">DNI</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">PLACA</th><th class="p-2 border">ORIGEN</th>`;
       fechas.forEach(f => {
         thHTML += `<th class="p-2 border text-center bg-green-50">${formatDateDDMMYY(f)}</th>`;
       });
       thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right bg-blue-50">CUMP. %</th></tr>`;
-      thead.innerHTML = thHTML;
+      document.getElementById('theadFechas').innerHTML = thHTML;
 
-      const tbody = document.getElementById('tbodyFechas');
-      tbody.innerHTML = '';
-      Object.values(rowsMap).slice(0, 50).forEach(row => {
+      const rowsSlice = Object.values(rowsMap).slice(0, 50);
+      const tbodyHtml = rowsSlice.map(row => {
         const avgCump = row.count > 0 ? (row.cumpSum / row.count) : 0;
         const badge = getCumplimientoBadge(avgCump);
         let trHTML = `<tr class="hover:bg-gray-50">
@@ -1049,19 +1050,19 @@
         });
         trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                    <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgCump*100).toFixed(1)}%</span></td></tr>`;
-        tbody.innerHTML += trHTML;
-      });
+        return trHTML;
+      }).join('');
+      document.getElementById('tbodyFechas').innerHTML = tbodyHtml;
     }
 
     function renderPage4() {
-      const tbody = document.getElementById('tblRegUnicos');
-      tbody.innerHTML = '';
-      filteredTdp.slice(0, 100).forEach(r => {
+      const slice = filteredTdp.slice(0, 100);
+      const rowsHtml = slice.map(r => {
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badge = getCumplimientoBadge(cumpVal);
         const formattedFecha = formatDateDDMMYY(r.FECHA);
 
-        tbody.innerHTML += `
+        return `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border">${formattedFecha}</td>
             <td class="p-2 border text-center font-bold">${r.SEMANA || ''}</td>
@@ -1075,17 +1076,33 @@
             <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
             <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblRegUnicos').innerHTML = rowsHtml;
     }
 
     function renderPage5() {
       const transMap = {};
-      filteredTdp.forEach(r => {
+      const placaRows = {};
+
+      for (let i = 0; i < filteredTdp.length; i++) {
+        const r = filteredTdp[i];
         const p = r.PLACA || 'SIN PLACA';
         if (!transMap[p]) transMap[p] = { kgSum: 0, count: 0 };
         transMap[p].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
         transMap[p].count++;
-      });
+
+        const key = `${r.PLACA}_${r['APELLIDOS Y NOMBRES']}`;
+        if (!placaRows[key]) {
+          placaRows[key] = { placa: r.PLACA, nombre: r['APELLIDOS Y NOMBRES'], modalidad: r.MODALIDAD, categ: r['CATEG. 2026'], ruta: r.RUTA, fechasKg: {}, totalKg: 0, metaSum: 0, cumpSum: 0, count: 0 };
+        }
+        const f = r.FECHA ? r.FECHA.split('T')[0] : '';
+        const kg = parseFloat(r['TOTAL KG.']) || 0;
+        placaRows[key].fechasKg[f] = (placaRows[key].fechasKg[f] || 0) + kg;
+        placaRows[key].totalKg += kg;
+        placaRows[key].metaSum += (parseFloat(r.META) || 0);
+        placaRows[key].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        placaRows[key].count++;
+      }
 
       const pLabels = Object.keys(transMap);
       const pAvgs = pLabels.map(p => transMap[p].count > 0 ? (transMap[p].kgSum / transMap[p].count) : 0);
@@ -1109,33 +1126,16 @@
       });
 
       const fechas = [...new Set(filteredTdp.map(r => r.FECHA ? r.FECHA.split('T')[0] : '').filter(Boolean))].sort();
-      const placaRows = {};
 
-      filteredTdp.forEach(r => {
-        const key = `${r.PLACA}_${r['APELLIDOS Y NOMBRES']}`;
-        if (!placaRows[key]) {
-          placaRows[key] = { placa: r.PLACA, nombre: r['APELLIDOS Y NOMBRES'], modalidad: r.MODALIDAD, categ: r['CATEG. 2026'], ruta: r.RUTA, fechasKg: {}, totalKg: 0, metaSum: 0, cumpSum: 0, count: 0 };
-        }
-        const f = r.FECHA ? r.FECHA.split('T')[0] : '';
-        const kg = parseFloat(r['TOTAL KG.']) || 0;
-        placaRows[key].fechasKg[f] = (placaRows[key].fechasKg[f] || 0) + kg;
-        placaRows[key].totalKg += kg;
-        placaRows[key].metaSum += (parseFloat(r.META) || 0);
-        placaRows[key].cumpSum += (parseFloat(r['CUMP. %']) || 0);
-        placaRows[key].count++;
-      });
-
-      const thead = document.getElementById('theadTransporte');
       let thHTML = `<tr><th class="p-2 border">PLACA</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">RUTA</th>`;
       fechas.forEach(f => {
         thHTML += `<th class="p-2 border text-center bg-green-50">${formatDateDDMMYY(f)}</th>`;
       });
       thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right">META</th><th class="p-2 border text-right">CUMP. %</th></tr>`;
-      thead.innerHTML = thHTML;
+      document.getElementById('theadTransporte').innerHTML = thHTML;
 
-      const tbody = document.getElementById('tbodyTransporte');
-      tbody.innerHTML = '';
-      Object.values(placaRows).slice(0, 50).forEach(row => {
+      const placaRowsSlice = Object.values(placaRows).slice(0, 50);
+      const tbodyHtml = placaRowsSlice.map(row => {
         const avgC = row.count > 0 ? (row.cumpSum / row.count) : 0;
         const badge = getCumplimientoBadge(avgC);
         let trHTML = `<tr class="hover:bg-gray-50">
@@ -1151,8 +1151,9 @@
         trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                    <td class="p-2 border text-right">${row.metaSum.toLocaleString('es-PE', {minimumFractionDigits: 1, maximumFractionDigits: 1})}</td>
                    <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgC*100).toFixed(1)}%</span></td></tr>`;
-        tbody.innerHTML += trHTML;
-      });
+        return trHTML;
+      }).join('');
+      document.getElementById('tbodyTransporte').innerHTML = tbodyHtml;
     }
 
     function renderPage6() {
@@ -1160,36 +1161,37 @@
       const subGroup1 = {};
       const subGroup2 = {};
 
-      filteredTdp.forEach(r => {
+      for (let i = 0; i < filteredTdp.length; i++) {
+        const r = filteredTdp[i];
         const mod = r.MODALIDAD || 'OTRO';
         const hist = r.HISTORICO || 'SIN REGISTRO';
         const cat = r['CATEG. 2026'] || 'SIN CAT';
         const keyMain = `${mod}_${hist}`;
+        const kg = parseFloat(r['TOTAL KG.']) || 0;
+        const cump = parseFloat(r['CUMP. %']) || 0;
 
         if (!mainGroup[keyMain]) mainGroup[keyMain] = { mod, hist, kgSum: 0, cumpSum: 0, count: 0, dias: new Set() };
-        mainGroup[keyMain].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
-        mainGroup[keyMain].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        mainGroup[keyMain].kgSum += kg;
+        mainGroup[keyMain].cumpSum += cump;
         mainGroup[keyMain].count++;
         if (r.FECHA) mainGroup[keyMain].dias.add(r.FECHA.split('T')[0]);
 
         if (!subGroup1[keyMain]) subGroup1[keyMain] = { mod, hist, kgSum: 0, cumpSum: 0, count: 0 };
-        subGroup1[keyMain].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
-        subGroup1[keyMain].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        subGroup1[keyMain].kgSum += kg;
+        subGroup1[keyMain].cumpSum += cump;
         subGroup1[keyMain].count++;
 
         const keySub2 = `${mod}_${cat}`;
         if (!subGroup2[keySub2]) subGroup2[keySub2] = { mod, cat, kgSum: 0, cumpSum: 0, count: 0 };
-        subGroup2[keySub2].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
-        subGroup2[keySub2].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        subGroup2[keySub2].kgSum += kg;
+        subGroup2[keySub2].cumpSum += cump;
         subGroup2[keySub2].count++;
-      });
+      }
 
-      const tbody1 = document.getElementById('tblResumenFinal1');
-      tbody1.innerHTML = '';
-      Object.values(mainGroup).forEach(g => {
+      const tbody1Html = Object.values(mainGroup).map(g => {
         const avgC = g.count > 0 ? (g.cumpSum / g.count) : 0;
         const badgeEvaluada = getCumplimientoBadge(avgC);
-        tbody1.innerHTML += `
+        return `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold">${g.mod}</td>
             <td class="p-2 border">${g.hist}</td>
@@ -1198,33 +1200,32 @@
             <td class="p-2 border text-right">${g.dias.size}</td>
             <td class="p-2 border text-center"><span class="px-2.5 py-1 rounded font-bold ${badgeEvaluada.cls}">${badgeEvaluada.text}</span></td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblResumenFinal1').innerHTML = tbody1Html;
 
-      const tbodySub1 = document.getElementById('tblResumenSub1');
-      tbodySub1.innerHTML = '';
-      Object.values(subGroup1).forEach(g => {
+      const tbodySub1Html = Object.values(subGroup1).map(g => {
         const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
-        tbodySub1.innerHTML += `
+        return `
           <tr>
             <td class="p-2 border">${g.mod}</td>
             <td class="p-2 border">${g.hist}</td>
             <td class="p-2 border text-right font-semibold">${g.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblResumenSub1').innerHTML = tbodySub1Html;
 
-      const tbodySub2 = document.getElementById('tblResumenSub2');
-      tbodySub2.innerHTML = '';
-      Object.values(subGroup2).forEach(g => {
+      const tbodySub2Html = Object.values(subGroup2).map(g => {
         const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
-        tbodySub2.innerHTML += `
+        return `
           <tr>
             <td class="p-2 border">${g.mod}</td>
             <td class="p-2 border">${g.cat}</td>
             <td class="p-2 border text-right font-semibold">${g.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>
           </tr>`;
-      });
+      }).join('');
+      document.getElementById('tblResumenSub2').innerHTML = tbodySub2Html;
     }
 
     if ('serviceWorker' in navigator) {
