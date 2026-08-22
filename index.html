@@ -218,19 +218,36 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center space-x-1">
-              <i class="fa-solid fa-chart-pie text-green-600"></i>
-              <span>MODALIDAD (Cosechadores & %)</span>
+            <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center justify-between">
+              <span class="flex items-center space-x-1"><i class="fa-solid fa-chart-pie text-green-600"></i> <span>MODALIDAD (Cosechadores & %)</span></span>
+              <span id="lblTotalMod" class="text-xs font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200">TOTAL: 0</span>
             </h3>
             <div class="h-64 relative"><canvas id="chartModalidad"></canvas></div>
           </div>
 
           <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center space-x-1">
-              <i class="fa-solid fa-venus-mars text-rose-500"></i>
-              <span>SEXO (Cosechadores & %)</span>
+            <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center justify-between">
+              <span class="flex items-center space-x-1"><i class="fa-solid fa-venus-mars text-rose-500"></i> <span>SEXO (Cosechadores & %)</span></span>
+              <span id="lblTotalSexo" class="text-xs font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">TOTAL: 0</span>
             </h3>
             <div class="h-64 relative"><canvas id="chartSexo"></canvas></div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-calendar-check text-indigo-600"></i> RESUMEN DE COSECHA POR FECHA</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead class="bg-indigo-50 text-indigo-900 uppercase">
+                <tr>
+                  <th class="p-2 border">FECHA</th>
+                  <th class="p-2 border text-right">TOTAL KG</th>
+                  <th class="p-2 border text-right">TOTAL PROMEDIO DEL TOTAL KG.</th>
+                  <th class="p-2 border text-right">TOTAL COSECHADORES</th>
+                </tr>
+              </thead>
+              <tbody id="tblResumenFecha" class="divide-y"></tbody>
+            </table>
           </div>
         </div>
 
@@ -434,7 +451,6 @@
   </div>
 
   <script>
-    // URL DE TU WEB APP DE GOOGLE APPS SCRIPT
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzxduQ0MgAKxcsTSkx6iUtcxBka9UYtQkc39Dp_xeui-f9RMDCNFTBgYfIVdbWh1MKW/exec";
 
     let activeTab = 1;
@@ -560,7 +576,6 @@
           throw new Error("Dispositivo sin conexión a internet.");
         }
 
-        // PETICIÓN A GOOGLE SHEETS
         const res = await fetch(GAS_API_URL + "?action=getData", {
           method: 'GET',
           redirect: 'follow'
@@ -577,7 +592,6 @@
           await saveLocalData('detalle', rawDetalleData);
           await saveLocalData('tdp', rawTdpData);
 
-          // Actualizar UI a Conectado
           syncDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
           syncText.textContent = "Conectado";
           syncIcon.className = "fa-solid fa-wifi text-green-700";
@@ -591,7 +605,6 @@
       } catch (err) {
         console.warn("Conexión con Google Sheets no disponible:", err);
 
-        // Cargar Datos en Caché Local
         rawDetalleData = await getLocalData('detalle');
         rawTdpData = await getLocalData('tdp');
 
@@ -647,10 +660,10 @@
 
     function getCumplimientoBadge(porcentaje) {
       const p = porcentaje * 100;
-      if (p < 86) return { text: '🔴 MALO', cls: 'badge-malo' };
-      if (p < 100) return { text: '🟠 REGULAR', cls: 'badge-regular' };
-      if (p <= 104) return { text: '🟢 BUENO', cls: 'badge-bueno' };
-      return { text: '🔵 EXCELENTE', cls: 'badge-excelente' };
+      if (p <= 85) return { text: 'MALO', cls: 'badge-malo' };
+      if (p <= 99) return { text: 'REGULAR', cls: 'badge-regular' };
+      if (p <= 104) return { text: 'BUENO', cls: 'badge-bueno' };
+      return { text: 'EXCELENTE', cls: 'badge-excelente' };
     }
 
     function applyFilters() {
@@ -691,6 +704,8 @@
     function renderPage1() {
       const totalKg = filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['TOTAL KG.']) || 0), 0);
       const totalCosechadores = new Set(filteredDetalle.map(r => r.DNI)).size;
+      
+      // Promedio Total de CUMP. %
       const avgCump = filteredDetalle.length > 0 
         ? (filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['CUMP. %']) || 0), 0) / filteredDetalle.length) * 100 
         : 0;
@@ -699,7 +714,7 @@
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = totalCosechadores;
 
-      // Modalidad
+      // MODALIDAD (Cosechadores & %)
       const modGroup = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'SIN REGISTRO';
@@ -708,15 +723,32 @@
       });
       const modLabels = Object.keys(modGroup);
       const modCounts = modLabels.map(m => modGroup[m].size);
+      const totalModCount = modCounts.reduce((a, b) => a + b, 0);
+      document.getElementById('lblTotalMod').textContent = `TOTAL: ${totalModCount}`;
 
       if (chartModalidadObj) chartModalidadObj.destroy();
       chartModalidadObj = new Chart(document.getElementById('chartModalidad'), {
         type: 'doughnut',
         data: { labels: modLabels, datasets: [{ data: modCounts, backgroundColor: ['#2D7A3A', '#D93829', '#3B82F6', '#F59E0B', '#10B981'] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.parsed || 0;
+                  const pct = totalModCount > 0 ? ((val / totalModCount) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${val} (${pct}%)`;
+                }
+              }
+            }
+          } 
+        }
       });
 
-      // Sexo
+      // SEXO (Cosechadores & %)
       const sexoGroup = {};
       filteredDetalle.forEach(r => {
         const s = r.SEXO || 'NO ESPECIFICA';
@@ -725,15 +757,57 @@
       });
       const sexoLabels = Object.keys(sexoGroup);
       const sexoCounts = sexoLabels.map(s => sexoGroup[s].size);
+      const totalSexoCount = sexoCounts.reduce((a, b) => a + b, 0);
+      document.getElementById('lblTotalSexo').textContent = `TOTAL: ${totalSexoCount}`;
 
       if (chartSexoObj) chartSexoObj.destroy();
       chartSexoObj = new Chart(document.getElementById('chartSexo'), {
         type: 'doughnut',
         data: { labels: sexoLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#3B82F6', '#9CA3AF'] }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.parsed || 0;
+                  const pct = totalSexoCount > 0 ? ((val / totalSexoCount) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${val} (${pct}%)`;
+                }
+              }
+            }
+          } 
+        }
       });
 
-      // Tablas Pág 1
+      // TABLA RESUMEN POR FECHA
+      const fechaGroup = {};
+      filteredDetalle.forEach(r => {
+        const f = r.FECHA ? r.FECHA.split('T')[0] : 'SIN FECHA';
+        if (!fechaGroup[f]) fechaGroup[f] = { kgSum: 0, count: 0, dnis: new Set() };
+        const kg = parseFloat(r['TOTAL KG.']) || 0;
+        fechaGroup[f].kgSum += kg;
+        fechaGroup[f].count++;
+        fechaGroup[f].dnis.add(r.DNI);
+      });
+
+      const tbodyFecha = document.getElementById('tblResumenFecha');
+      tbodyFecha.innerHTML = '';
+      Object.keys(fechaGroup).sort().forEach(f => {
+        const d = fechaGroup[f];
+        const promKg = d.count > 0 ? (d.kgSum / d.count) : 0;
+        tbodyFecha.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border font-semibold">${f}</td>
+            <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toFixed(2)} kg</td>
+            <td class="p-2 border text-right font-semibold text-blue-700">${promKg.toFixed(2)} kg</td>
+            <td class="p-2 border text-right font-medium">${d.dnis.size}</td>
+          </tr>`;
+      });
+
+      // TABLA RESUMEN POR MODALIDAD
       const modData = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'OTRO';
@@ -755,14 +829,14 @@
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold">${m}</td>
             <td class="p-2 border text-right">${d.dnis.size}</td>
-            <td class="p-2 border text-right">${avgC.toFixed(1)} %</td>
+            <td class="p-2 border text-right font-bold text-blue-700">${avgC.toFixed(1)} %</td>
             <td class="p-2 border text-right">${d.dias.size}</td>
             <td class="p-2 border text-right font-medium">${avgKgDia.toFixed(2)}</td>
             <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toFixed(2)}</td>
           </tr>`;
       });
 
-      // Top 10
+      // TOP 10 MEJORES COSECHADORES
       const cosMap = {};
       filteredDetalle.forEach(r => {
         const key = r.DNI;
@@ -778,7 +852,7 @@
       tbodyTop.innerHTML = '';
       top10.forEach((c, i) => {
         const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
-        const avgC = c.count > 0 ? (c.cumpSum / c.count) * 100 : 0;
+        const totalPromedioCump = c.count > 0 ? (c.cumpSum / c.count) * 100 : 0;
         tbodyTop.innerHTML += `
           <tr class="hover:bg-amber-50/50">
             <td class="p-2 border font-bold text-amber-600">${i+1}</td>
@@ -786,29 +860,46 @@
             <td class="p-2 border text-center">${c.mod || '-'}</td>
             <td class="p-2 border text-right">${c.dias.size}</td>
             <td class="p-2 border text-right font-semibold">${avgKgDia.toFixed(2)}</td>
-            <td class="p-2 border text-right text-blue-600 font-bold">${avgC.toFixed(1)} %</td>
+            <td class="p-2 border text-right text-blue-600 font-bold">${totalPromedioCump.toFixed(1)} %</td>
             <td class="p-2 border text-right font-black text-green-800">${c.kgSum.toFixed(2)}</td>
           </tr>`;
       });
 
-      // Categ 2026
-      const catMap = {};
+      // DISTRIBUCIÓN CATEG. 2026 BASADA EN CRITERIO CUMP. %
+      const catEvalMap = {
+        'MALO': { dnis: new Set(), cumpSum: 0, count: 0 },
+        'REGULAR': { dnis: new Set(), cumpSum: 0, count: 0 },
+        'BUENO': { dnis: new Set(), cumpSum: 0, count: 0 },
+        'EXCELENTE': { dnis: new Set(), cumpSum: 0, count: 0 }
+      };
+
+      // Evaluar promedio de CUMP % individual de cada cosecha/trabajador
       filteredDetalle.forEach(r => {
-        const c = r['CATEG. 2026'] || 'SIN CATEG';
-        if (!catMap[c]) catMap[c] = { dnis: new Set(), cumpSum: 0, count: 0 };
-        catMap[c].dnis.add(r.DNI);
-        catMap[c].cumpSum += (parseFloat(r['CUMP. %']) || 0);
-        catMap[c].count++;
+        const cumpVal = parseFloat(r['CUMP. %']) || 0;
+        const badgeObj = getCumplimientoBadge(cumpVal);
+        const catKey = badgeObj.text; // MALO, REGULAR, BUENO, EXCELENTE
+        
+        if (catEvalMap[catKey]) {
+          catEvalMap[catKey].dnis.add(r.DNI);
+          catEvalMap[catKey].cumpSum += cumpVal;
+          catEvalMap[catKey].count++;
+        }
       });
 
       const tbodyCat = document.getElementById('tblCategResumen');
       tbodyCat.innerHTML = '';
-      Object.keys(catMap).forEach(c => {
-        const d = catMap[c];
+      Object.keys(catEvalMap).forEach(catName => {
+        const d = catEvalMap[catName];
         const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
+        
+        let badgeCls = 'badge-malo';
+        if (catName === 'REGULAR') badgeCls = 'badge-regular';
+        if (catName === 'BUENO') badgeCls = 'badge-bueno';
+        if (catName === 'EXCELENTE') badgeCls = 'badge-excelente';
+
         tbodyCat.innerHTML += `
           <tr class="hover:bg-gray-50">
-            <td class="p-2 border font-semibold">${c}</td>
+            <td class="p-2 border font-semibold"><span class="px-2 py-0.5 rounded ${badgeCls}">${catName}</span></td>
             <td class="p-2 border text-right font-medium">${d.dnis.size}</td>
             <td class="p-2 border text-right font-bold text-indigo-700">${avgC.toFixed(1)} %</td>
           </tr>`;
@@ -834,7 +925,7 @@
             <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toFixed(2)}</td>
             <td class="p-2 border text-right">${(parseFloat(r.META)||0).toFixed(2)}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
-            <td class="p-2 border text-center">${r['CATEG. 2026'] || ''}</td>
+            <td class="p-2 border text-center font-bold">${badge.text}</td>
             <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>
           </tr>`;
       });
@@ -899,7 +990,7 @@
             <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
             <td class="p-2 border">${r.MODALIDAD || ''}</td>
             <td class="p-2 border">${r.HISTORICO || ''}</td>
-            <td class="p-2 border">${r['CATEG. 2026'] || ''}</td>
+            <td class="p-2 border font-semibold">${badge.text}</td>
             <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toFixed(2)}</td>
             <td class="p-2 border text-right">${(parseFloat(r.META)||0).toFixed(2)}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
