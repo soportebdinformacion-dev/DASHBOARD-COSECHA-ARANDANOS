@@ -463,7 +463,6 @@
     let chartSexoObj = null;
     let chartTransporteLinesObj = null;
 
-    // HELPER OPTIMIZADO: Formatea cualquier string o Date al formato dd/mm/yy
     function formatDateDDMMYY(dateStr) {
       if (!dateStr) return '';
       const str = String(dateStr).split('T')[0];
@@ -860,7 +859,7 @@
         }
       });
 
-      // TABLA RESUMEN POR FECHA (formato dd/mm/yy)
+      // TABLA RESUMEN POR FECHA
       const tbodyFechaHtml = Object.keys(fechaGroup).sort().map(rawF => {
         const d = fechaGroup[rawF];
         const cantCosechadores = d.dnis.size;
@@ -938,44 +937,67 @@
       }).join('');
       document.getElementById('tblTop10').innerHTML = tbodyTopHtml;
 
-      // DISTRIBUCIÓN CATEG. 2026
-      const catEvalMap = {
-        'MALO': { dnis: new Set(), cumpSum: 0, count: 0 },
-        'REGULAR': { dnis: new Set(), cumpSum: 0, count: 0 },
-        'BUENO': { dnis: new Set(), cumpSum: 0, count: 0 },
-        'EXCELENTE': { dnis: new Set(), cumpSum: 0, count: 0 }
-      };
-
+      // DISTRIBUCIÓN CATEG. 2026 (REQUISITO ACTUALIZADO)
+      // 1. Agrupar individualmente a cada cosechador por DNI con sus registros de CUMP. %
+      const workerCumpMap = {};
       for (let i = 0; i < filteredDetalle.length; i++) {
         const r = filteredDetalle[i];
+        const dni = r.DNI;
+        if (!dni) continue;
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
-        const badgeObj = getCumplimientoBadge(cumpVal);
-        const catKey = badgeObj.text;
-        
-        if (catEvalMap[catKey]) {
-          if (r.DNI) catEvalMap[catKey].dnis.add(r.DNI);
-          catEvalMap[catKey].cumpSum += cumpVal;
-          catEvalMap[catKey].count++;
+
+        if (!workerCumpMap[dni]) {
+          workerCumpMap[dni] = { sum: 0, count: 0 };
         }
+        workerCumpMap[dni].sum += cumpVal;
+        workerCumpMap[dni].count++;
       }
 
-      const tbodyCatHtml = Object.keys(catEvalMap).map(catName => {
-        const d = catEvalMap[catName];
-        const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
-        const totalCosechadoresCat = d.dnis.size;
-        
-        let badgeCls = 'badge-malo';
-        if (catName === 'REGULAR') badgeCls = 'badge-regular';
-        if (catName === 'BUENO') badgeCls = 'badge-bueno';
-        if (catName === 'EXCELENTE') badgeCls = 'badge-excelente';
+      // 2. Definir estructuras por Criterios/Categorías
+      const catMetrics = {
+        'MALO': { cosechadores: 0, totalCumpSum: 0, badgeCls: 'badge-malo' },
+        'REGULAR': { cosechadores: 0, totalCumpSum: 0, badgeCls: 'badge-regular' },
+        'BUENO': { cosechadores: 0, totalCumpSum: 0, badgeCls: 'badge-bueno' },
+        'EXCELENTE': { cosechadores: 0, totalCumpSum: 0, badgeCls: 'badge-excelente' }
+      };
+
+      // 3. Evaluar el promedio de cada cosechador único y asignarlo a su categoría
+      Object.keys(workerCumpMap).forEach(dni => {
+        const w = workerCumpMap[dni];
+        const avgWorkerCump = (w.sum / w.count) * 100;
+
+        let categoryKey = 'MALO';
+        if (avgWorkerCump >= 0 && avgWorkerCump <= 85) {
+          categoryKey = 'MALO';
+        } else if (avgWorkerCump >= 86 && avgWorkerCump <= 99) {
+          categoryKey = 'REGULAR';
+        } else if (avgWorkerCump >= 100 && avgWorkerCump <= 104) {
+          categoryKey = 'BUENO';
+        } else if (avgWorkerCump >= 105) {
+          categoryKey = 'EXCELENTE';
+        }
+
+        catMetrics[categoryKey].cosechadores++;
+        catMetrics[categoryKey].totalCumpSum += avgWorkerCump;
+      });
+
+      // 4. Construir la tabla con las 3 columnas especificadas
+      const catOrder = ['MALO', 'REGULAR', 'BUENO', 'EXCELENTE'];
+      const tbodyCatHtml = catOrder.map(catName => {
+        const data = catMetrics[catName];
+        const cantCosechadores = data.cosechadores;
+        const promTotalCump = cantCosechadores > 0 ? (data.totalCumpSum / cantCosechadores) : 0;
 
         return `
           <tr class="hover:bg-gray-50">
-            <td class="p-2 border font-semibold"><span class="px-2 py-0.5 rounded ${badgeCls}">${catName}</span></td>
-            <td class="p-2 border text-right font-medium">${totalCosechadoresCat}</td>
-            <td class="p-2 border text-right font-bold text-indigo-700">${avgC.toFixed(1)} %</td>
+            <td class="p-2 border font-semibold">
+              <span class="px-2.5 py-1 rounded font-bold ${data.badgeCls}">${catName}</span>
+            </td>
+            <td class="p-2 border text-right font-medium">${cantCosechadores}</td>
+            <td class="p-2 border text-right font-bold text-indigo-700">${promTotalCump.toFixed(1)} %</td>
           </tr>`;
       }).join('');
+
       document.getElementById('tblCategResumen').innerHTML = tbodyCatHtml;
     }
 
