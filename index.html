@@ -6,11 +6,8 @@
   <title>Agrícola Huarmey - Cosecha Arándanos</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2D7A3A">
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -43,12 +40,19 @@
     }
   </style>
 </head>
-<body class="flex flex-col md:flex-row min-h-screen">
+<body class="flex flex-col md:flex-row min-h-screen relative">
 
-  <!-- LATERAL IZQUIERDO: SIDEBAR DE NAVEGACIÓN VERTICAL -->
-  <aside class="w-full md:w-64 bg-white border-r border-gray-200 md:min-h-screen flex flex-col justify-between z-50 shrink-0">
+  <div id="toastNotification" class="fixed top-5 right-5 z-50 transform translate-x-full transition-transform duration-300 ease-in-out max-w-sm w-full bg-white border-l-4 shadow-lg rounded-r-lg p-4 flex items-center space-x-3 hidden">
+    <div id="toastIcon" class="text-xl"></div>
+    <div class="flex-1">
+      <h4 id="toastTitle" class="text-xs font-bold uppercase"></h4>
+      <p id="toastMessage" class="text-xs text-gray-600"></p>
+    </div>
+    <button onclick="hideToast()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+
+  <aside class="w-full md:w-64 bg-white border-r border-gray-200 md:min-h-screen flex flex-col justify-between z-40 shrink-0">
     <div>
-      <!-- LOGO Y CABECERA EMPRESA -->
       <div class="p-4 border-b border-gray-200 flex items-center space-x-3 bg-white">
         <div class="w-10 h-10 flex items-center justify-center rounded-full bg-green-50 border border-green-200 shrink-0">
           <svg class="w-7 h-7 text-green-700" viewBox="0 0 100 100" fill="currentColor">
@@ -63,7 +67,6 @@
         </div>
       </div>
 
-      <!-- MENÚ DE NAVEGACIÓN VERTICAL -->
       <nav class="p-3 space-y-1.5 overflow-x-auto md:overflow-y-auto flex md:flex-col scroll-custom">
         <button onclick="switchTab(1)" id="tab-1" class="nav-btn-vert active w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
           <span>🫐</span> <span>Dashboard Cosecha</span>
@@ -86,28 +89,24 @@
       </nav>
     </div>
 
-    <!-- PIE DEL SIDEBAR CON ESTADO DE CONEXIÓN -->
     <div class="p-3 border-t border-gray-200 hidden md:block">
-      <div id="connectionStatus" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-green-100 text-green-800">
+      <div id="connectionStatus" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700">
         <div class="flex items-center space-x-2">
-          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-          <span id="syncText">Online</span>
+          <span id="syncDot" class="w-2 h-2 rounded-full bg-gray-400"></span>
+          <span id="syncText">Conectando...</span>
         </div>
-        <i class="fa-solid fa-wifi"></i>
+        <i id="syncIcon" class="fa-solid fa-spinner fa-spin"></i>
       </div>
     </div>
   </aside>
 
-  <!-- CONTENIDO PRINCIPAL (DERECHA) -->
   <div class="flex-1 flex flex-col min-w-0">
     
-    <!-- BARRA SUPERIOR CON FECHA Y HORA EN PARTE SUPERIOR DERECHA -->
-    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-40">
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-30">
       <div class="text-xs font-bold text-gray-500 uppercase tracking-wider hidden sm:block">
         MÓDULO DE GESTIÓN Y CONTROL
       </div>
       
-      <!-- FECHA Y HORA DINÁMICA -->
       <div class="flex items-center space-x-4 ml-auto">
         <div class="text-right">
           <div id="liveTime" class="text-base font-black text-gray-800 leading-none">00:00:00</div>
@@ -119,10 +118,8 @@
       </div>
     </header>
 
-    <!-- ÁREA DE CONTENIDO -->
     <main class="p-3 sm:p-5 space-y-5 flex-1 overflow-y-auto">
 
-      <!-- BARRA GLOBAL DE FILTROS -->
       <section class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
         <div class="flex items-center justify-between mb-3">
           <h2 class="text-xs font-bold text-gray-700 flex items-center space-x-2 uppercase">
@@ -170,7 +167,6 @@
         </div>
       </section>
 
-      <!-- LEYENDA CUMPLIMIENTO -->
       <section id="leyendaCumplimiento" class="hidden bg-white p-3 rounded-xl shadow-sm border border-gray-200">
         <div class="text-xs font-bold text-gray-700 mb-2 flex items-center space-x-1">
           <i class="fa-solid fa-circle-info text-blue-600"></i>
@@ -184,7 +180,6 @@
         </div>
       </section>
 
-      <!-- BÚSQUEDA TRABAJADOR -->
       <section id="searchPersonBox" class="hidden bg-white p-3 rounded-xl shadow-sm border border-gray-200">
         <div class="relative">
           <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -194,7 +189,6 @@
         </div>
       </section>
 
-      <!-- PÁGINA 1: DASHBOARD -->
       <div id="page-1" class="page-content space-y-5">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
@@ -296,7 +290,6 @@
         </div>
       </div>
 
-      <!-- PÁGINA 2: DETALLE -->
       <div id="page-2" class="page-content hidden space-y-4">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
           <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-list-check text-green-600"></i> REPORTE DETALLADO DE COSECHA</h3>
@@ -325,7 +318,6 @@
         </div>
       </div>
 
-      <!-- PÁGINA 3: MATRIZ FECHAS -->
       <div id="page-3" class="page-content hidden space-y-4">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
           <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-calendar-days text-green-600"></i> COSECHA MATRIZ X FECHAS</h3>
@@ -338,7 +330,6 @@
         </div>
       </div>
 
-      <!-- PÁGINA 4: REGISTROS ÚNICOS -->
       <div id="page-4" class="page-content hidden space-y-4">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
           <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-id-card text-green-600"></i> REGISTROS ÚNICOS POR TRABAJADOR</h3>
@@ -365,7 +356,6 @@
         </div>
       </div>
 
-      <!-- PÁGINA 5: TRANSPORTE -->
       <div id="page-5" class="page-content hidden space-y-5">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
           <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-bus text-green-600"></i> PROMEDIO KG Y TENDENCIA POR UNIDAD (LÍNEAS)</h3>
@@ -383,7 +373,6 @@
         </div>
       </div>
 
-      <!-- PÁGINA 6: RESUMEN FINAL -->
       <div id="page-6" class="page-content hidden space-y-5">
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
           <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-flag-checkered text-green-600"></i> RESUMEN GENERAL EVALUADO</h3>
@@ -444,9 +433,9 @@
     </main>
   </div>
 
-  <!-- SCRIPT FRONTEND -->
   <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzlZbyIUz1zzOK99FSHY5LhC9z2mSS8Ln6RGylxOCVfeMNBZ9M8cg14B9Wvb7fCVpXC/exec";
+    // URL DE TU WEB APP DE GOOGLE APPS SCRIPT
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzxduQ0MgAKxcsTSkx6iUtcxBka9UYtQkc39Dp_xeui-f9RMDCNFTBgYfIVdbWh1MKW/exec";
 
     let activeTab = 1;
     let rawDetalleData = [];
@@ -457,6 +446,43 @@
     let chartModalidadObj = null;
     let chartSexoObj = null;
     let chartTransporteLinesObj = null;
+
+    function showToast(type, title, message) {
+      const toast = document.getElementById('toastNotification');
+      const icon = document.getElementById('toastIcon');
+      const tTitle = document.getElementById('toastTitle');
+      const tMsg = document.getElementById('toastMessage');
+
+      toast.classList.remove('hidden', 'border-green-500', 'border-amber-500', 'border-red-500');
+
+      if (type === 'success') {
+        toast.classList.add('border-green-500');
+        icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-600"></i>';
+        tTitle.className = 'text-xs font-bold uppercase text-green-800';
+      } else if (type === 'warning') {
+        toast.classList.add('border-amber-500');
+        icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600"></i>';
+        tTitle.className = 'text-xs font-bold uppercase text-amber-800';
+      } else {
+        toast.classList.add('border-red-500');
+        icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-600"></i>';
+        tTitle.className = 'text-xs font-bold uppercase text-red-800';
+      }
+
+      tTitle.textContent = title;
+      tMsg.textContent = message;
+
+      toast.classList.remove('translate-x-full');
+
+      setTimeout(() => {
+        hideToast();
+      }, 5000);
+    }
+
+    function hideToast() {
+      const toast = document.getElementById('toastNotification');
+      toast.classList.add('translate-x-full');
+    }
 
     function updateClock() {
       const now = new Date();
@@ -524,27 +550,57 @@
     }
 
     async function initData() {
+      const statusBox = document.getElementById('connectionStatus');
+      const syncDot = document.getElementById('syncDot');
+      const syncText = document.getElementById('syncText');
+      const syncIcon = document.getElementById('syncIcon');
+
       try {
-        if (navigator.onLine) {
-          const res = await fetch(GAS_API_URL + "?action=getData");
-          const json = await res.json();
-          if (json.status === 'success') {
-            rawDetalleData = json.detalle || [];
-            rawTdpData = json.tdp || [];
-            await saveLocalData('detalle', rawDetalleData);
-            await saveLocalData('tdp', rawTdpData);
-          } else {
-            throw new Error("API Exception");
-          }
-        } else {
-          throw new Error("Offline Mode");
+        if (!navigator.onLine) {
+          throw new Error("Dispositivo sin conexión a internet.");
         }
+
+        // PETICIÓN A GOOGLE SHEETS
+        const res = await fetch(GAS_API_URL + "?action=getData", {
+          method: 'GET',
+          redirect: 'follow'
+        });
+
+        if (!res.ok) throw new Error("Error HTTP de servidor: " + res.status);
+
+        const json = await res.json();
+
+        if (json.status === 'success') {
+          rawDetalleData = json.detalle || [];
+          rawTdpData = json.tdp || [];
+
+          await saveLocalData('detalle', rawDetalleData);
+          await saveLocalData('tdp', rawTdpData);
+
+          // Actualizar UI a Conectado
+          syncDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
+          syncText.textContent = "Conectado";
+          syncIcon.className = "fa-solid fa-wifi text-green-700";
+          statusBox.className = "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-green-100 text-green-800";
+
+          showToast('success', 'Conexión Exitosa', '¡Sincronizado con Google Sheets correctamente!');
+        } else {
+          throw new Error(json.message || "Respuesta inválida desde Google Sheets");
+        }
+
       } catch (err) {
-        console.warn("Cargando desde IndexedDB por estar Offline o error de servidor:", err);
+        console.warn("Conexión con Google Sheets no disponible:", err);
+
+        // Cargar Datos en Caché Local
         rawDetalleData = await getLocalData('detalle');
         rawTdpData = await getLocalData('tdp');
-        document.getElementById('syncText').textContent = 'Offline (Caché)';
-        document.getElementById('connectionStatus').className = "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800";
+
+        syncDot.className = "w-2 h-2 rounded-full bg-amber-500";
+        syncText.textContent = "Offline (Caché)";
+        syncIcon.className = "fa-solid fa-database text-amber-700";
+        statusBox.className = "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800";
+
+        showToast('warning', 'Modo Offline', 'Sin conexión con Google Sheets. Usando datos guardados.');
       }
 
       populateFilterOptions();
