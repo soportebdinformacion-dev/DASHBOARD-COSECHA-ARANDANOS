@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -110,7 +110,7 @@
       <div class="flex items-center space-x-4 ml-auto">
         <div class="text-right">
           <div id="liveTime" class="text-base font-black text-gray-800 leading-none">00:00:00</div>
-          <div id="liveDate" class="text-xs text-gray-500 font-semibold mt-0.5">00/00/2026</div>
+          <div id="liveDate" class="text-xs text-gray-500 font-semibold mt-0.5">00/00/00</div>
         </div>
         <div class="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">
           <i class="fa-regular fa-clock"></i>
@@ -463,6 +463,27 @@
     let chartSexoObj = null;
     let chartTransporteLinesObj = null;
 
+    // HELPER: Formatea cualquier string o Date al formato dd/mm/yy
+    function formatDateDDMMYY(dateStr) {
+      if (!dateStr) return '';
+      const str = String(dateStr).split('T')[0];
+      const parts = str.split('-');
+      if (parts.length === 3) {
+        const yyyy = parts[0];
+        const mm = parts[1];
+        const dd = parts[2];
+        return `${dd}/${mm}/${yyyy.substring(2)}`;
+      }
+      const d = new Date(dateStr);
+      if (!isNaN(d.getTime())) {
+        const dd = String(d.getDate()).padStart(2, '0');
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const yy = String(d.getFullYear()).substring(2);
+        return `${dd}/${mm}/${yy}`;
+      }
+      return dateStr;
+    }
+
     function showToast(type, title, message) {
       const toast = document.getElementById('toastNotification');
       const icon = document.getElementById('toastIcon');
@@ -503,7 +524,11 @@
     function updateClock() {
       const now = new Date();
       document.getElementById('liveTime').textContent = now.toLocaleTimeString('es-PE');
-      document.getElementById('liveDate').textContent = now.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      
+      const dd = String(now.getDate()).padStart(2, '0');
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const yy = String(now.getFullYear()).substring(2);
+      document.getElementById('liveDate').textContent = `${dd}/${mm}/${yy}`;
     }
     setInterval(updateClock, 1000);
     updateClock();
@@ -705,7 +730,6 @@
       const totalKg = filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['TOTAL KG.']) || 0), 0);
       const totalCosechadores = new Set(filteredDetalle.map(r => r.DNI)).size;
       
-      // Promedio Total de CUMP. % del Google Sheets
       const avgCump = filteredDetalle.length > 0 
         ? (filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['CUMP. %']) || 0), 0) / filteredDetalle.length) * 100 
         : 0;
@@ -714,7 +738,7 @@
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = totalCosechadores;
 
-      // MODALIDAD (Cosechadores & %) - Muestra MASCULINO / FEMENINO o tipos de modalidad
+      // MODALIDAD
       const modGroup = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'SIN REGISTRO';
@@ -754,7 +778,7 @@
         }
       });
 
-      // SEXO (Cosechadores & %) - Muestra el total de MASCULINO Y FEMENINO y su porcentaje
+      // SEXO
       const sexoGroup = {};
       filteredDetalle.forEach(r => {
         let s = (r.SEXO || '').toUpperCase().trim();
@@ -798,28 +822,30 @@
         }
       });
 
-      // TABLA RESUMEN POR FECHA
+      // TABLA RESUMEN POR FECHA (dd/mm/yy)
       const fechaGroup = {};
       filteredDetalle.forEach(r => {
-        const f = r.FECHA ? r.FECHA.split('T')[0] : 'SIN FECHA';
-        if (!fechaGroup[f]) fechaGroup[f] = { kgSum: 0, count: 0, dnis: new Set() };
+        const rawF = r.FECHA ? r.FECHA.split('T')[0] : 'SIN FECHA';
+        if (!fechaGroup[rawF]) fechaGroup[rawF] = { kgSum: 0, count: 0, dnis: new Set() };
         const kg = parseFloat(r['TOTAL KG.']) || 0;
-        fechaGroup[f].kgSum += kg;
-        fechaGroup[f].count++;
-        fechaGroup[f].dnis.add(r.DNI);
+        fechaGroup[rawF].kgSum += kg;
+        fechaGroup[rawF].count++;
+        fechaGroup[rawF].dnis.add(r.DNI);
       });
 
       const tbodyFecha = document.getElementById('tblResumenFecha');
       tbodyFecha.innerHTML = '';
-      Object.keys(fechaGroup).sort().forEach(f => {
-        const d = fechaGroup[f];
+      Object.keys(fechaGroup).sort().forEach(rawF => {
+        const d = fechaGroup[rawF];
         const cantCosechadores = d.dnis.size;
         const promTotalKg = cantCosechadores > 0 ? (d.kgSum / cantCosechadores) : 0;
+        const formattedFecha = formatDateDDMMYY(rawF);
+
         tbodyFecha.innerHTML += `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold flex items-center space-x-1.5">
               <i class="fa-regular fa-calendar-check text-indigo-500"></i>
-              <span>${f}</span>
+              <span>${formattedFecha}</span>
             </td>
             <td class="p-2 border text-right font-bold text-green-700">
               <i class="fa-solid fa-weight-hanging text-green-500 mr-1 text-[10px]"></i>
@@ -855,12 +881,10 @@
         const totalCosechadoresMod = d.dnis.size;
         const totalDiasMod = d.dias.size;
         
-        // PROM. KG / DÍA = (TOTAL KG / TOTAL COSECHADORES) / TOTAL DÍAS
         const promKgDia = (totalCosechadoresMod > 0 && totalDiasMod > 0) 
           ? ((d.kgSum / totalCosechadoresMod) / totalDiasMod) 
           : 0;
 
-        // TOTAL CUMP. % = total promedio de la columna CUMP. % del google sheets
         const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
 
         tbodyMod.innerHTML += `
@@ -893,7 +917,6 @@
       
       top10.forEach((c, i) => {
         const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
-        // TOTAL CUMP. %: total del promedio de la columna CUMP. % del google sheets
         const totalPromedioCump = c.count > 0 ? (c.cumpSum / c.count) * 100 : 0;
         
         let rankBadge = '';
@@ -915,7 +938,7 @@
           </tr>`;
       });
 
-      // DISTRIBUCIÓN CATEG. 2026 BASADA EN CRITERIO DE CUMP. %
+      // DISTRIBUCIÓN CATEG. 2026
       const catEvalMap = {
         'MALO': { dnis: new Set(), cumpSum: 0, count: 0 },
         'REGULAR': { dnis: new Set(), cumpSum: 0, count: 0 },
@@ -923,8 +946,6 @@
         'EXCELENTE': { dnis: new Set(), cumpSum: 0, count: 0 }
       };
 
-      // Criterio según la columna CUMP. % de Google Sheets:
-      // 0-85% MALO, 86-99% REGULAR, 100-104% BUENO, 105% a MÁS EXCELENTE
       filteredDetalle.forEach(r => {
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badgeObj = getCumplimientoBadge(cumpVal);
@@ -941,7 +962,6 @@
       tbodyCat.innerHTML = '';
       Object.keys(catEvalMap).forEach(catName => {
         const d = catEvalMap[catName];
-        // TOTAL CUMP. %: total del promedio de la columna CUMP. % del google sheets
         const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
         const totalCosechadoresCat = d.dnis.size;
         
@@ -965,9 +985,11 @@
       filteredDetalle.slice(0, 100).forEach(r => {
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badge = getCumplimientoBadge(cumpVal);
+        const formattedFecha = formatDateDDMMYY(r.FECHA);
+
         tbody.innerHTML += `
           <tr class="hover:bg-gray-50">
-            <td class="p-2 border">${r.FECHA ? r.FECHA.split('T')[0] : ''}</td>
+            <td class="p-2 border">${formattedFecha}</td>
             <td class="p-2 border font-mono">${r.DNI || ''}</td>
             <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
             <td class="p-2 border">${r.HISTORICO || ''}</td>
@@ -1003,7 +1025,9 @@
 
       const thead = document.getElementById('theadFechas');
       let thHTML = `<tr><th class="p-2 border">DNI</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">PLACA</th><th class="p-2 border">ORIGEN</th>`;
-      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${f}</th>`);
+      fechas.forEach(f => {
+        thHTML += `<th class="p-2 border text-center bg-green-50">${formatDateDDMMYY(f)}</th>`;
+      });
       thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right bg-blue-50">CUMP. %</th></tr>`;
       thead.innerHTML = thHTML;
 
@@ -1035,9 +1059,11 @@
       filteredTdp.slice(0, 100).forEach(r => {
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badge = getCumplimientoBadge(cumpVal);
+        const formattedFecha = formatDateDDMMYY(r.FECHA);
+
         tbody.innerHTML += `
           <tr class="hover:bg-gray-50">
-            <td class="p-2 border">${r.FECHA ? r.FECHA.split('T')[0] : ''}</td>
+            <td class="p-2 border">${formattedFecha}</td>
             <td class="p-2 border text-center font-bold">${r.SEMANA || ''}</td>
             <td class="p-2 border font-mono">${r.DNI || ''}</td>
             <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
@@ -1101,7 +1127,9 @@
 
       const thead = document.getElementById('theadTransporte');
       let thHTML = `<tr><th class="p-2 border">PLACA</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">RUTA</th>`;
-      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${f}</th>`);
+      fechas.forEach(f => {
+        thHTML += `<th class="p-2 border text-center bg-green-50">${formatDateDDMMYY(f)}</th>`;
+      });
       thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right">META</th><th class="p-2 border text-right">CUMP. %</th></tr>`;
       thead.innerHTML = thHTML;
 
