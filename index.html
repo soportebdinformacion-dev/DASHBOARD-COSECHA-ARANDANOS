@@ -240,10 +240,10 @@
             <table class="w-full text-xs text-left border-collapse">
               <thead class="bg-indigo-50 text-indigo-900 uppercase">
                 <tr>
-                  <th class="p-2 border">FECHA</th>
-                  <th class="p-2 border text-right">TOTAL KG</th>
-                  <th class="p-2 border text-right">TOTAL PROMEDIO DEL TOTAL KG.</th>
-                  <th class="p-2 border text-right">TOTAL COSECHADORES</th>
+                  <th class="p-2 border"><i class="fa-regular fa-calendar text-indigo-600 mr-1"></i> FECHA</th>
+                  <th class="p-2 border text-right"><i class="fa-solid fa-scale-unbalanced text-indigo-600 mr-1"></i> TOTAL KG</th>
+                  <th class="p-2 border text-right"><i class="fa-solid fa-calculator text-indigo-600 mr-1"></i> TOTAL PROMEDIO DEL TOTAL KG.</th>
+                  <th class="p-2 border text-right"><i class="fa-solid fa-users text-indigo-600 mr-1"></i> TOTAL COSECHADORES</th>
                 </tr>
               </thead>
               <tbody id="tblResumenFecha" class="divide-y"></tbody>
@@ -276,7 +276,7 @@
             <table class="w-full text-xs text-left border-collapse">
               <thead class="bg-amber-50 text-amber-900 uppercase">
                 <tr>
-                  <th class="p-2 border">#</th>
+                  <th class="p-2 border text-center">#</th>
                   <th class="p-2 border">APELLIDOS Y NOMBRES</th>
                   <th class="p-2 border text-center">MODALIDAD</th>
                   <th class="p-2 border text-right">TOTAL DÍAS</th>
@@ -705,7 +705,7 @@
       const totalKg = filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['TOTAL KG.']) || 0), 0);
       const totalCosechadores = new Set(filteredDetalle.map(r => r.DNI)).size;
       
-      // Promedio Total de CUMP. %
+      // Promedio Total de CUMP. % del Google Sheets
       const avgCump = filteredDetalle.length > 0 
         ? (filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['CUMP. %']) || 0), 0) / filteredDetalle.length) * 100 
         : 0;
@@ -714,7 +714,7 @@
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = totalCosechadores;
 
-      // MODALIDAD (Cosechadores & %)
+      // MODALIDAD (Cosechadores & %) - Muestra MASCULINO / FEMENINO o tipos de modalidad
       const modGroup = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'SIN REGISTRO';
@@ -726,10 +726,16 @@
       const totalModCount = modCounts.reduce((a, b) => a + b, 0);
       document.getElementById('lblTotalMod').textContent = `TOTAL: ${totalModCount}`;
 
+      const modDisplayLabels = modLabels.map((m, idx) => {
+        const count = modCounts[idx];
+        const pct = totalModCount > 0 ? ((count / totalModCount) * 100).toFixed(1) : 0;
+        return `${m}: ${count} (${pct}%)`;
+      });
+
       if (chartModalidadObj) chartModalidadObj.destroy();
       chartModalidadObj = new Chart(document.getElementById('chartModalidad'), {
         type: 'doughnut',
-        data: { labels: modLabels, datasets: [{ data: modCounts, backgroundColor: ['#2D7A3A', '#D93829', '#3B82F6', '#F59E0B', '#10B981'] }] },
+        data: { labels: modDisplayLabels, datasets: [{ data: modCounts, backgroundColor: ['#2D7A3A', '#D93829', '#3B82F6', '#F59E0B', '#10B981'] }] },
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
@@ -740,7 +746,7 @@
                 label: function(context) {
                   const val = context.parsed || 0;
                   const pct = totalModCount > 0 ? ((val / totalModCount) * 100).toFixed(1) : 0;
-                  return ` ${context.label}: ${val} (${pct}%)`;
+                  return ` ${val} cosechadores (${pct}%)`;
                 }
               }
             }
@@ -748,22 +754,32 @@
         }
       });
 
-      // SEXO (Cosechadores & %)
+      // SEXO (Cosechadores & %) - Muestra el total de MASCULINO Y FEMENINO y su porcentaje
       const sexoGroup = {};
       filteredDetalle.forEach(r => {
-        const s = r.SEXO || 'NO ESPECIFICA';
+        let s = (r.SEXO || '').toUpperCase().trim();
+        if (s === 'M' || s === 'MASCULINO') s = 'MASCULINO';
+        else if (s === 'F' || s === 'FEMENINO') s = 'FEMENINO';
+        else s = 'NO ESPECIFICA';
+
         if (!sexoGroup[s]) sexoGroup[s] = new Set();
         sexoGroup[s].add(r.DNI);
       });
-      const sexoLabels = Object.keys(sexoGroup);
-      const sexoCounts = sexoLabels.map(s => sexoGroup[s].size);
+      const sexoKeys = Object.keys(sexoGroup);
+      const sexoCounts = sexoKeys.map(s => sexoGroup[s].size);
       const totalSexoCount = sexoCounts.reduce((a, b) => a + b, 0);
       document.getElementById('lblTotalSexo').textContent = `TOTAL: ${totalSexoCount}`;
+
+      const sexoDisplayLabels = sexoKeys.map((s, idx) => {
+        const count = sexoCounts[idx];
+        const pct = totalSexoCount > 0 ? ((count / totalSexoCount) * 100).toFixed(1) : 0;
+        return `${s}: ${count} (${pct}%)`;
+      });
 
       if (chartSexoObj) chartSexoObj.destroy();
       chartSexoObj = new Chart(document.getElementById('chartSexo'), {
         type: 'doughnut',
-        data: { labels: sexoLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#3B82F6', '#9CA3AF'] }] },
+        data: { labels: sexoDisplayLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#3B82F6', '#9CA3AF'] }] },
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
@@ -774,7 +790,7 @@
                 label: function(context) {
                   const val = context.parsed || 0;
                   const pct = totalSexoCount > 0 ? ((val / totalSexoCount) * 100).toFixed(1) : 0;
-                  return ` ${context.label}: ${val} (${pct}%)`;
+                  return ` ${val} cosechadores (${pct}%)`;
                 }
               }
             }
@@ -797,13 +813,26 @@
       tbodyFecha.innerHTML = '';
       Object.keys(fechaGroup).sort().forEach(f => {
         const d = fechaGroup[f];
-        const promKg = d.count > 0 ? (d.kgSum / d.count) : 0;
+        const cantCosechadores = d.dnis.size;
+        const promTotalKg = cantCosechadores > 0 ? (d.kgSum / cantCosechadores) : 0;
         tbodyFecha.innerHTML += `
           <tr class="hover:bg-gray-50">
-            <td class="p-2 border font-semibold">${f}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toFixed(2)} kg</td>
-            <td class="p-2 border text-right font-semibold text-blue-700">${promKg.toFixed(2)} kg</td>
-            <td class="p-2 border text-right font-medium">${d.dnis.size}</td>
+            <td class="p-2 border font-semibold flex items-center space-x-1.5">
+              <i class="fa-regular fa-calendar-check text-indigo-500"></i>
+              <span>${f}</span>
+            </td>
+            <td class="p-2 border text-right font-bold text-green-700">
+              <i class="fa-solid fa-weight-hanging text-green-500 mr-1 text-[10px]"></i>
+              ${d.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} kg
+            </td>
+            <td class="p-2 border text-right font-semibold text-blue-700">
+              <i class="fa-solid fa-calculator text-blue-400 mr-1 text-[10px]"></i>
+              ${promTotalKg.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})} kg
+            </td>
+            <td class="p-2 border text-right font-medium">
+              <i class="fa-solid fa-user-check text-gray-400 mr-1 text-[10px]"></i>
+              ${cantCosechadores}
+            </td>
           </tr>`;
       });
 
@@ -823,16 +852,25 @@
       tbodyMod.innerHTML = '';
       Object.keys(modData).forEach(m => {
         const d = modData[m];
-        const avgKgDia = d.dias.size > 0 ? (d.kgSum / d.dias.size) : 0;
+        const totalCosechadoresMod = d.dnis.size;
+        const totalDiasMod = d.dias.size;
+        
+        // PROM. KG / DÍA = (TOTAL KG / TOTAL COSECHADORES) / TOTAL DÍAS
+        const promKgDia = (totalCosechadoresMod > 0 && totalDiasMod > 0) 
+          ? ((d.kgSum / totalCosechadoresMod) / totalDiasMod) 
+          : 0;
+
+        // TOTAL CUMP. % = total promedio de la columna CUMP. % del google sheets
         const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
+
         tbodyMod.innerHTML += `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold">${m}</td>
-            <td class="p-2 border text-right">${d.dnis.size}</td>
+            <td class="p-2 border text-right">${totalCosechadoresMod}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${avgC.toFixed(1)} %</td>
-            <td class="p-2 border text-right">${d.dias.size}</td>
-            <td class="p-2 border text-right font-medium">${avgKgDia.toFixed(2)}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right">${totalDiasMod}</td>
+            <td class="p-2 border text-right font-medium">${promKgDia.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           </tr>`;
       });
 
@@ -850,22 +888,34 @@
       const top10 = Object.values(cosMap).sort((a,b) => b.kgSum - a.kgSum).slice(0, 10);
       const tbodyTop = document.getElementById('tblTop10');
       tbodyTop.innerHTML = '';
+      
+      const medalIcons = ['🥇', '🥈', '🥉'];
+      
       top10.forEach((c, i) => {
         const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
+        // TOTAL CUMP. %: total del promedio de la columna CUMP. % del google sheets
         const totalPromedioCump = c.count > 0 ? (c.cumpSum / c.count) * 100 : 0;
+        
+        let rankBadge = '';
+        if (i < 3) {
+          rankBadge = `<span class="text-base">${medalIcons[i]}</span>`;
+        } else {
+          rankBadge = `<span class="inline-block w-5 h-5 rounded-full bg-slate-200 text-slate-700 font-bold text-center leading-5 text-[10px]">${i+1}</span>`;
+        }
+
         tbodyTop.innerHTML += `
-          <tr class="hover:bg-amber-50/50">
-            <td class="p-2 border font-bold text-amber-600">${i+1}</td>
-            <td class="p-2 border font-medium">${c.nom || 'S/N'}</td>
+          <tr class="hover:bg-amber-50/50 transition-colors">
+            <td class="p-2 border text-center font-bold">${rankBadge}</td>
+            <td class="p-2 border font-medium text-gray-800">${c.nom || 'S/N'}</td>
             <td class="p-2 border text-center">${c.mod || '-'}</td>
             <td class="p-2 border text-right">${c.dias.size}</td>
-            <td class="p-2 border text-right font-semibold">${avgKgDia.toFixed(2)}</td>
+            <td class="p-2 border text-right font-semibold">${avgKgDia.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right text-blue-600 font-bold">${totalPromedioCump.toFixed(1)} %</td>
-            <td class="p-2 border text-right font-black text-green-800">${c.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right font-black text-green-800">${c.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
           </tr>`;
       });
 
-      // DISTRIBUCIÓN CATEG. 2026 BASADA EN CRITERIO CUMP. %
+      // DISTRIBUCIÓN CATEG. 2026 BASADA EN CRITERIO DE CUMP. %
       const catEvalMap = {
         'MALO': { dnis: new Set(), cumpSum: 0, count: 0 },
         'REGULAR': { dnis: new Set(), cumpSum: 0, count: 0 },
@@ -873,11 +923,12 @@
         'EXCELENTE': { dnis: new Set(), cumpSum: 0, count: 0 }
       };
 
-      // Evaluar promedio de CUMP % individual de cada cosecha/trabajador
+      // Criterio según la columna CUMP. % de Google Sheets:
+      // 0-85% MALO, 86-99% REGULAR, 100-104% BUENO, 105% a MÁS EXCELENTE
       filteredDetalle.forEach(r => {
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badgeObj = getCumplimientoBadge(cumpVal);
-        const catKey = badgeObj.text; // MALO, REGULAR, BUENO, EXCELENTE
+        const catKey = badgeObj.text;
         
         if (catEvalMap[catKey]) {
           catEvalMap[catKey].dnis.add(r.DNI);
@@ -890,7 +941,9 @@
       tbodyCat.innerHTML = '';
       Object.keys(catEvalMap).forEach(catName => {
         const d = catEvalMap[catName];
+        // TOTAL CUMP. %: total del promedio de la columna CUMP. % del google sheets
         const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
+        const totalCosechadoresCat = d.dnis.size;
         
         let badgeCls = 'badge-malo';
         if (catName === 'REGULAR') badgeCls = 'badge-regular';
@@ -900,7 +953,7 @@
         tbodyCat.innerHTML += `
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold"><span class="px-2 py-0.5 rounded ${badgeCls}">${catName}</span></td>
-            <td class="p-2 border text-right font-medium">${d.dnis.size}</td>
+            <td class="p-2 border text-right font-medium">${totalCosechadoresCat}</td>
             <td class="p-2 border text-right font-bold text-indigo-700">${avgC.toFixed(1)} %</td>
           </tr>`;
       });
@@ -922,8 +975,8 @@
             <td class="p-2 border">${r.VARIEDAD || ''}</td>
             <td class="p-2 border">${r['MODULO|TURNO'] || ''}</td>
             <td class="p-2 border">${r.LABOR || ''}</td>
-            <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toFixed(2)}</td>
-            <td class="p-2 border text-right">${(parseFloat(r.META)||0).toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td class="p-2 border text-right">${(parseFloat(r.META)||0).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
             <td class="p-2 border text-center font-bold">${badge.text}</td>
             <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>
@@ -968,9 +1021,9 @@
           <td class="p-2 border">${row.origen || ''}</td>`;
         fechas.forEach(f => {
           const val = row.fechasKg[f];
-          trHTML += `<td class="p-2 border text-right">${val ? val.toFixed(1) : '-'}</td>`;
+          trHTML += `<td class="p-2 border text-right">${val ? val.toLocaleString('es-PE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) : '-'}</td>`;
         });
-        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toFixed(2)}</td>
+        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
                    <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgCump*100).toFixed(1)}%</span></td></tr>`;
         tbody.innerHTML += trHTML;
       });
@@ -991,8 +1044,8 @@
             <td class="p-2 border">${r.MODALIDAD || ''}</td>
             <td class="p-2 border">${r.HISTORICO || ''}</td>
             <td class="p-2 border font-semibold">${badge.text}</td>
-            <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toFixed(2)}</td>
-            <td class="p-2 border text-right">${(parseFloat(r.META)||0).toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+            <td class="p-2 border text-right">${(parseFloat(r.META)||0).toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
             <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>
           </tr>`;
@@ -1065,10 +1118,10 @@
           <td class="p-2 border">${row.ruta || ''}</td>`;
         fechas.forEach(f => {
           const val = row.fechasKg[f];
-          trHTML += `<td class="p-2 border text-right">${val ? val.toFixed(1) : '-'}</td>`;
+          trHTML += `<td class="p-2 border text-right">${val ? val.toLocaleString('es-PE', {minimumFractionDigits: 1, maximumFractionDigits: 1}) : '-'}</td>`;
         });
-        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toFixed(2)}</td>
-                   <td class="p-2 border text-right">${row.metaSum.toFixed(1)}</td>
+        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                   <td class="p-2 border text-right">${row.metaSum.toLocaleString('es-PE', {minimumFractionDigits: 1, maximumFractionDigits: 1})}</td>
                    <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgC*100).toFixed(1)}%</span></td></tr>`;
         tbody.innerHTML += trHTML;
       });
@@ -1112,7 +1165,7 @@
           <tr class="hover:bg-gray-50">
             <td class="p-2 border font-semibold">${g.mod}</td>
             <td class="p-2 border">${g.hist}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold text-green-700">${g.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${(avgC*100).toFixed(1)} %</td>
             <td class="p-2 border text-right">${g.dias.size}</td>
             <td class="p-2 border text-center"><span class="px-2.5 py-1 rounded font-bold ${badgeEvaluada.cls}">${badgeEvaluada.text}</span></td>
@@ -1127,7 +1180,7 @@
           <tr>
             <td class="p-2 border">${g.mod}</td>
             <td class="p-2 border">${g.hist}</td>
-            <td class="p-2 border text-right font-semibold">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right font-semibold">${g.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>
           </tr>`;
       });
@@ -1140,7 +1193,7 @@
           <tr>
             <td class="p-2 border">${g.mod}</td>
             <td class="p-2 border">${g.cat}</td>
-            <td class="p-2 border text-right font-semibold">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right font-semibold">${g.kgSum.toLocaleString('es-PE', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
             <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>
           </tr>`;
       });
