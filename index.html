@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Agrícola Huarmey - Cosecha Arándanos</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2D7A3A">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary-green: #2D7A3A;
+      --accent-red: #D93829;
+      --bg-light: #F4F6F8;
+    }
+    body {
+      background-color: var(--bg-light);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .badge-malo { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+    .badge-regular { background-color: #FFEDD5; color: #9A3412; border: 1px solid #FDBA74; }
+    .badge-bueno { background-color: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
+    .badge-excelente { background-color: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+    
+    .scroll-custom::-webkit-scrollbar { height: 6px; width: 6px; }
+    .scroll-custom::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    
+    .nav-btn-vert {
+      transition: all 0.2s ease-in-out;
+      border-left: 4px solid transparent;
+    }
+    .nav-btn-vert.active {
+      background-color: #E8F5E9;
+      color: #2D7A3A;
+      font-weight: 700;
+      border-left-color: #2D7A3A;
+    }
+  </style>
+</head>
+<body class="flex flex-col md:flex-row min-h-screen">
+
+  <!-- LATERAL IZQUIERDO: SIDEBAR DE NAVEGACIÓN VERTICAL -->
+  <aside class="w-full md:w-64 bg-white border-r border-gray-200 md:min-h-screen flex flex-col justify-between z-50 shrink-0">
+    <div>
+      <!-- LOGO Y CABECERA EMPRESA -->
+      <div class="p-4 border-b border-gray-200 flex items-center space-x-3 bg-white">
+        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-green-50 border border-green-200 shrink-0">
+          <svg class="w-7 h-7 text-green-700" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50 15 C 30 15, 15 30, 15 50 C 15 70, 30 85, 50 85 C 70 85, 85 70, 85 50 C 85 30, 70 15, 50 15 Z" fill="#D93829" />
+            <path d="M40 10 C 60 5, 80 20, 75 40 C 60 25, 45 20, 40 10 Z" fill="#2D7A3A" />
+            <circle cx="50" cy="50" r="32" fill="none" stroke="#FFFFFF" stroke-width="4" />
+          </svg>
+        </div>
+        <div>
+          <h1 class="text-base font-bold text-gray-800 leading-tight">Agrícola Huarmey</h1>
+          <p class="text-xs text-gray-500 font-medium">Cosecha Arándanos <i class="fa-solid fa-seedling text-green-600"></i></p>
+        </div>
+      </div>
+
+      <!-- MENÚ DE NAVEGACIÓN VERTICAL -->
+      <nav class="p-3 space-y-1.5 overflow-x-auto md:overflow-y-auto flex md:flex-col scroll-custom">
+        <button onclick="switchTab(1)" id="tab-1" class="nav-btn-vert active w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+          <span>🫐</span> <span>Dashboard Cosecha</span>
+        </button>
+        <button onclick="switchTab(2)" id="tab-2" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+          <span>🫐</span> <span>Reporte Detallado</span>
+        </button>
+        <button onclick="switchTab(3)" id="tab-3" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+          <span>🫐</span> <span>Cosecha x Fechas</span>
+        </button>
+        <button onclick="switchTab(4)" id="tab-4" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+          <span>🫐</span> <span>Reg. Únicos</span>
+        </button>
+        <button onclick="switchTab(5)" id="tab-5" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+          <span>🫐</span> <span>Cosecha x Transporte</span>
+        </button>
+        <button onclick="switchTab(6)" id="tab-6" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+          <span>🫐</span> <span>Resumen Final</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- PIE DEL SIDEBAR CON ESTADO DE CONEXIÓN -->
+    <div class="p-3 border-t border-gray-200 hidden md:block">
+      <div id="connectionStatus" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-green-100 text-green-800">
+        <div class="flex items-center space-x-2">
+          <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+          <span id="syncText">Online</span>
+        </div>
+        <i class="fa-solid fa-wifi"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- CONTENIDO PRINCIPAL (DERECHA) -->
+  <div class="flex-1 flex flex-col min-w-0">
+    
+    <!-- BARRA SUPERIOR CON FECHA Y HORA EN PARTE SUPERIOR DERECHA -->
+    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-40">
+      <div class="text-xs font-bold text-gray-500 uppercase tracking-wider hidden sm:block">
+        MÓDULO DE GESTIÓN Y CONTROL
+      </div>
+      
+      <!-- FECHA Y HORA DINÁMICA -->
+      <div class="flex items-center space-x-4 ml-auto">
+        <div class="text-right">
+          <div id="liveTime" class="text-base font-black text-gray-800 leading-none">00:00:00</div>
+          <div id="liveDate" class="text-xs text-gray-500 font-semibold mt-0.5">00/00/2026</div>
+        </div>
+        <div class="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">
+          <i class="fa-regular fa-clock"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- ÁREA DE CONTENIDO -->
+    <main class="p-3 sm:p-5 space-y-5 flex-1 overflow-y-auto">
+
+      <!-- BARRA GLOBAL DE FILTROS -->
+      <section class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-xs font-bold text-gray-700 flex items-center space-x-2 uppercase">
+            <i class="fa-solid fa-filter text-green-600"></i>
+            <span>Filtros de Búsqueda</span>
+          </h2>
+          <button onclick="resetFilters()" class="text-xs text-red-600 hover:underline font-semibold">Limpiar Filtros</button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-regular fa-calendar-days text-gray-400"></i> FECHA</label>
+            <input type="date" id="filterFecha" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-calendar-week text-gray-400"></i> SEMANA</label>
+            <select id="filterSemana" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-layer-group text-gray-400"></i> CATEG. 2026</label>
+            <select id="filterCateg" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div id="filterVariedadBox">
+            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-seedling text-gray-400"></i> VARIEDAD</label>
+            <select id="filterVariedad" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-truck-ramp-box text-gray-400"></i> MODALIDAD</label>
+            <select id="filterModalidad" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+              <option value="">Todas</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-chart-pie text-gray-400"></i> RANGO %</label>
+            <select id="filterRango" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+              <option value="">Todos</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- LEYENDA CUMPLIMIENTO -->
+      <section id="leyendaCumplimiento" class="hidden bg-white p-3 rounded-xl shadow-sm border border-gray-200">
+        <div class="text-xs font-bold text-gray-700 mb-2 flex items-center space-x-1">
+          <i class="fa-solid fa-circle-info text-blue-600"></i>
+          <span>LEYENDA DE CUMPLIMIENTO</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-semibold">
+          <div class="px-3 py-1.5 rounded-lg badge-malo text-center">🔴 MALO (0 - 85%)</div>
+          <div class="px-3 py-1.5 rounded-lg badge-regular text-center">🟠 REGULAR (86 - 99%)</div>
+          <div class="px-3 py-1.5 rounded-lg badge-bueno text-center">🟢 BUENO (100 - 104%)</div>
+          <div class="px-3 py-1.5 rounded-lg badge-excelente text-center">🔵 EXCELENTE (105% a +)</div>
+        </div>
+      </section>
+
+      <!-- BÚSQUEDA TRABAJADOR -->
+      <section id="searchPersonBox" class="hidden bg-white p-3 rounded-xl shadow-sm border border-gray-200">
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </span>
+          <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full text-xs pl-9 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+        </div>
+      </section>
+
+      <!-- PÁGINA 1: DASHBOARD -->
+      <div id="page-1" class="page-content space-y-5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
+            <div>
+              <p class="text-xs text-green-100 font-medium">TOTAL KG</p>
+              <p id="kpiTotalKg" class="text-2xl font-black">0.00 <span class="text-sm font-normal">kg</span></p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl">🫐</div>
+          </div>
+
+          <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
+            <div>
+              <p class="text-xs text-emerald-100 font-medium">TOTAL CUMP. %</p>
+              <p id="kpiTotalCump" class="text-2xl font-black">0.0 %</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl"><i class="fa-solid fa-bullseye"></i></div>
+          </div>
+
+          <div class="bg-gradient-to-r from-red-500 to-rose-600 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
+            <div>
+              <p class="text-xs text-red-100 font-medium">TOTAL COSECHADORES</p>
+              <p id="kpiTotalCosechadores" class="text-2xl font-black">0</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center space-x-1">
+              <i class="fa-solid fa-chart-pie text-green-600"></i>
+              <span>MODALIDAD (Cosechadores & %)</span>
+            </h3>
+            <div class="h-64 relative"><canvas id="chartModalidad"></canvas></div>
+          </div>
+
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center space-x-1">
+              <i class="fa-solid fa-venus-mars text-rose-500"></i>
+              <span>SEXO (Cosechadores & %)</span>
+            </h3>
+            <div class="h-64 relative"><canvas id="chartSexo"></canvas></div>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-table text-green-600"></i> RESUMEN POR MODALIDAD</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead class="bg-gray-100 uppercase">
+                <tr>
+                  <th class="p-2 border">MODALIDAD</th>
+                  <th class="p-2 border text-right">TOTAL COSECHADORES</th>
+                  <th class="p-2 border text-right">TOTAL CUMP. %</th>
+                  <th class="p-2 border text-right">TOTAL DÍAS</th>
+                  <th class="p-2 border text-right">PROM. KG / DÍA</th>
+                  <th class="p-2 border text-right">TOTAL KG</th>
+                </tr>
+              </thead>
+              <tbody id="tblModalidadResumen" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-trophy text-amber-500"></i> TOP 10 MEJORES COSECHADORES</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead class="bg-amber-50 text-amber-900 uppercase">
+                <tr>
+                  <th class="p-2 border">#</th>
+                  <th class="p-2 border">APELLIDOS Y NOMBRES</th>
+                  <th class="p-2 border text-center">MODALIDAD</th>
+                  <th class="p-2 border text-right">TOTAL DÍAS</th>
+                  <th class="p-2 border text-right">PROM. KG / DÍA</th>
+                  <th class="p-2 border text-right">TOTAL CUMP. %</th>
+                  <th class="p-2 border text-right">TOTAL KG</th>
+                </tr>
+              </thead>
+              <tbody id="tblTop10" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-tags text-indigo-600"></i> DISTRIBUCIÓN CATEG. 2026</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead class="bg-gray-100 uppercase">
+                <tr>
+                  <th class="p-2 border">CATEG. 2026</th>
+                  <th class="p-2 border text-right">TOTAL COSECHADORES</th>
+                  <th class="p-2 border text-right">TOTAL CUMP. %</th>
+                </tr>
+              </thead>
+              <tbody id="tblCategResumen" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PÁGINA 2: DETALLE -->
+      <div id="page-2" class="page-content hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-list-check text-green-600"></i> REPORTE DETALLADO DE COSECHA</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
+              <thead class="bg-gray-100 uppercase">
+                <tr>
+                  <th class="p-2 border">FECHA</th>
+                  <th class="p-2 border">DNI</th>
+                  <th class="p-2 border">APELLIDOS Y NOMBRES</th>
+                  <th class="p-2 border">HISTÓRICO</th>
+                  <th class="p-2 border">MODALIDAD</th>
+                  <th class="p-2 border">VARIEDAD</th>
+                  <th class="p-2 border">MÓDULO|TURNO</th>
+                  <th class="p-2 border">LABOR</th>
+                  <th class="p-2 border text-right">TOTAL KG</th>
+                  <th class="p-2 border text-right">META</th>
+                  <th class="p-2 border text-right">CUMP. %</th>
+                  <th class="p-2 border text-center">CATEG. 2026</th>
+                  <th class="p-2 border text-center">RANGO %</th>
+                </tr>
+              </thead>
+              <tbody id="tblDetalle" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PÁGINA 3: MATRIZ FECHAS -->
+      <div id="page-3" class="page-content hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-calendar-days text-green-600"></i> COSECHA MATRIZ X FECHAS</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse whitespace-nowrap" id="tableFechasMatriz">
+              <thead class="bg-gray-100 uppercase" id="theadFechas"></thead>
+              <tbody id="tbodyFechas" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PÁGINA 4: REGISTROS ÚNICOS -->
+      <div id="page-4" class="page-content hidden space-y-4">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-id-card text-green-600"></i> REGISTROS ÚNICOS POR TRABAJADOR</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
+              <thead class="bg-gray-100 uppercase">
+                <tr>
+                  <th class="p-2 border">FECHA</th>
+                  <th class="p-2 border">SEM</th>
+                  <th class="p-2 border">DNI</th>
+                  <th class="p-2 border">APELLIDOS Y NOMBRES</th>
+                  <th class="p-2 border">MODALIDAD</th>
+                  <th class="p-2 border">HISTÓRICO</th>
+                  <th class="p-2 border">CATEG. 2026</th>
+                  <th class="p-2 border text-right">TOTAL KG</th>
+                  <th class="p-2 border text-right">META</th>
+                  <th class="p-2 border text-right">CUMP. %</th>
+                  <th class="p-2 border text-center">RANGO %</th>
+                </tr>
+              </thead>
+              <tbody id="tblRegUnicos" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PÁGINA 5: TRANSPORTE -->
+      <div id="page-5" class="page-content hidden space-y-5">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-bus text-green-600"></i> PROMEDIO KG Y TENDENCIA POR UNIDAD (LÍNEAS)</h3>
+          <div class="h-64 relative"><canvas id="chartTransporteLines"></canvas></div>
+        </div>
+
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-truck-moving text-green-600"></i> MATRIZ DE TRANSPORTE Y COSECHA POR FECHA</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse whitespace-nowrap" id="tableTransporteMatriz">
+              <thead class="bg-gray-100 uppercase" id="theadTransporte"></thead>
+              <tbody id="tbodyTransporte" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PÁGINA 6: RESUMEN FINAL -->
+      <div id="page-6" class="page-content hidden space-y-5">
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-flag-checkered text-green-600"></i> RESUMEN GENERAL EVALUADO</h3>
+          <div class="overflow-x-auto scroll-custom">
+            <table class="w-full text-xs text-left border-collapse">
+              <thead class="bg-gray-100 uppercase">
+                <tr>
+                  <th class="p-2 border">MODALIDAD</th>
+                  <th class="p-2 border">HISTÓRICO</th>
+                  <th class="p-2 border text-right">TOTAL KG</th>
+                  <th class="p-2 border text-right">CUMP. %</th>
+                  <th class="p-2 border text-right">TOTAL DÍAS</th>
+                  <th class="p-2 border text-center">CATEG. 2026 (EVALUADA)</th>
+                </tr>
+              </thead>
+              <tbody id="tblResumenFinal1" class="divide-y"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xs font-bold text-gray-700 mb-3">MODALIDAD Y HISTÓRICO</h3>
+            <div class="overflow-x-auto scroll-custom">
+              <table class="w-full text-xs border-collapse">
+                <thead class="bg-gray-50 uppercase">
+                  <tr>
+                    <th class="p-2 border">MODALIDAD</th>
+                    <th class="p-2 border">HISTÓRICO</th>
+                    <th class="p-2 border text-right">TOTAL KG</th>
+                    <th class="p-2 border text-right">CUMP %</th>
+                  </tr>
+                </thead>
+                <tbody id="tblResumenSub1"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+            <h3 class="text-xs font-bold text-gray-700 mb-3">MODALIDAD Y CATEG. 2026</h3>
+            <div class="overflow-x-auto scroll-custom">
+              <table class="w-full text-xs border-collapse">
+                <thead class="bg-gray-50 uppercase">
+                  <tr>
+                    <th class="p-2 border">MODALIDAD</th>
+                    <th class="p-2 border">CATEG. 2026</th>
+                    <th class="p-2 border text-right">TOTAL KG</th>
+                    <th class="p-2 border text-right">CUMP %</th>
+                  </tr>
+                </thead>
+                <tbody id="tblResumenSub2"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- SCRIPT FRONTEND -->
+  <script>
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbx_DEMO_AGRICOLA_HUARMEY/exec";
+
+    let activeTab = 1;
+    let rawDetalleData = [];
+    let rawTdpData = [];
+    let filteredDetalle = [];
+    let filteredTdp = [];
+
+    let chartModalidadObj = null;
+    let chartSexoObj = null;
+    let chartTransporteLinesObj = null;
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('liveTime').textContent = now.toLocaleTimeString('es-PE');
+      document.getElementById('liveDate').textContent = now.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    function switchTab(tabIndex) {
+      activeTab = tabIndex;
+      document.querySelectorAll('.nav-btn-vert').forEach((btn, idx) => {
+        if (idx + 1 === tabIndex) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`page-${tabIndex}`).classList.remove('hidden');
+
+      const ley = document.getElementById('leyendaCumplimiento');
+      const sBox = document.getElementById('searchPersonBox');
+      const vBox = document.getElementById('filterVariedadBox');
+
+      if (tabIndex >= 2) ley.classList.remove('hidden'); else ley.classList.add('hidden');
+      if (tabIndex >= 2 && tabIndex <= 4) sBox.classList.remove('hidden'); else sBox.classList.add('hidden');
+      if (tabIndex === 1 || tabIndex === 2 || tabIndex === 3) vBox.classList.remove('hidden'); else vBox.classList.add('hidden');
+
+      applyFilters();
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('HuarmeyCosechaDB', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('detalle')) db.createObjectStore('detalle', { keyPath: 'id', autoIncrement: true });
+          if (!db.objectStoreNames.contains('tdp')) db.createObjectStore('tdp', { keyPath: 'id', autoIncrement: true });
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveLocalData(storeName, dataList) {
+      const db = await openDB();
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      store.clear();
+      dataList.forEach(item => store.add(item));
+      return tx.complete;
+    }
+
+    async function getLocalData(storeName) {
+      const db = await openDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+    }
+
+    async function initData() {
+      try {
+        if (navigator.onLine) {
+          const res = await fetch(GAS_API_URL + "?action=getData");
+          const json = await res.json();
+          if (json.status === 'success') {
+            rawDetalleData = json.detalle || [];
+            rawTdpData = json.tdp || [];
+            await saveLocalData('detalle', rawDetalleData);
+            await saveLocalData('tdp', rawTdpData);
+          } else {
+            throw new Error("API Exception");
+          }
+        } else {
+          throw new Error("Offline Mode");
+        }
+      } catch (err) {
+        console.warn("Cargando desde IndexedDB por estar Offline o error de servidor:", err);
+        rawDetalleData = await getLocalData('detalle');
+        rawTdpData = await getLocalData('tdp');
+        document.getElementById('syncText').textContent = 'Offline (Caché)';
+        document.getElementById('connectionStatus').className = "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800";
+      }
+
+      populateFilterOptions();
+      applyFilters();
+    }
+
+    function populateFilterOptions() {
+      const dataset = [...rawDetalleData, ...rawTdpData];
+      const semanas = [...new Set(dataset.map(d => d.SEMANA).filter(Boolean))].sort((a,b)=>a-b);
+      const categs = [...new Set(dataset.map(d => d['CATEG. 2026']).filter(Boolean))].sort();
+      const variedades = [...new Set(rawDetalleData.map(d => d.VARIEDAD).filter(Boolean))].sort();
+      const modalidades = [...new Set(dataset.map(d => d.MODALIDAD).filter(Boolean))].sort();
+      const rangos = [...new Set(dataset.map(d => d['RANGO %']).filter(Boolean))].sort();
+
+      const fillSelect = (id, items) => {
+        const sel = document.getElementById(id);
+        const curr = sel.value;
+        sel.innerHTML = '<option value="">Todas</option>';
+        items.forEach(i => {
+          const opt = document.createElement('option');
+          opt.value = i; opt.textContent = i;
+          sel.appendChild(opt);
+        });
+        sel.value = curr;
+      };
+
+      fillSelect('filterSemana', semanas);
+      fillSelect('filterCateg', categs);
+      fillSelect('filterVariedad', variedades);
+      fillSelect('filterModalidad', modalidades);
+      fillSelect('filterRango', rangos);
+    }
+
+    function resetFilters() {
+      document.getElementById('filterFecha').value = '';
+      document.getElementById('filterSemana').value = '';
+      document.getElementById('filterCateg').value = '';
+      document.getElementById('filterVariedad').value = '';
+      document.getElementById('filterModalidad').value = '';
+      document.getElementById('filterRango').value = '';
+      document.getElementById('searchInput').value = '';
+      applyFilters();
+    }
+
+    function getCumplimientoBadge(porcentaje) {
+      const p = porcentaje * 100;
+      if (p < 86) return { text: '🔴 MALO', cls: 'badge-malo' };
+      if (p < 100) return { text: '🟠 REGULAR', cls: 'badge-regular' };
+      if (p <= 104) return { text: '🟢 BUENO', cls: 'badge-bueno' };
+      return { text: '🔵 EXCELENTE', cls: 'badge-excelente' };
+    }
+
+    function applyFilters() {
+      const fFecha = document.getElementById('filterFecha').value;
+      const fSemana = document.getElementById('filterSemana').value;
+      const fCateg = document.getElementById('filterCateg').value;
+      const fVariedad = document.getElementById('filterVariedad').value;
+      const fModalidad = document.getElementById('filterModalidad').value;
+      const fRango = document.getElementById('filterRango').value;
+      const qSearch = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      const matchesFilter = (item, isDetalle = true) => {
+        if (fFecha && item.FECHA && !item.FECHA.includes(fFecha)) return false;
+        if (fSemana && String(item.SEMANA) !== String(fSemana)) return false;
+        if (fCateg && item['CATEG. 2026'] !== fCateg) return false;
+        if (isDetalle && fVariedad && item.VARIEDAD !== fVariedad) return false;
+        if (fModalidad && item.MODALIDAD !== fModalidad) return false;
+        if (fRango && item['RANGO %'] !== fRango) return false;
+        if (qSearch) {
+          const dni = String(item.DNI || '').toLowerCase();
+          const nom = String(item['APELLIDOS Y NOMBRES'] || '').toLowerCase();
+          if (!dni.includes(qSearch) && !nom.includes(qSearch)) return false;
+        }
+        return true;
+      };
+
+      filteredDetalle = rawDetalleData.filter(d => matchesFilter(d, true));
+      filteredTdp = rawTdpData.filter(d => matchesFilter(d, false));
+
+      if (activeTab === 1) renderPage1();
+      else if (activeTab === 2) renderPage2();
+      else if (activeTab === 3) renderPage3();
+      else if (activeTab === 4) renderPage4();
+      else if (activeTab === 5) renderPage5();
+      else if (activeTab === 6) renderPage6();
+    }
+
+    function renderPage1() {
+      const totalKg = filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['TOTAL KG.']) || 0), 0);
+      const totalCosechadores = new Set(filteredDetalle.map(r => r.DNI)).size;
+      const avgCump = filteredDetalle.length > 0 
+        ? (filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['CUMP. %']) || 0), 0) / filteredDetalle.length) * 100 
+        : 0;
+
+      document.getElementById('kpiTotalKg').innerHTML = `${totalKg.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2})} <span class="text-sm font-normal">kg</span>`;
+      document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
+      document.getElementById('kpiTotalCosechadores').textContent = totalCosechadores;
+
+      // Modalidad
+      const modGroup = {};
+      filteredDetalle.forEach(r => {
+        const m = r.MODALIDAD || 'SIN REGISTRO';
+        if (!modGroup[m]) modGroup[m] = new Set();
+        modGroup[m].add(r.DNI);
+      });
+      const modLabels = Object.keys(modGroup);
+      const modCounts = modLabels.map(m => modGroup[m].size);
+
+      if (chartModalidadObj) chartModalidadObj.destroy();
+      chartModalidadObj = new Chart(document.getElementById('chartModalidad'), {
+        type: 'doughnut',
+        data: { labels: modLabels, datasets: [{ data: modCounts, backgroundColor: ['#2D7A3A', '#D93829', '#3B82F6', '#F59E0B', '#10B981'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+
+      // Sexo
+      const sexoGroup = {};
+      filteredDetalle.forEach(r => {
+        const s = r.SEXO || 'NO ESPECIFICA';
+        if (!sexoGroup[s]) sexoGroup[s] = new Set();
+        sexoGroup[s].add(r.DNI);
+      });
+      const sexoLabels = Object.keys(sexoGroup);
+      const sexoCounts = sexoLabels.map(s => sexoGroup[s].size);
+
+      if (chartSexoObj) chartSexoObj.destroy();
+      chartSexoObj = new Chart(document.getElementById('chartSexo'), {
+        type: 'doughnut',
+        data: { labels: sexoLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#3B82F6', '#9CA3AF'] }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+      });
+
+      // Tablas Pág 1
+      const modData = {};
+      filteredDetalle.forEach(r => {
+        const m = r.MODALIDAD || 'OTRO';
+        if (!modData[m]) modData[m] = { dnis: new Set(), cumpSum: 0, count: 0, dias: new Set(), kgSum: 0 };
+        modData[m].dnis.add(r.DNI);
+        modData[m].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        modData[m].count++;
+        if (r.FECHA) modData[m].dias.add(r.FECHA.split('T')[0]);
+        modData[m].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
+      });
+
+      const tbodyMod = document.getElementById('tblModalidadResumen');
+      tbodyMod.innerHTML = '';
+      Object.keys(modData).forEach(m => {
+        const d = modData[m];
+        const avgKgDia = d.dias.size > 0 ? (d.kgSum / d.dias.size) : 0;
+        const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
+        tbodyMod.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border font-semibold">${m}</td>
+            <td class="p-2 border text-right">${d.dnis.size}</td>
+            <td class="p-2 border text-right">${avgC.toFixed(1)} %</td>
+            <td class="p-2 border text-right">${d.dias.size}</td>
+            <td class="p-2 border text-right font-medium">${avgKgDia.toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toFixed(2)}</td>
+          </tr>`;
+      });
+
+      // Top 10
+      const cosMap = {};
+      filteredDetalle.forEach(r => {
+        const key = r.DNI;
+        if (!cosMap[key]) cosMap[key] = { nom: r['APELLIDOS Y NOMBRES'], mod: r.MODALIDAD, dias: new Set(), cumpSum: 0, count: 0, kgSum: 0 };
+        if (r.FECHA) cosMap[key].dias.add(r.FECHA.split('T')[0]);
+        cosMap[key].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        cosMap[key].count++;
+        cosMap[key].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
+      });
+
+      const top10 = Object.values(cosMap).sort((a,b) => b.kgSum - a.kgSum).slice(0, 10);
+      const tbodyTop = document.getElementById('tblTop10');
+      tbodyTop.innerHTML = '';
+      top10.forEach((c, i) => {
+        const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
+        const avgC = c.count > 0 ? (c.cumpSum / c.count) * 100 : 0;
+        tbodyTop.innerHTML += `
+          <tr class="hover:bg-amber-50/50">
+            <td class="p-2 border font-bold text-amber-600">${i+1}</td>
+            <td class="p-2 border font-medium">${c.nom || 'S/N'}</td>
+            <td class="p-2 border text-center">${c.mod || '-'}</td>
+            <td class="p-2 border text-right">${c.dias.size}</td>
+            <td class="p-2 border text-right font-semibold">${avgKgDia.toFixed(2)}</td>
+            <td class="p-2 border text-right text-blue-600 font-bold">${avgC.toFixed(1)} %</td>
+            <td class="p-2 border text-right font-black text-green-800">${c.kgSum.toFixed(2)}</td>
+          </tr>`;
+      });
+
+      // Categ 2026
+      const catMap = {};
+      filteredDetalle.forEach(r => {
+        const c = r['CATEG. 2026'] || 'SIN CATEG';
+        if (!catMap[c]) catMap[c] = { dnis: new Set(), cumpSum: 0, count: 0 };
+        catMap[c].dnis.add(r.DNI);
+        catMap[c].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        catMap[c].count++;
+      });
+
+      const tbodyCat = document.getElementById('tblCategResumen');
+      tbodyCat.innerHTML = '';
+      Object.keys(catMap).forEach(c => {
+        const d = catMap[c];
+        const avgC = d.count > 0 ? (d.cumpSum / d.count) * 100 : 0;
+        tbodyCat.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border font-semibold">${c}</td>
+            <td class="p-2 border text-right font-medium">${d.dnis.size}</td>
+            <td class="p-2 border text-right font-bold text-indigo-700">${avgC.toFixed(1)} %</td>
+          </tr>`;
+      });
+    }
+
+    function renderPage2() {
+      const tbody = document.getElementById('tblDetalle');
+      tbody.innerHTML = '';
+      filteredDetalle.slice(0, 100).forEach(r => {
+        const cumpVal = parseFloat(r['CUMP. %']) || 0;
+        const badge = getCumplimientoBadge(cumpVal);
+        tbody.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border">${r.FECHA ? r.FECHA.split('T')[0] : ''}</td>
+            <td class="p-2 border font-mono">${r.DNI || ''}</td>
+            <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
+            <td class="p-2 border">${r.HISTORICO || ''}</td>
+            <td class="p-2 border">${r.MODALIDAD || ''}</td>
+            <td class="p-2 border">${r.VARIEDAD || ''}</td>
+            <td class="p-2 border">${r['MODULO|TURNO'] || ''}</td>
+            <td class="p-2 border">${r.LABOR || ''}</td>
+            <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toFixed(2)}</td>
+            <td class="p-2 border text-right">${(parseFloat(r.META)||0).toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
+            <td class="p-2 border text-center">${r['CATEG. 2026'] || ''}</td>
+            <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>
+          </tr>`;
+      });
+    }
+
+    function renderPage3() {
+      const fechas = [...new Set(filteredTdp.map(r => r.FECHA ? r.FECHA.split('T')[0] : '').filter(Boolean))].sort();
+      const rowsMap = {};
+
+      filteredTdp.forEach(r => {
+        const key = r.DNI;
+        if (!rowsMap[key]) {
+          rowsMap[key] = { dni: r.DNI, nombre: r['APELLIDOS Y NOMBRES'], modalidad: r.MODALIDAD, categ: r['CATEG. 2026'], placa: r.PLACA, origen: r.RUTA, fechasKg: {}, cumpSum: 0, count: 0, totalKg: 0 };
+        }
+        const f = r.FECHA ? r.FECHA.split('T')[0] : '';
+        const kg = parseFloat(r['TOTAL KG.']) || 0;
+        rowsMap[key].fechasKg[f] = (rowsMap[key].fechasKg[f] || 0) + kg;
+        rowsMap[key].totalKg += kg;
+        rowsMap[key].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        rowsMap[key].count++;
+      });
+
+      const thead = document.getElementById('theadFechas');
+      let thHTML = `<tr><th class="p-2 border">DNI</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">PLACA</th><th class="p-2 border">ORIGEN</th>`;
+      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${f}</th>`);
+      thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right bg-blue-50">CUMP. %</th></tr>`;
+      thead.innerHTML = thHTML;
+
+      const tbody = document.getElementById('tbodyFechas');
+      tbody.innerHTML = '';
+      Object.values(rowsMap).slice(0, 50).forEach(row => {
+        const avgCump = row.count > 0 ? (row.cumpSum / row.count) : 0;
+        const badge = getCumplimientoBadge(avgCump);
+        let trHTML = `<tr class="hover:bg-gray-50">
+          <td class="p-2 border font-mono">${row.dni || ''}</td>
+          <td class="p-2 border font-medium">${row.nombre || ''}</td>
+          <td class="p-2 border">${row.modalidad || ''}</td>
+          <td class="p-2 border">${row.categ || ''}</td>
+          <td class="p-2 border">${row.placa || ''}</td>
+          <td class="p-2 border">${row.origen || ''}</td>`;
+        fechas.forEach(f => {
+          const val = row.fechasKg[f];
+          trHTML += `<td class="p-2 border text-right">${val ? val.toFixed(1) : '-'}</td>`;
+        });
+        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toFixed(2)}</td>
+                   <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgCump*100).toFixed(1)}%</span></td></tr>`;
+        tbody.innerHTML += trHTML;
+      });
+    }
+
+    function renderPage4() {
+      const tbody = document.getElementById('tblRegUnicos');
+      tbody.innerHTML = '';
+      filteredTdp.slice(0, 100).forEach(r => {
+        const cumpVal = parseFloat(r['CUMP. %']) || 0;
+        const badge = getCumplimientoBadge(cumpVal);
+        tbody.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border">${r.FECHA ? r.FECHA.split('T')[0] : ''}</td>
+            <td class="p-2 border text-center font-bold">${r.SEMANA || ''}</td>
+            <td class="p-2 border font-mono">${r.DNI || ''}</td>
+            <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
+            <td class="p-2 border">${r.MODALIDAD || ''}</td>
+            <td class="p-2 border">${r.HISTORICO || ''}</td>
+            <td class="p-2 border">${r['CATEG. 2026'] || ''}</td>
+            <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toFixed(2)}</td>
+            <td class="p-2 border text-right">${(parseFloat(r.META)||0).toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
+            <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>
+          </tr>`;
+      });
+    }
+
+    function renderPage5() {
+      const transMap = {};
+      filteredTdp.forEach(r => {
+        const p = r.PLACA || 'SIN PLACA';
+        if (!transMap[p]) transMap[p] = { kgSum: 0, count: 0 };
+        transMap[p].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
+        transMap[p].count++;
+      });
+
+      const pLabels = Object.keys(transMap);
+      const pAvgs = pLabels.map(p => transMap[p].count > 0 ? (transMap[p].kgSum / transMap[p].count) : 0);
+
+      if (chartTransporteLinesObj) chartTransporteLinesObj.destroy();
+      chartTransporteLinesObj = new Chart(document.getElementById('chartTransporteLines'), {
+        type: 'line',
+        data: {
+          labels: pLabels,
+          datasets: [{
+            label: 'Promedio Total KG por Unidad',
+            data: pAvgs,
+            borderColor: '#2D7A3A',
+            backgroundColor: 'rgba(45, 122, 58, 0.1)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 3
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      const fechas = [...new Set(filteredTdp.map(r => r.FECHA ? r.FECHA.split('T')[0] : '').filter(Boolean))].sort();
+      const placaRows = {};
+
+      filteredTdp.forEach(r => {
+        const key = `${r.PLACA}_${r['APELLIDOS Y NOMBRES']}`;
+        if (!placaRows[key]) {
+          placaRows[key] = { placa: r.PLACA, nombre: r['APELLIDOS Y NOMBRES'], modalidad: r.MODALIDAD, categ: r['CATEG. 2026'], ruta: r.RUTA, fechasKg: {}, totalKg: 0, metaSum: 0, cumpSum: 0, count: 0 };
+        }
+        const f = r.FECHA ? r.FECHA.split('T')[0] : '';
+        const kg = parseFloat(r['TOTAL KG.']) || 0;
+        placaRows[key].fechasKg[f] = (placaRows[key].fechasKg[f] || 0) + kg;
+        placaRows[key].totalKg += kg;
+        placaRows[key].metaSum += (parseFloat(r.META) || 0);
+        placaRows[key].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        placaRows[key].count++;
+      });
+
+      const thead = document.getElementById('theadTransporte');
+      let thHTML = `<tr><th class="p-2 border">PLACA</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">RUTA</th>`;
+      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${f}</th>`);
+      thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right">META</th><th class="p-2 border text-right">CUMP. %</th></tr>`;
+      thead.innerHTML = thHTML;
+
+      const tbody = document.getElementById('tbodyTransporte');
+      tbody.innerHTML = '';
+      Object.values(placaRows).slice(0, 50).forEach(row => {
+        const avgC = row.count > 0 ? (row.cumpSum / row.count) : 0;
+        const badge = getCumplimientoBadge(avgC);
+        let trHTML = `<tr class="hover:bg-gray-50">
+          <td class="p-2 border font-bold">${row.placa || ''}</td>
+          <td class="p-2 border">${row.nombre || ''}</td>
+          <td class="p-2 border">${row.modalidad || ''}</td>
+          <td class="p-2 border">${row.categ || ''}</td>
+          <td class="p-2 border">${row.ruta || ''}</td>`;
+        fechas.forEach(f => {
+          const val = row.fechasKg[f];
+          trHTML += `<td class="p-2 border text-right">${val ? val.toFixed(1) : '-'}</td>`;
+        });
+        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toFixed(2)}</td>
+                   <td class="p-2 border text-right">${row.metaSum.toFixed(1)}</td>
+                   <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgC*100).toFixed(1)}%</span></td></tr>`;
+        tbody.innerHTML += trHTML;
+      });
+    }
+
+    function renderPage6() {
+      const mainGroup = {};
+      const subGroup1 = {};
+      const subGroup2 = {};
+
+      filteredTdp.forEach(r => {
+        const mod = r.MODALIDAD || 'OTRO';
+        const hist = r.HISTORICO || 'SIN REGISTRO';
+        const cat = r['CATEG. 2026'] || 'SIN CAT';
+        const keyMain = `${mod}_${hist}`;
+
+        if (!mainGroup[keyMain]) mainGroup[keyMain] = { mod, hist, kgSum: 0, cumpSum: 0, count: 0, dias: new Set() };
+        mainGroup[keyMain].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
+        mainGroup[keyMain].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        mainGroup[keyMain].count++;
+        if (r.FECHA) mainGroup[keyMain].dias.add(r.FECHA.split('T')[0]);
+
+        if (!subGroup1[keyMain]) subGroup1[keyMain] = { mod, hist, kgSum: 0, cumpSum: 0, count: 0 };
+        subGroup1[keyMain].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
+        subGroup1[keyMain].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        subGroup1[keyMain].count++;
+
+        const keySub2 = `${mod}_${cat}`;
+        if (!subGroup2[keySub2]) subGroup2[keySub2] = { mod, cat, kgSum: 0, cumpSum: 0, count: 0 };
+        subGroup2[keySub2].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
+        subGroup2[keySub2].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        subGroup2[keySub2].count++;
+      });
+
+      const tbody1 = document.getElementById('tblResumenFinal1');
+      tbody1.innerHTML = '';
+      Object.values(mainGroup).forEach(g => {
+        const avgC = g.count > 0 ? (g.cumpSum / g.count) : 0;
+        const badgeEvaluada = getCumplimientoBadge(avgC);
+        tbody1.innerHTML += `
+          <tr class="hover:bg-gray-50">
+            <td class="p-2 border font-semibold">${g.mod}</td>
+            <td class="p-2 border">${g.hist}</td>
+            <td class="p-2 border text-right font-bold text-green-700">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold text-blue-700">${(avgC*100).toFixed(1)} %</td>
+            <td class="p-2 border text-right">${g.dias.size}</td>
+            <td class="p-2 border text-center"><span class="px-2.5 py-1 rounded font-bold ${badgeEvaluada.cls}">${badgeEvaluada.text}</span></td>
+          </tr>`;
+      });
+
+      const tbodySub1 = document.getElementById('tblResumenSub1');
+      tbodySub1.innerHTML = '';
+      Object.values(subGroup1).forEach(g => {
+        const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
+        tbodySub1.innerHTML += `
+          <tr>
+            <td class="p-2 border">${g.mod}</td>
+            <td class="p-2 border">${g.hist}</td>
+            <td class="p-2 border text-right font-semibold">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>
+          </tr>`;
+      });
+
+      const tbodySub2 = document.getElementById('tblResumenSub2');
+      tbodySub2.innerHTML = '';
+      Object.values(subGroup2).forEach(g => {
+        const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
+        tbodySub2.innerHTML += `
+          <tr>
+            <td class="p-2 border">${g.mod}</td>
+            <td class="p-2 border">${g.cat}</td>
+            <td class="p-2 border text-right font-semibold">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>
+          </tr>`;
+      });
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+
+    window.addEventListener('load', initData);
+  </script>
+</body>
+</html>
