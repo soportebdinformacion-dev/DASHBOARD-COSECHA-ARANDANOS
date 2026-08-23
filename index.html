@@ -88,23 +88,21 @@
         </button>
       </nav>
     </div>
-
-    <div class="p-3 border-t border-gray-200 hidden md:block">
-      <div id="connectionStatus" class="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700">
-        <div class="flex items-center space-x-2">
-          <span id="syncDot" class="w-2 h-2 rounded-full bg-gray-400"></span>
-          <span id="syncText">Conectando...</span>
-        </div>
-        <i id="syncIcon" class="fa-solid fa-spinner fa-spin"></i>
-      </div>
-    </div>
   </aside>
 
   <div class="flex-1 flex flex-col min-w-0">
     
     <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-30">
-      <div class="text-xs font-bold text-gray-500 uppercase tracking-wider hidden sm:block">
-        MÓDULO DE GESTIÓN Y CONTROL
+      <div class="flex items-center space-x-3">
+        <div id="connectionStatus" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700">
+          <span id="syncDot" class="w-2 h-2 rounded-full bg-gray-400"></span>
+          <span id="syncText">Conectando...</span>
+          <i id="syncIcon" class="fa-solid fa-spinner fa-spin ml-1"></i>
+        </div>
+        
+        <div class="text-xs font-bold text-gray-500 uppercase tracking-wider hidden lg:block">
+          MÓDULO DE GESTIÓN Y CONTROL
+        </div>
       </div>
       
       <div class="flex items-center space-x-4 ml-auto">
@@ -243,7 +241,12 @@
             <table class="w-full text-xs text-left border-collapse">
               <thead class="bg-indigo-50 text-indigo-950 uppercase font-bold">
                 <tr>
-                  <th class="p-2 border"><i class="fa-regular fa-calendar-days text-indigo-700 mr-1.5"></i>FECHA</th>
+                  <th class="p-2 border cursor-pointer hover:bg-indigo-100" onclick="toggleSortResumenFecha()">
+                    <div class="flex items-center justify-between">
+                      <span><i class="fa-regular fa-calendar-days text-indigo-700 mr-1.5"></i>FECHA</span>
+                      <i id="sortIconFecha" class="fa-solid fa-sort text-indigo-400"></i>
+                    </div>
+                  </th>
                   <th class="p-2 border text-right"><i class="fa-solid fa-weight-scale text-indigo-700 mr-1.5"></i>TOTAL KG</th>
                   <th class="p-2 border text-right"><i class="fa-solid fa-chart-line text-indigo-700 mr-1.5"></i>TOTAL PROMEDIO DEL TOTAL KG.</th>
                   <th class="p-2 border text-right"><i class="fa-solid fa-users text-indigo-700 mr-1.5"></i>TOTAL COSECHADORES</th>
@@ -301,7 +304,12 @@
                 <tr>
                   <th class="p-2 border">HISTORICO</th>
                   <th class="p-2 border text-right">TOTAL COSECHADORES</th>
-                  <th class="p-2 border text-right">PROMEDIO TOTAL KG</th>
+                  <th class="p-2 border text-right cursor-pointer hover:bg-gray-200" onclick="toggleSortHistoricoPromedio()">
+                    <div class="flex items-center justify-end space-x-1">
+                      <span>PROMEDIO TOTAL KG</span>
+                      <i id="sortIconHistorico" class="fa-solid fa-sort text-gray-400"></i>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody id="tblHistoricoResumen" class="divide-y"></tbody>
@@ -462,6 +470,9 @@
     let filteredDetalle = [];
     let filteredTdp = [];
 
+    let sortOrderFecha = 'asc';
+    let sortOrderHistoricoProm = 'desc';
+
     let chartModalidadObj = null;
     let chartSexoObj = null;
     let chartTransporteLinesObj = null;
@@ -479,6 +490,24 @@
         return `${parts[2]}/${parts[1]}/${parts[0]}`;
       }
       return dateStr;
+    }
+
+    function toggleSortResumenFecha() {
+      sortOrderFecha = sortOrderFecha === 'asc' ? 'desc' : 'asc';
+      const icon = document.getElementById('sortIconFecha');
+      if (icon) {
+        icon.className = sortOrderFecha === 'asc' ? 'fa-solid fa-sort-up text-indigo-700' : 'fa-solid fa-sort-down text-indigo-700';
+      }
+      renderPage1();
+    }
+
+    function toggleSortHistoricoPromedio() {
+      sortOrderHistoricoProm = sortOrderHistoricoProm === 'desc' ? 'asc' : 'desc';
+      const icon = document.getElementById('sortIconHistorico');
+      if (icon) {
+        icon.className = sortOrderHistoricoProm === 'asc' ? 'fa-solid fa-sort-up text-gray-700' : 'fa-solid fa-sort-down text-gray-700';
+      }
+      renderPage1();
     }
 
     function showToast(type, title, message) {
@@ -620,7 +649,7 @@
           syncDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
           syncText.textContent = "Conectado";
           syncIcon.className = "fa-solid fa-wifi text-green-700";
-          statusBox.className = "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-green-100 text-green-800";
+          statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-100 text-green-800";
 
           showToast('success', 'Conexión Exitosa', '¡Sincronizado con Google Sheets correctamente!');
         } else {
@@ -633,7 +662,7 @@
         syncDot.className = "w-2 h-2 rounded-full bg-amber-500";
         syncText.textContent = "Offline (Caché)";
         syncIcon.className = "fa-solid fa-database text-amber-700";
-        statusBox.className = "flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800";
+        statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800";
 
         showToast('warning', 'Modo Offline', 'Sin conexión con Google Sheets. Usando datos guardados.');
       }
@@ -810,7 +839,7 @@
         }
       });
 
-      // TABLA RESUMEN POR FECHA (TOTAL PROMEDIO DEL TOTAL KG. = TOTAL COSECHADORES / TOTAL KG)
+      // TABLA RESUMEN POR FECHA (RESULTADO = TOTAL KG / TOTAL COSECHADORES)
       const fechaGroup = {};
       filteredDetalle.forEach(r => {
         const f = r.FECHA ? r.FECHA.split('T')[0] : 'SIN FECHA';
@@ -821,27 +850,32 @@
         fechaGroup[f].dnis.add(r.DNI);
       });
 
+      const sortedFechas = Object.keys(fechaGroup).sort((a, b) => {
+        if (sortOrderFecha === 'asc') return a.localeCompare(b);
+        return b.localeCompare(a);
+      });
+
       const tbodyFecha = document.getElementById('tblResumenFecha');
       const fragFecha = document.createDocumentFragment();
-      Object.keys(fechaGroup).sort().forEach(f => {
+      sortedFechas.forEach(f => {
         const d = fechaGroup[f];
         const totalCosechadoresFecha = d.dnis.size;
-        // FÓRMULA CORREGIDA: TOTAL COSECHADORES / TOTAL KG.
-        const promKg = d.kgSum > 0 ? (totalCosechadoresFecha / d.kgSum) : 0;
+        // FÓRMULA SOLICITADA: TOTAL KG / TOTAL COSECHADORES
+        const promKg = totalCosechadoresFecha > 0 ? (d.kgSum / totalCosechadoresFecha) : 0;
         const formattedFecha = formatDateDisplay(f);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
             <td class="p-2 border font-bold text-gray-800">${formattedFecha}</td>
             <td class="p-2 border text-right font-bold text-green-700">${formatNumber(d.kgSum)} kg</td>
-            <td class="p-2 border text-right font-semibold text-blue-700">${formatNumber(promKg, 4)}</td>
+            <td class="p-2 border text-right font-semibold text-blue-700">${formatNumber(promKg, 2)} kg</td>
             <td class="p-2 border text-right font-medium">${formatNumber(totalCosechadoresFecha, 0)}</td>`;
         fragFecha.appendChild(tr);
       });
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      // TABLA RESUMEN POR MODALIDAD (PROM. KG / DÍA = (TOTAL KG / TOTAL COSECHADORES) / TOTAL DÍAS)
+      // TABLA RESUMEN POR MODALIDAD
       const modData = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'OTRO';
@@ -860,7 +894,6 @@
         const numCosechadores = d.dnis.size;
         const numDias = d.dias.size;
         
-        // FÓRMULA CORREGIDA: (TOTAL KG / TOTAL COSECHADORES) / TOTAL DÍAS
         const avgKgDia = (numCosechadores > 0 && numDias > 0) ? ((d.kgSum / numCosechadores) / numDias) : 0;
         const avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) / 100 : 0;
         const modPct = totalModCount > 0 ? ((numCosechadores / totalModCount) * 100).toFixed(1) : 0;
@@ -926,29 +959,37 @@
       tbodyTop.innerHTML = '';
       tbodyTop.appendChild(fragTop);
 
-      // DISTRIBUCION DE COSECHADORES POR HISTORICO
+      // DISTRIBUCION DE COSECHADORES POR HISTORICO (CON ORDENAMIENTO POR PROMEDIO TOTAL KG)
       const histMap = {};
       filteredDetalle.forEach(r => {
         const h = r.HISTORICO || 'SIN HISTORICO';
-        if (!histMap[h]) histMap[h] = { dnis: new Set(), kgSum: 0, count: 0 };
+        if (!histMap[h]) histMap[h] = { hName: h, dnis: new Set(), kgSum: 0, count: 0 };
         histMap[h].dnis.add(r.DNI);
         histMap[h].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
         histMap[h].count++;
       });
 
+      const histArray = Object.values(histMap).map(d => {
+        d.avgKg = d.count > 0 ? (d.kgSum / d.count) : 0;
+        return d;
+      });
+
+      histArray.sort((a, b) => {
+        if (sortOrderHistoricoProm === 'asc') return a.avgKg - b.avgKg;
+        return b.avgKg - a.avgKg;
+      });
+
       const tbodyHist = document.getElementById('tblHistoricoResumen');
       const fragHist = document.createDocumentFragment();
-      Object.keys(histMap).sort().forEach(h => {
-        const d = histMap[h];
-        const avgKg = d.count > 0 ? (d.kgSum / d.count) : 0;
+      histArray.forEach(d => {
         const histPct = totalCosechadores > 0 ? ((d.dnis.size / totalCosechadores) * 100).toFixed(1) : 0;
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
-            <td class="p-2 border font-semibold">${h}</td>
+            <td class="p-2 border font-semibold">${d.hName}</td>
             <td class="p-2 border text-right font-bold">${formatNumber(d.dnis.size, 0)} <span class="text-gray-500 font-normal">(${histPct}%)</span></td>
-            <td class="p-2 border text-right font-bold text-indigo-700">${formatNumber(avgKg)} kg</td>`;
+            <td class="p-2 border text-right font-bold text-indigo-700">${formatNumber(d.avgKg)} kg</td>`;
         fragHist.appendChild(tr);
       });
       tbodyHist.innerHTML = '';
