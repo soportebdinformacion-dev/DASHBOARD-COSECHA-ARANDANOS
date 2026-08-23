@@ -276,7 +276,7 @@
             <table class="w-full text-xs text-left border-collapse">
               <thead class="bg-amber-50 text-amber-900 uppercase">
                 <tr>
-                  <th class="p-2 border">#</th>
+                  <th class="p-2 border text-center">RANKING</th>
                   <th class="p-2 border">APELLIDOS Y NOMBRES</th>
                   <th class="p-2 border text-center">MODALIDAD</th>
                   <th class="p-2 border text-right">TOTAL DÍAS</th>
@@ -298,7 +298,7 @@
                 <tr>
                   <th class="p-2 border">HISTORICO</th>
                   <th class="p-2 border text-right">TOTAL COSECHADORES</th>
-                  <th class="p-2 border text-right">PROMEDIO TOTAL CUMP. %</th>
+                  <th class="p-2 border text-right">PROMEDIO TOTAL KG</th>
                 </tr>
               </thead>
               <tbody id="tblHistoricoResumen" class="divide-y"></tbody>
@@ -463,6 +463,11 @@
     let chartSexoObj = null;
     let chartTransporteLinesObj = null;
 
+    function formatNumber(num, decimals = 2) {
+      if (isNaN(num) || num === null) return '0.00';
+      return num.toLocaleString('es-PE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+    }
+
     function showToast(type, title, message) {
       const toast = document.getElementById('toastNotification');
       const icon = document.getElementById('toastIcon');
@@ -571,7 +576,6 @@
       const syncText = document.getElementById('syncText');
       const syncIcon = document.getElementById('syncIcon');
 
-      // Carga inmediata de la caché local para acelerar la vista inicial
       rawDetalleData = await getLocalData('detalle');
       rawTdpData = await getLocalData('tdp');
       if (rawDetalleData.length > 0) {
@@ -631,7 +635,9 @@
       const categs = [...new Set(dataset.map(d => d['CATEG. 2026']).filter(Boolean))].sort();
       const variedades = [...new Set(rawDetalleData.map(d => d.VARIEDAD).filter(Boolean))].sort();
       const modalidades = [...new Set(dataset.map(d => d.MODALIDAD).filter(Boolean))].sort();
-      const rangos = [...new Set(dataset.map(d => d['RANGO %']).filter(Boolean))].sort();
+      
+      // Jalar filtro RANGO % únicamente de la hoja DETALLE de BD_COSECHA
+      const rangos = [...new Set(rawDetalleData.map(d => d['RANGO %']).filter(Boolean))].sort();
 
       const fillSelect = (id, items) => {
         const sel = document.getElementById(id);
@@ -716,14 +722,13 @@
       const totalKg = filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['TOTAL KG.']) || 0), 0);
       const totalCosechadores = new Set(filteredDetalle.map(r => r.DNI)).size;
       
-      // Promedio Total de CUMP. % dividiendo entre 100
       const avgCump = filteredDetalle.length > 0 
         ? ((filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['CUMP. %']) || 0), 0) / filteredDetalle.length) * 100) / 100 
         : 0;
 
-      document.getElementById('kpiTotalKg').innerHTML = `${totalKg.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2})} <span class="text-sm font-normal">kg</span>`;
+      document.getElementById('kpiTotalKg').innerHTML = `${formatNumber(totalKg)} <span class="text-sm font-normal">kg</span>`;
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
-      document.getElementById('kpiTotalCosechadores').textContent = totalCosechadores;
+      document.getElementById('kpiTotalCosechadores').textContent = formatNumber(totalCosechadores, 0);
 
       // MODALIDAD (Cosechadores & %)
       const modGroup = {};
@@ -732,15 +737,22 @@
         if (!modGroup[m]) modGroup[m] = new Set();
         modGroup[m].add(r.DNI);
       });
-      const modLabels = Object.keys(modGroup);
-      const modCounts = modLabels.map(m => modGroup[m].size);
+      const modLabelsRaw = Object.keys(modGroup);
+      const modCounts = modLabelsRaw.map(m => modGroup[m].size);
       const totalModCount = modCounts.reduce((a, b) => a + b, 0);
-      document.getElementById('lblTotalMod').textContent = `TOTAL: ${totalModCount}`;
+      document.getElementById('lblTotalMod').textContent = `TOTAL: ${formatNumber(totalModCount, 0)}`;
+
+      // Formatear etiquetas de leyenda con total y porcentaje
+      const modLegendLabels = modLabelsRaw.map((m, idx) => {
+        const cnt = modCounts[idx];
+        const pct = totalModCount > 0 ? ((cnt / totalModCount) * 100).toFixed(1) : 0;
+        return `${m}: ${formatNumber(cnt, 0)} (${pct}%)`;
+      });
 
       if (chartModalidadObj) chartModalidadObj.destroy();
       chartModalidadObj = new Chart(document.getElementById('chartModalidad'), {
         type: 'doughnut',
-        data: { labels: modLabels, datasets: [{ data: modCounts, backgroundColor: ['#2D7A3A', '#D93829', '#3B82F6', '#F59E0B', '#10B981'] }] },
+        data: { labels: modLegendLabels, datasets: [{ data: modCounts, backgroundColor: ['#2D7A3A', '#D93829', '#3B82F6', '#F59E0B', '#10B981'] }] },
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
@@ -748,15 +760,6 @@
             legend: { 
               position: 'right',
               labels: { font: { size: 11, weight: 'bold' } }
-            },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const val = context.parsed || 0;
-                  const pct = totalModCount > 0 ? ((val / totalModCount) * 100).toFixed(1) : 0;
-                  return ` ${context.label}: ${val} (${pct}%)`;
-                }
-              }
             }
           } 
         }
@@ -769,15 +772,22 @@
         if (!sexoGroup[s]) sexoGroup[s] = new Set();
         sexoGroup[s].add(r.DNI);
       });
-      const sexoLabels = Object.keys(sexoGroup);
-      const sexoCounts = sexoLabels.map(s => sexoGroup[s].size);
+      const sexoLabelsRaw = Object.keys(sexoGroup);
+      const sexoCounts = sexoLabelsRaw.map(s => sexoGroup[s].size);
       const totalSexoCount = sexoCounts.reduce((a, b) => a + b, 0);
-      document.getElementById('lblTotalSexo').textContent = `TOTAL: ${totalSexoCount}`;
+      document.getElementById('lblTotalSexo').textContent = `TOTAL: ${formatNumber(totalSexoCount, 0)}`;
+
+      // Formatear etiquetas de leyenda con total y porcentaje
+      const sexoLegendLabels = sexoLabelsRaw.map((s, idx) => {
+        const cnt = sexoCounts[idx];
+        const pct = totalSexoCount > 0 ? ((cnt / totalSexoCount) * 100).toFixed(1) : 0;
+        return `${s}: ${formatNumber(cnt, 0)} (${pct}%)`;
+      });
 
       if (chartSexoObj) chartSexoObj.destroy();
       chartSexoObj = new Chart(document.getElementById('chartSexo'), {
         type: 'doughnut',
-        data: { labels: sexoLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#3B82F6', '#9CA3AF'] }] },
+        data: { labels: sexoLegendLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#3B82F6', '#9CA3AF'] }] },
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
@@ -785,15 +795,6 @@
             legend: { 
               position: 'right',
               labels: { font: { size: 11, weight: 'bold' } }
-            },
-            tooltip: {
-              callbacks: {
-                label: function(context) {
-                  const val = context.parsed || 0;
-                  const pct = totalSexoCount > 0 ? ((val / totalSexoCount) * 100).toFixed(1) : 0;
-                  return ` ${context.label}: ${val} (${pct}%)`;
-                }
-              }
             }
           } 
         }
@@ -819,15 +820,15 @@
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
             <td class="p-2 border font-semibold">${f}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toFixed(2)} kg</td>
-            <td class="p-2 border text-right font-semibold text-blue-700">${promKg.toFixed(2)} kg</td>
-            <td class="p-2 border text-right font-medium">${d.dnis.size}</td>`;
+            <td class="p-2 border text-right font-bold text-green-700">${formatNumber(d.kgSum)} kg</td>
+            <td class="p-2 border text-right font-semibold text-blue-700">${formatNumber(promKg)} kg</td>
+            <td class="p-2 border text-right font-medium">${formatNumber(d.dnis.size, 0)}</td>`;
         fragFecha.appendChild(tr);
       });
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      // TABLA RESUMEN POR MODALIDAD (División entre 100 en TOTAL CUMP. %)
+      // TABLA RESUMEN POR MODALIDAD (con porcentaje en MODALIDAD y separador de miles)
       const modData = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'OTRO';
@@ -845,21 +846,23 @@
         const d = modData[m];
         const avgKgDia = d.dias.size > 0 ? (d.kgSum / d.dias.size) : 0;
         const avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) / 100 : 0;
+        const modPct = totalModCount > 0 ? ((d.dnis.size / totalModCount) * 100).toFixed(1) : 0;
+
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
-            <td class="p-2 border font-semibold">${m}</td>
-            <td class="p-2 border text-right">${d.dnis.size}</td>
+            <td class="p-2 border font-semibold">${m} <span class="text-gray-500 font-normal">(${modPct}%)</span></td>
+            <td class="p-2 border text-right">${formatNumber(d.dnis.size, 0)}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${avgC.toFixed(1)} %</td>
             <td class="p-2 border text-right">${d.dias.size}</td>
-            <td class="p-2 border text-right font-medium">${avgKgDia.toFixed(2)}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${d.kgSum.toFixed(2)}</td>`;
+            <td class="p-2 border text-right font-medium">${formatNumber(avgKgDia)}</td>
+            <td class="p-2 border text-right font-bold text-green-700">${formatNumber(d.kgSum)}</td>`;
         fragMod.appendChild(tr);
       });
       tbodyMod.innerHTML = '';
       tbodyMod.appendChild(fragMod);
 
-      // TOP 10 MEJORES COSECHADORES
+      // TOP 10 MEJORES COSECHADORES (TOTAL CUMP. % dividido entre 100, miles en KG y diseño visual más vistoso)
       const cosMap = {};
       filteredDetalle.forEach(r => {
         const key = r.DNI;
@@ -875,29 +878,46 @@
       const fragTop = document.createDocumentFragment();
       top10.forEach((c, i) => {
         const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
-        const totalPromedioCump = c.count > 0 ? (c.cumpSum / c.count) * 100 : 0;
+        
+        // TOTAL CUMP. % dividido entre 100
+        const totalPromedioCump = c.count > 0 ? ((c.cumpSum / c.count) * 100) / 100 : 0;
+
+        let rankBadge = `<span class="font-bold text-gray-600">#${i+1}</span>`;
+        let rowBg = 'hover:bg-amber-50/50';
+
+        if (i === 0) {
+          rankBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-full border border-amber-300 inline-flex items-center space-x-1">🥇 <span>1°</span></span>`;
+          rowBg = 'bg-amber-50/60 hover:bg-amber-100/60';
+        } else if (i === 1) {
+          rankBadge = `<span class="bg-slate-100 text-slate-800 font-extrabold px-2 py-0.5 rounded-full border border-slate-300 inline-flex items-center space-x-1">🥈 <span>2°</span></span>`;
+          rowBg = 'bg-slate-50/60 hover:bg-slate-100/60';
+        } else if (i === 2) {
+          rankBadge = `<span class="bg-orange-100 text-orange-800 font-extrabold px-2 py-0.5 rounded-full border border-orange-300 inline-flex items-center space-x-1">🥉 <span>3°</span></span>`;
+          rowBg = 'bg-orange-50/60 hover:bg-orange-100/60';
+        }
+
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-amber-50/50';
+        tr.className = `${rowBg} transition-colors`;
         tr.innerHTML = `
-            <td class="p-2 border font-bold text-amber-600">${i+1}</td>
-            <td class="p-2 border font-medium">${c.nom || 'S/N'}</td>
-            <td class="p-2 border text-center">${c.mod || '-'}</td>
+            <td class="p-2 border text-center">${rankBadge}</td>
+            <td class="p-2 border font-bold text-gray-800">${c.nom || 'S/N'}</td>
+            <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-semibold text-[11px]">${c.mod || '-'}</span></td>
             <td class="p-2 border text-right">${c.dias.size}</td>
-            <td class="p-2 border text-right font-semibold">${avgKgDia.toFixed(2)}</td>
-            <td class="p-2 border text-right text-blue-600 font-bold">${totalPromedioCump.toFixed(1)} %</td>
-            <td class="p-2 border text-right font-black text-green-800">${c.kgSum.toFixed(2)}</td>`;
+            <td class="p-2 border text-right font-semibold">${formatNumber(avgKgDia)}</td>
+            <td class="p-2 border text-right text-blue-700 font-bold">${totalPromedioCump.toFixed(1)} %</td>
+            <td class="p-2 border text-right font-black text-green-800 text-sm">${formatNumber(c.kgSum)}</td>`;
         fragTop.appendChild(tr);
       });
       tbodyTop.innerHTML = '';
       tbodyTop.appendChild(fragTop);
 
-      // DISTRIBUCION DE COSECHADORES POR HISTORICO
+      // DISTRIBUCION DE COSECHADORES POR HISTORICO (Promedio de TOTAL KG y porcentaje en TOTAL COSECHADORES)
       const histMap = {};
       filteredDetalle.forEach(r => {
         const h = r.HISTORICO || 'SIN HISTORICO';
-        if (!histMap[h]) histMap[h] = { dnis: new Set(), cumpSum: 0, count: 0 };
+        if (!histMap[h]) histMap[h] = { dnis: new Set(), kgSum: 0, count: 0 };
         histMap[h].dnis.add(r.DNI);
-        histMap[h].cumpSum += (parseFloat(r['CUMP. %']) || 0);
+        histMap[h].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
         histMap[h].count++;
       });
 
@@ -905,13 +925,15 @@
       const fragHist = document.createDocumentFragment();
       Object.keys(histMap).sort().forEach(h => {
         const d = histMap[h];
-        const avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) / 100 : 0;
+        const avgKg = d.count > 0 ? (d.kgSum / d.count) : 0;
+        const histPct = totalCosechadores > 0 ? ((d.dnis.size / totalCosechadores) * 100).toFixed(1) : 0;
+
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
             <td class="p-2 border font-semibold">${h}</td>
-            <td class="p-2 border text-right font-bold">${d.dnis.size}</td>
-            <td class="p-2 border text-right font-bold text-indigo-700">${avgC.toFixed(1)} %</td>`;
+            <td class="p-2 border text-right font-bold">${formatNumber(d.dnis.size, 0)} <span class="text-gray-500 font-normal">(${histPct}%)</span></td>
+            <td class="p-2 border text-right font-bold text-indigo-700">${formatNumber(avgKg)} kg</td>`;
         fragHist.appendChild(tr);
       });
       tbodyHist.innerHTML = '';
@@ -935,8 +957,8 @@
             <td class="p-2 border">${r.VARIEDAD || ''}</td>
             <td class="p-2 border">${r['MODULO|TURNO'] || ''}</td>
             <td class="p-2 border">${r.LABOR || ''}</td>
-            <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toFixed(2)}</td>
-            <td class="p-2 border text-right">${(parseFloat(r.META)||0).toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold">${formatNumber(parseFloat(r['TOTAL KG.'])||0)}</td>
+            <td class="p-2 border text-right">${formatNumber(parseFloat(r.META)||0)}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
             <td class="p-2 border text-center font-bold">${badge.text}</td>
             <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>`;
@@ -985,9 +1007,9 @@
           <td class="p-2 border">${row.origen || ''}</td>`;
         fechas.forEach(f => {
           const val = row.fechasKg[f];
-          trHTML += `<td class="p-2 border text-right">${val ? val.toFixed(1) : '-'}</td>`;
+          trHTML += `<td class="p-2 border text-right">${val ? formatNumber(val, 1) : '-'}</td>`;
         });
-        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toFixed(2)}</td>
+        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${formatNumber(row.totalKg)}</td>
                    <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgCump*100).toFixed(1)}%</span></td>`;
         tr.innerHTML = trHTML;
         frag.appendChild(tr);
@@ -1012,8 +1034,8 @@
             <td class="p-2 border">${r.MODALIDAD || ''}</td>
             <td class="p-2 border">${r.HISTORICO || ''}</td>
             <td class="p-2 border font-semibold">${badge.text}</td>
-            <td class="p-2 border text-right font-bold">${(parseFloat(r['TOTAL KG.'])||0).toFixed(2)}</td>
-            <td class="p-2 border text-right">${(parseFloat(r.META)||0).toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold">${formatNumber(parseFloat(r['TOTAL KG.'])||0)}</td>
+            <td class="p-2 border text-right">${formatNumber(parseFloat(r.META)||0)}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
             <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>`;
         frag.appendChild(tr);
@@ -1090,10 +1112,10 @@
           <td class="p-2 border">${row.ruta || ''}</td>`;
         fechas.forEach(f => {
           const val = row.fechasKg[f];
-          trHTML += `<td class="p-2 border text-right">${val ? val.toFixed(1) : '-'}</td>`;
+          trHTML += `<td class="p-2 border text-right">${val ? formatNumber(val, 1) : '-'}</td>`;
         });
-        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${row.totalKg.toFixed(2)}</td>
-                   <td class="p-2 border text-right">${row.metaSum.toFixed(1)}</td>
+        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${formatNumber(row.totalKg)}</td>
+                   <td class="p-2 border text-right">${formatNumber(row.metaSum, 1)}</td>
                    <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgC*100).toFixed(1)}%</span></td>`;
         tr.innerHTML = trHTML;
         frag.appendChild(tr);
@@ -1141,7 +1163,7 @@
         tr.innerHTML = `
             <td class="p-2 border font-semibold">${g.mod}</td>
             <td class="p-2 border">${g.hist}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right font-bold text-green-700">${formatNumber(g.kgSum)}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${(avgC*100).toFixed(1)} %</td>
             <td class="p-2 border text-right">${g.dias.size}</td>
             <td class="p-2 border text-center"><span class="px-2.5 py-1 rounded font-bold ${badgeEvaluada.cls}">${badgeEvaluada.text}</span></td>`;
@@ -1158,7 +1180,7 @@
         tr.innerHTML = `
             <td class="p-2 border">${g.mod}</td>
             <td class="p-2 border">${g.hist}</td>
-            <td class="p-2 border text-right font-semibold">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right font-semibold">${formatNumber(g.kgSum)}</td>
             <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>`;
         fragSub1.appendChild(tr);
       });
@@ -1173,7 +1195,7 @@
         tr.innerHTML = `
             <td class="p-2 border">${g.mod}</td>
             <td class="p-2 border">${g.cat}</td>
-            <td class="p-2 border text-right font-semibold">${g.kgSum.toFixed(2)}</td>
+            <td class="p-2 border text-right font-semibold">${formatNumber(g.kgSum)}</td>
             <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>`;
         fragSub2.appendChild(tr);
       });
