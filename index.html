@@ -235,15 +235,18 @@
         </div>
 
         <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-calendar-check text-indigo-600"></i> RESUMEN DE COSECHA POR FECHA</h3>
+          <h3 class="text-xs font-bold text-indigo-900 mb-3 flex items-center space-x-2">
+            <i class="fa-solid fa-calendar-check text-indigo-600"></i>
+            <span>RESUMEN DE COSECHA POR FECHA</span>
+          </h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse">
-              <thead class="bg-indigo-50 text-indigo-900 uppercase">
+              <thead class="bg-indigo-50 text-indigo-950 uppercase font-bold">
                 <tr>
-                  <th class="p-2 border">FECHA</th>
-                  <th class="p-2 border text-right">TOTAL KG</th>
-                  <th class="p-2 border text-right">TOTAL PROMEDIO DEL TOTAL KG.</th>
-                  <th class="p-2 border text-right">TOTAL COSECHADORES</th>
+                  <th class="p-2 border"><i class="fa-regular fa-calendar-days text-indigo-700 mr-1.5"></i>FECHA</th>
+                  <th class="p-2 border text-right"><i class="fa-solid fa-weight-scale text-indigo-700 mr-1.5"></i>TOTAL KG</th>
+                  <th class="p-2 border text-right"><i class="fa-solid fa-chart-line text-indigo-700 mr-1.5"></i>TOTAL PROMEDIO DEL TOTAL KG.</th>
+                  <th class="p-2 border text-right"><i class="fa-solid fa-users text-indigo-700 mr-1.5"></i>TOTAL COSECHADORES</th>
                 </tr>
               </thead>
               <tbody id="tblResumenFecha" class="divide-y"></tbody>
@@ -468,6 +471,16 @@
       return num.toLocaleString('es-PE', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
     }
 
+    function formatDateDisplay(dateStr) {
+      if (!dateStr) return '';
+      const cleanDate = dateStr.split('T')[0];
+      const parts = cleanDate.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+      return dateStr;
+    }
+
     function showToast(type, title, message) {
       const toast = document.getElementById('toastNotification');
       const icon = document.getElementById('toastIcon');
@@ -636,7 +649,6 @@
       const variedades = [...new Set(rawDetalleData.map(d => d.VARIEDAD).filter(Boolean))].sort();
       const modalidades = [...new Set(dataset.map(d => d.MODALIDAD).filter(Boolean))].sort();
       
-      // Jalar filtro RANGO % únicamente de la hoja DETALLE de BD_COSECHA
       const rangos = [...new Set(rawDetalleData.map(d => d['RANGO %']).filter(Boolean))].sort();
 
       const fillSelect = (id, items) => {
@@ -742,7 +754,6 @@
       const totalModCount = modCounts.reduce((a, b) => a + b, 0);
       document.getElementById('lblTotalMod').textContent = `TOTAL: ${formatNumber(totalModCount, 0)}`;
 
-      // Formatear etiquetas de leyenda con total y porcentaje
       const modLegendLabels = modLabelsRaw.map((m, idx) => {
         const cnt = modCounts[idx];
         const pct = totalModCount > 0 ? ((cnt / totalModCount) * 100).toFixed(1) : 0;
@@ -777,7 +788,6 @@
       const totalSexoCount = sexoCounts.reduce((a, b) => a + b, 0);
       document.getElementById('lblTotalSexo').textContent = `TOTAL: ${formatNumber(totalSexoCount, 0)}`;
 
-      // Formatear etiquetas de leyenda con total y porcentaje
       const sexoLegendLabels = sexoLabelsRaw.map((s, idx) => {
         const cnt = sexoCounts[idx];
         const pct = totalSexoCount > 0 ? ((cnt / totalSexoCount) * 100).toFixed(1) : 0;
@@ -800,7 +810,7 @@
         }
       });
 
-      // TABLA RESUMEN POR FECHA
+      // TABLA RESUMEN POR FECHA (Formato DD/MM/YYYY)
       const fechaGroup = {};
       filteredDetalle.forEach(r => {
         const f = r.FECHA ? r.FECHA.split('T')[0] : 'SIN FECHA';
@@ -816,10 +826,11 @@
       Object.keys(fechaGroup).sort().forEach(f => {
         const d = fechaGroup[f];
         const promKg = d.count > 0 ? (d.kgSum / d.count) : 0;
+        const formattedFecha = formatDateDisplay(f);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
-            <td class="p-2 border font-semibold">${f}</td>
+            <td class="p-2 border font-bold text-gray-800">${formattedFecha}</td>
             <td class="p-2 border text-right font-bold text-green-700">${formatNumber(d.kgSum)} kg</td>
             <td class="p-2 border text-right font-semibold text-blue-700">${formatNumber(promKg)} kg</td>
             <td class="p-2 border text-right font-medium">${formatNumber(d.dnis.size, 0)}</td>`;
@@ -828,7 +839,7 @@
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      // TABLA RESUMEN POR MODALIDAD (con porcentaje en MODALIDAD y separador de miles)
+      // TABLA RESUMEN POR MODALIDAD
       const modData = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'OTRO';
@@ -862,7 +873,7 @@
       tbodyMod.innerHTML = '';
       tbodyMod.appendChild(fragMod);
 
-      // TOP 10 MEJORES COSECHADORES (TOTAL CUMP. % dividido entre 100, miles en KG y diseño visual más vistoso)
+      // TOP 10 MEJORES COSECHADORES
       const cosMap = {};
       filteredDetalle.forEach(r => {
         const key = r.DNI;
@@ -878,8 +889,6 @@
       const fragTop = document.createDocumentFragment();
       top10.forEach((c, i) => {
         const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
-        
-        // TOTAL CUMP. % dividido entre 100
         const totalPromedioCump = c.count > 0 ? ((c.cumpSum / c.count) * 100) / 100 : 0;
 
         let rankBadge = `<span class="font-bold text-gray-600">#${i+1}</span>`;
@@ -911,7 +920,7 @@
       tbodyTop.innerHTML = '';
       tbodyTop.appendChild(fragTop);
 
-      // DISTRIBUCION DE COSECHADORES POR HISTORICO (Promedio de TOTAL KG y porcentaje en TOTAL COSECHADORES)
+      // DISTRIBUCION DE COSECHADORES POR HISTORICO
       const histMap = {};
       filteredDetalle.forEach(r => {
         const h = r.HISTORICO || 'SIN HISTORICO';
@@ -949,7 +958,7 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
-            <td class="p-2 border">${r.FECHA ? r.FECHA.split('T')[0] : ''}</td>
+            <td class="p-2 border">${formatDateDisplay(r.FECHA)}</td>
             <td class="p-2 border font-mono">${r.DNI || ''}</td>
             <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
             <td class="p-2 border">${r.HISTORICO || ''}</td>
@@ -987,7 +996,7 @@
 
       const thead = document.getElementById('theadFechas');
       let thHTML = `<tr><th class="p-2 border">DNI</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">PLACA</th><th class="p-2 border">ORIGEN</th>`;
-      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${f}</th>`);
+      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${formatDateDisplay(f)}</th>`);
       thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right bg-blue-50">CUMP. %</th></tr>`;
       thead.innerHTML = thHTML;
 
@@ -1027,7 +1036,7 @@
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
-            <td class="p-2 border">${r.FECHA ? r.FECHA.split('T')[0] : ''}</td>
+            <td class="p-2 border">${formatDateDisplay(r.FECHA)}</td>
             <td class="p-2 border text-center font-bold">${r.SEMANA || ''}</td>
             <td class="p-2 border font-mono">${r.DNI || ''}</td>
             <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
@@ -1093,7 +1102,7 @@
 
       const thead = document.getElementById('theadTransporte');
       let thHTML = `<tr><th class="p-2 border">PLACA</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">RUTA</th>`;
-      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${f}</th>`);
+      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${formatDateDisplay(f)}</th>`);
       thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right">META</th><th class="p-2 border text-right">CUMP. %</th></tr>`;
       thead.innerHTML = thHTML;
 
