@@ -810,7 +810,7 @@
         }
       });
 
-      // TABLA RESUMEN POR FECHA (Formato DD/MM/YYYY)
+      // TABLA RESUMEN POR FECHA (TOTAL PROMEDIO DEL TOTAL KG. = TOTAL COSECHADORES / TOTAL KG)
       const fechaGroup = {};
       filteredDetalle.forEach(r => {
         const f = r.FECHA ? r.FECHA.split('T')[0] : 'SIN FECHA';
@@ -825,21 +825,23 @@
       const fragFecha = document.createDocumentFragment();
       Object.keys(fechaGroup).sort().forEach(f => {
         const d = fechaGroup[f];
-        const promKg = d.count > 0 ? (d.kgSum / d.count) : 0;
+        const totalCosechadoresFecha = d.dnis.size;
+        // FÓRMULA CORREGIDA: TOTAL COSECHADORES / TOTAL KG.
+        const promKg = d.kgSum > 0 ? (totalCosechadoresFecha / d.kgSum) : 0;
         const formattedFecha = formatDateDisplay(f);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
             <td class="p-2 border font-bold text-gray-800">${formattedFecha}</td>
             <td class="p-2 border text-right font-bold text-green-700">${formatNumber(d.kgSum)} kg</td>
-            <td class="p-2 border text-right font-semibold text-blue-700">${formatNumber(promKg)} kg</td>
-            <td class="p-2 border text-right font-medium">${formatNumber(d.dnis.size, 0)}</td>`;
+            <td class="p-2 border text-right font-semibold text-blue-700">${formatNumber(promKg, 4)}</td>
+            <td class="p-2 border text-right font-medium">${formatNumber(totalCosechadoresFecha, 0)}</td>`;
         fragFecha.appendChild(tr);
       });
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      // TABLA RESUMEN POR MODALIDAD
+      // TABLA RESUMEN POR MODALIDAD (PROM. KG / DÍA = (TOTAL KG / TOTAL COSECHADORES) / TOTAL DÍAS)
       const modData = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'OTRO';
@@ -855,17 +857,21 @@
       const fragMod = document.createDocumentFragment();
       Object.keys(modData).forEach(m => {
         const d = modData[m];
-        const avgKgDia = d.dias.size > 0 ? (d.kgSum / d.dias.size) : 0;
+        const numCosechadores = d.dnis.size;
+        const numDias = d.dias.size;
+        
+        // FÓRMULA CORREGIDA: (TOTAL KG / TOTAL COSECHADORES) / TOTAL DÍAS
+        const avgKgDia = (numCosechadores > 0 && numDias > 0) ? ((d.kgSum / numCosechadores) / numDias) : 0;
         const avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) / 100 : 0;
-        const modPct = totalModCount > 0 ? ((d.dnis.size / totalModCount) * 100).toFixed(1) : 0;
+        const modPct = totalModCount > 0 ? ((numCosechadores / totalModCount) * 100).toFixed(1) : 0;
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-gray-50';
         tr.innerHTML = `
             <td class="p-2 border font-semibold">${m} <span class="text-gray-500 font-normal">(${modPct}%)</span></td>
-            <td class="p-2 border text-right">${formatNumber(d.dnis.size, 0)}</td>
+            <td class="p-2 border text-right">${formatNumber(numCosechadores, 0)}</td>
             <td class="p-2 border text-right font-bold text-blue-700">${avgC.toFixed(1)} %</td>
-            <td class="p-2 border text-right">${d.dias.size}</td>
+            <td class="p-2 border text-right">${numDias}</td>
             <td class="p-2 border text-right font-medium">${formatNumber(avgKgDia)}</td>
             <td class="p-2 border text-right font-bold text-green-700">${formatNumber(d.kgSum)}</td>`;
         fragMod.appendChild(tr);
