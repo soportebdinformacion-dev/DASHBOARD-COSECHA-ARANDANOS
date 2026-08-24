@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOC<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -188,7 +188,7 @@
       </section>
 
       <div id="page-1" class="page-content space-y-5">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
             <div>
               <p class="text-xs text-green-100 font-medium">TOTAL KG</p>
@@ -211,6 +211,32 @@
               <p id="kpiTotalCosechadores" class="text-2xl font-black">0</p>
             </div>
             <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
+          </div>
+
+          <!-- NUEVA ETIQUETA: TOTAL CUMP. % POR MODALIDAD -->
+          <div class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-3.5 rounded-2xl shadow-md flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider flex items-center space-x-1">
+                <i class="fa-solid fa-chart-column text-indigo-200"></i>
+                <span>TOTAL CUMP. % POR MODALIDAD</span>
+              </span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/10 flex flex-col">
+                <span class="text-[10px] text-indigo-200 font-semibold flex items-center space-x-1">
+                  <i class="fa-solid fa-campground text-amber-300"></i>
+                  <span>CAMPAMENTO</span>
+                </span>
+                <span id="kpiCumpCampamento" class="text-lg font-black text-white mt-0.5">0.0 %</span>
+              </div>
+              <div class="bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/10 flex flex-col">
+                <span class="text-[10px] text-indigo-200 font-semibold flex items-center space-x-1">
+                  <i class="fa-solid fa-bus text-sky-300"></i>
+                  <span>IDA Y VUELTA</span>
+                </span>
+                <span id="kpiCumpIdaVuelta" class="text-lg font-black text-white mt-0.5">0.0 %</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -770,6 +796,27 @@
       document.getElementById('kpiTotalKg').innerHTML = `${formatNumber(totalKg)} <span class="text-sm font-normal">kg</span>`;
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = formatNumber(totalCosechadores, 0);
+
+      // CÁLCULO CUMP. % POR MODALIDAD (CAMPAMENTO Y IDA Y VUELTA)
+      let totalCumpCampamento = 0;
+      let totalCumpIdaVuelta = 0;
+
+      filteredDetalle.forEach(r => {
+        const mod = String(r.MODALIDAD || '').toUpperCase();
+        const cumpVal = parseFloat(r['CUMP. %']) || 0;
+        
+        if (mod.includes('CAMPAMENTO')) {
+          totalCumpCampamento += cumpVal;
+        } else if (mod.includes('IDA Y VUELTA') || mod.includes('IDA/VUELTA')) {
+          totalCumpIdaVuelta += cumpVal;
+        }
+      });
+
+      const cumpCampamentoPct = totalCosechadores > 0 ? (totalCumpCampamento * 100) / totalCosechadores : 0;
+      const cumpIdaVueltaPct = totalCosechadores > 0 ? (totalCumpIdaVuelta * 100) / totalCosechadores : 0;
+
+      document.getElementById('kpiCumpCampamento').textContent = `${cumpCampamentoPct.toFixed(1)} %`;
+      document.getElementById('kpiCumpIdaVuelta').textContent = `${cumpIdaVueltaPct.toFixed(1)} %`;
 
       // MODALIDAD (Cosechadores & %)
       const modGroup = {};
