@@ -214,37 +214,27 @@
           </div>
 
           <!-- VISUAL ELEGANTE: TOTAL CUMP. % POR MODALIDAD -->
-          <div class="bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white p-4 rounded-2xl shadow-lg border border-indigo-500/30 flex flex-col justify-between relative overflow-hidden">
-            <div class="absolute -right-4 -bottom-4 w-24 h-24 bg-indigo-500/10 rounded-full blur-xl pointer-events-none"></div>
-            
-            <div class="flex items-center justify-between mb-3 border-b border-indigo-500/20 pb-2">
-              <span class="text-[11px] text-indigo-300 font-bold uppercase tracking-wider flex items-center space-x-2">
-                <i class="fa-solid fa-chart-pie text-indigo-400"></i>
+          <div class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-3.5 rounded-2xl shadow-md flex flex-col justify-between">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider flex items-center space-x-1.5">
+                <i class="fa-solid fa-chart-line text-indigo-200"></i>
                 <span>TOTAL CUMP. % POR MODALIDAD</span>
               </span>
             </div>
-
-            <div class="grid grid-cols-2 gap-3 text-xs relative z-10">
-              <!-- CAMPAMENTO -->
-              <div class="bg-white/5 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:border-indigo-400/40 transition-all flex flex-col justify-between shadow-inner">
-                <div class="flex items-center space-x-2 mb-1.5">
-                  <div class="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-[#000] fa-campground text-xs"></i>
-                  </div>
-                  <span class="text-[10px] text-gray-300 font-bold leading-tight">CUMP. % CAMPAMENTO</span>
-                </div>
-                <span id="kpiCumpCampamento" class="text-lg font-black text-indigo-200 tracking-tight">0.0 %</span>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/15 flex flex-col justify-between hover:bg-white/15 transition-all">
+                <span class="text-[10px] text-indigo-100 font-bold flex items-center space-x-1.5">
+                  <span class="text-sm">🏕️</span>
+                  <span>CUMP. % CAMPAMENTO</span>
+                </span>
+                <span id="kpiCumpCampamento" class="text-base sm:text-lg font-black text-white mt-1">0.0 %</span>
               </div>
-
-              <!-- IDA Y VUELTA -->
-              <div class="bg-white/5 backdrop-blur-md p-2.5 rounded-xl border border-white/10 hover:border-emerald-400/40 transition-all flex flex-col justify-between shadow-inner">
-                <div class="flex items-center space-x-2 mb-1.5">
-                  <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-bus text-xs"></i>
-                  </div>
-                  <span class="text-[10px] text-gray-300 font-bold leading-tight">CUMP. % IDA Y VUELTA</span>
-                </div>
-                <span id="kpiCumpIdaVuelta" class="text-lg font-black text-emerald-200 tracking-tight">0.0 %</span>
+              <div class="bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/15 flex flex-col justify-between hover:bg-white/15 transition-all">
+                <span class="text-[10px] text-indigo-100 font-bold flex items-center space-x-1.5">
+                  <span class="text-sm">🚌</span>
+                  <span>CUMP. % IDA Y VUELTA</span>
+                </span>
+                <span id="kpiCumpIdaVuelta" class="text-base sm:text-lg font-black text-white mt-1">0.0 %</span>
               </div>
             </div>
           </div>
@@ -799,38 +789,36 @@
       const totalKg = filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['TOTAL KG.']) || 0), 0);
       const totalCosechadores = new Set(filteredDetalle.map(r => r.DNI)).size;
       
-      const totalCumpPct = filteredDetalle.length > 0 
-        ? filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['CUMP. %']) || 0), 0)
-        : 0;
-
       const avgCump = filteredDetalle.length > 0 
-        ? (totalCumpPct / filteredDetalle.length)
+        ? ((filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['CUMP. %']) || 0), 0) / filteredDetalle.length) * 100) / 100 
         : 0;
 
       document.getElementById('kpiTotalKg').innerHTML = `${formatNumber(totalKg)} <span class="text-sm font-normal">kg</span>`;
-      document.getElementById('kpiTotalCump').textContent = `${(avgCump * 100).toFixed(1)} %`;
+      document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = formatNumber(totalCosechadores, 0);
 
-      // CÁLCULOS EXACTOS SOLICITADOS:
-      // (TOTAL CAMPAMENTO / TOTAL DE COSECHADORES) * TOTAL CUMP. %
-      // (TOTAL IDA Y VUELTA / TOTAL DE COSECHADORES) * TOTAL CUMP. %
+      // CÁLCULO CUMP. % POR MODALIDAD SOLICITADO
+      // (TOTAL CAMPAMENTO * 100) / TOTAL DE COSECHADORES
+      // (TOTAL IDA Y VUELTA * 100) / TOTAL DE COSECHADORES
       let totalCampamento = 0;
       let totalIdaVuelta = 0;
 
       filteredDetalle.forEach(r => {
         const mod = String(r.MODALIDAD || '').toUpperCase();
+        const cumpVal = parseFloat(r['CUMP. %']) || 0;
+        
         if (mod.includes('CAMPAMENTO')) {
-          totalCampamento++;
+          totalCampamento += cumpVal;
         } else if (mod.includes('IDA Y VUELTA') || mod.includes('IDA/VUELTA')) {
-          totalIdaVuelta++;
+          totalIdaVuelta += cumpVal;
         }
       });
 
-      const cumpCampamentoVal = totalCosechadores > 0 ? ((totalCampamento / totalCosechadores) * totalCumpPct) * 100 : 0;
-      const cumpIdaVueltaVal = totalCosechadores > 0 ? ((totalIdaVuelta / totalCosechadores) * totalCumpPct) * 100 : 0;
+      const cumpCampamentoPct = totalCosechadores > 0 ? (totalCampamento * 100) / totalCosechadores : 0;
+      const cumpIdaVueltaPct = totalCosechadores > 0 ? (totalIdaVuelta * 100) / totalCosechadores : 0;
 
-      document.getElementById('kpiCumpCampamento').textContent = `${cumpCampamentoVal.toFixed(1)} %`;
-      document.getElementById('kpiCumpIdaVuelta').textContent = `${cumpIdaVueltaVal.toFixed(1)} %`;
+      document.getElementById('kpiCumpCampamento').textContent = `${cumpCampamentoPct.toFixed(1)} %`;
+      document.getElementById('kpiCumpIdaVuelta').textContent = `${cumpIdaVueltaPct.toFixed(1)} %`;
 
       // MODALIDAD (Cosechadores & %)
       const modGroup = {};
@@ -955,7 +943,7 @@
         const numDias = d.dias.size;
         
         const avgKgDia = (numCosechadores > 0 && numDias > 0) ? ((d.kgSum / numCosechadores) / numDias) : 0;
-        const avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) : 0;
+        const avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) / 100 : 0;
         const modPct = totalModCount > 0 ? ((numCosechadores / totalModCount) * 100).toFixed(1) : 0;
 
         const tr = document.createElement('tr');
@@ -988,7 +976,7 @@
       const fragTop = document.createDocumentFragment();
       top10.forEach((c, i) => {
         const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
-        const totalPromedioCump = c.count > 0 ? ((c.cumpSum / c.count) * 100) : 0;
+        const totalPromedioCump = c.count > 0 ? ((c.cumpSum / c.count) * 100) / 100 : 0;
 
         let rankBadge = `<span class="font-bold text-gray-600">#${i+1}</span>`;
         let rowBg = 'hover:bg-amber-50/50';
