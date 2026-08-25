@@ -214,6 +214,86 @@
           </div>
         </div>
 
+        <!-- VISUAL ELEGANTE: TOTAL CUMP. % POR MODALIDAD -->
+        <div class="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white p-5 rounded-2xl shadow-xl border border-emerald-800/50">
+          <div class="flex items-center justify-between mb-4 border-b border-emerald-800/40 pb-3">
+            <div class="flex items-center space-x-3">
+              <div class="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+                <i class="fa-solid fa-chart-line text-lg"></i>
+              </div>
+              <div>
+                <h3 class="text-sm font-black text-emerald-300 uppercase tracking-wide">TOTAL CUMP. % POR MODALIDAD</h3>
+                <p class="text-[11px] text-gray-400">Distribución ponderada del cumplimiento por tipo de servicio</p>
+              </div>
+            </div>
+            <span class="text-[10px] font-semibold bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 px-2.5 py-1 rounded-full uppercase tracking-wider">
+              <i class="fa-solid fa-bolt mr-1 text-amber-400"></i>Cálculo Ponderado
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- TARJETA CAMPAMENTO -->
+            <div class="relative overflow-hidden bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 hover:border-emerald-500/50 transition-all duration-300 group">
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase tracking-wide mb-1">
+                    MODALIDAD 01
+                  </span>
+                  <h4 class="text-sm font-bold text-gray-200">CAMPAMENTO</h4>
+                  <p class="text-[11px] text-gray-400 mt-0.5">Cosechadores con estadía</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-teal-500/10 text-teal-400 border border-teal-500/30 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-campground"></i>
+                </div>
+              </div>
+
+              <div class="mt-4 flex items-baseline justify-between border-t border-white/5 pt-3">
+                <div>
+                  <span id="cumpCampamentoVal" class="text-3xl font-black text-teal-400">0.0 %</span>
+                  <p id="cumpCampamentoRatio" class="text-[10px] text-gray-400 mt-0.5">0 / 0 cosecha. únicos</p>
+                </div>
+                <div class="text-right">
+                  <span id="cumpCampamentoBarPct" class="text-xs font-bold text-teal-300">0% Ponderado</span>
+                </div>
+              </div>
+
+              <div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden border border-white/5">
+                <div id="cumpCampamentoBar" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+              </div>
+            </div>
+
+            <!-- TARJETA IDA Y VUELTA -->
+            <div class="relative overflow-hidden bg-white/5 backdrop-blur-md rounded-xl p-4 border border-white/10 hover:border-indigo-500/50 transition-all duration-300 group">
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wide mb-1">
+                    MODALIDAD 02
+                  </span>
+                  <h4 class="text-sm font-bold text-gray-200">IDA Y VUELTA</h4>
+                  <p class="text-[11px] text-gray-400 mt-0.5">Traslado diario de personal</p>
+                </div>
+                <div class="w-11 h-11 rounded-xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-xl shadow-inner group-hover:scale-110 transition-transform">
+                  <i class="fa-solid fa-bus-simple"></i>
+                </div>
+              </div>
+
+              <div class="mt-4 flex items-baseline justify-between border-t border-white/5 pt-3">
+                <div>
+                  <span id="cumpIdaVueltaVal" class="text-3xl font-black text-indigo-400">0.0 %</span>
+                  <p id="cumpIdaVueltaRatio" class="text-[10px] text-gray-400 mt-0.5">0 / 0 cosecha. únicos</p>
+                </div>
+                <div class="text-right">
+                  <span id="cumpIdaVueltaBarPct" class="text-xs font-bold text-indigo-300">0% Ponderado</span>
+                </div>
+              </div>
+
+              <div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden border border-white/5">
+                <div id="cumpIdaVueltaBar" class="bg-gradient-to-r from-indigo-500 to-blue-400 h-2 rounded-full transition-all duration-700" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
             <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center justify-between">
@@ -771,6 +851,45 @@
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = formatNumber(totalCosechadores, 0);
 
+      // CÁLCULO DE CUMP % PONDERADO POR MODALIDAD (1.1 y 1.2)
+      const totalNombresSet = new Set();
+      const campamentoNombresSet = new Set();
+      const idaVueltaNombresSet = new Set();
+
+      filteredDetalle.forEach(r => {
+        const nom = r['APELLIDOS Y NOMBRES'];
+        const mod = String(r.MODALIDAD || '').toUpperCase().trim();
+        if (nom) {
+          totalNombresSet.add(nom);
+          if (mod === 'CAMPAMENTO') campamentoNombresSet.add(nom);
+          if (mod === 'IDA Y VUELTA') idaVueltaNombresSet.add(nom);
+        }
+      });
+
+      const totalUnicosNom = totalNombresSet.size;
+      const campUnicosNom = campamentoNombresSet.size;
+      const idaVueltaUnicosNom = idaVueltaNombresSet.size;
+
+      // 1.1 CUMP. % CAMPAMENTO
+      const cumpCampamento = totalUnicosNom > 0 ? (campUnicosNom / totalUnicosNom) * avgCump : 0;
+      // 1.2 CUMP. % IDA Y VUELTA
+      const cumpIdaVuelta = totalUnicosNom > 0 ? (idaVueltaUnicosNom / totalUnicosNom) * avgCump : 0;
+
+      // Actualización Visual Dashboard - Tarjetas Elegantes
+      document.getElementById('cumpCampamentoVal').textContent = `${cumpCampamento.toFixed(1)} %`;
+      document.getElementById('cumpCampamentoRatio').textContent = `${campUnicosNom} / ${totalUnicosNom} cosecha. únicos`;
+      
+      const pctCampBar = avgCump > 0 ? Math.min(100, Math.max(0, (cumpCampamento / avgCump) * 100)) : 0;
+      document.getElementById('cumpCampamentoBarPct').textContent = `${pctCampBar.toFixed(1)}% Ponderado`;
+      document.getElementById('cumpCampamentoBar').style.width = `${pctCampBar}%`;
+
+      document.getElementById('cumpIdaVueltaVal').textContent = `${cumpIdaVuelta.toFixed(1)} %`;
+      document.getElementById('cumpIdaVueltaRatio').textContent = `${idaVueltaUnicosNom} / ${totalUnicosNom} cosecha. únicos`;
+      
+      const pctIdaBar = avgCump > 0 ? Math.min(100, Math.max(0, (cumpIdaVuelta / avgCump) * 100)) : 0;
+      document.getElementById('cumpIdaVueltaBarPct').textContent = `${pctIdaBar.toFixed(1)}% Ponderado`;
+      document.getElementById('cumpIdaVueltaBar').style.width = `${pctIdaBar}%`;
+
       // MODALIDAD (Cosechadores & %)
       const modGroup = {};
       filteredDetalle.forEach(r => {
@@ -874,17 +993,12 @@
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      // TABLA RESUMEN POR MODALIDAD - MODIFICACIÓN APLICADA
+      // TABLA RESUMEN POR MODALIDAD
       const modData = {};
-      const totalNombresUnicosSet = new Set();
 
       filteredDetalle.forEach(r => {
         const m = (r.MODALIDAD || 'OTRO').toUpperCase().trim();
         const nombre = r['APELLIDOS Y NOMBRES'];
-
-        if (nombre) {
-          totalNombresUnicosSet.add(nombre);
-        }
 
         if (!modData[m]) {
           modData[m] = { 
@@ -905,9 +1019,6 @@
         modData[m].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
       });
 
-      const totalNombresUnicos = totalNombresUnicosSet.size;
-      const totalCumpPctGeneral = avgCump; // CUMP% total general
-
       const tbodyMod = document.getElementById('tblModalidadResumen');
       const fragMod = document.createDocumentFragment();
       
@@ -921,12 +1032,10 @@
         
         let avgC = 0;
 
-        if (m === 'CAMPAMENTO' || m === 'IDA Y VUELTA') {
-          // Cálculo 1.1 y 1.2:
-          // (Total reg. únicos de la modalidad / Total reg. únicos de APELLIDOS Y NOMBRES) * Total de CUMP%
-          if (totalNombresUnicos > 0) {
-            avgC = (numNombresUnicosModalidad / totalNombresUnicos) * totalCumpPctGeneral;
-          }
+        if (m === 'CAMPAMENTO') {
+          avgC = cumpCampamento;
+        } else if (m === 'IDA Y VUELTA') {
+          avgC = cumpIdaVuelta;
         } else {
           avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) : 0;
         }
