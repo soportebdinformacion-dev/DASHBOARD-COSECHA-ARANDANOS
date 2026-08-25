@@ -188,7 +188,7 @@
       </section>
 
       <div id="page-1" class="page-content space-y-5">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
             <div>
               <p class="text-xs text-green-100 font-medium">TOTAL KG</p>
@@ -211,32 +211,6 @@
               <p id="kpiTotalCosechadores" class="text-2xl font-black">0</p>
             </div>
             <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
-          </div>
-
-          <!-- VISUAL ELEGANTE: TOTAL CUMP. % POR MODALIDAD -->
-          <div class="bg-gradient-to-r from-indigo-600 to-purple-700 text-white p-3.5 rounded-2xl shadow-md flex flex-col justify-between">
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-[11px] text-indigo-100 font-bold uppercase tracking-wider flex items-center space-x-1.5">
-                <i class="fa-solid fa-chart-line text-indigo-200"></i>
-                <span>TOTAL CUMP. % POR MODALIDAD</span>
-              </span>
-            </div>
-            <div class="grid grid-cols-2 gap-2 text-xs">
-              <div class="bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/15 flex flex-col justify-between hover:bg-white/15 transition-all">
-                <span class="text-[10px] text-indigo-100 font-bold flex items-center space-x-1.5">
-                  <span class="text-sm">🏕️</span>
-                  <span>CUMP. % CAMPAMENTO</span>
-                </span>
-                <span id="kpiCumpCampamento" class="text-base sm:text-lg font-black text-white mt-1">0.0 %</span>
-              </div>
-              <div class="bg-white/10 backdrop-blur-md p-2 rounded-xl border border-white/15 flex flex-col justify-between hover:bg-white/15 transition-all">
-                <span class="text-[10px] text-indigo-100 font-bold flex items-center space-x-1.5">
-                  <span class="text-sm">🚌</span>
-                  <span>CUMP. % IDA Y VUELTA</span>
-                </span>
-                <span id="kpiCumpIdaVuelta" class="text-base sm:text-lg font-black text-white mt-1">0.0 %</span>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -797,29 +771,6 @@
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = formatNumber(totalCosechadores, 0);
 
-      // CÁLCULO CUMP. % POR MODALIDAD SOLICITADO
-      // (TOTAL CAMPAMENTO * 100) / TOTAL DE COSECHADORES
-      // (TOTAL IDA Y VUELTA * 100) / TOTAL DE COSECHADORES
-      let totalCampamento = 0;
-      let totalIdaVuelta = 0;
-
-      filteredDetalle.forEach(r => {
-        const mod = String(r.MODALIDAD || '').toUpperCase();
-        const cumpVal = parseFloat(r['CUMP. %']) || 0;
-        
-        if (mod.includes('CAMPAMENTO')) {
-          totalCampamento += cumpVal;
-        } else if (mod.includes('IDA Y VUELTA') || mod.includes('IDA/VUELTA')) {
-          totalIdaVuelta += cumpVal;
-        }
-      });
-
-      const cumpCampamentoPct = totalCosechadores > 0 ? (totalCampamento * 100) / totalCosechadores : 0;
-      const cumpIdaVueltaPct = totalCosechadores > 0 ? (totalIdaVuelta * 100) / totalCosechadores : 0;
-
-      document.getElementById('kpiCumpCampamento').textContent = `${cumpCampamentoPct.toFixed(1)} %`;
-      document.getElementById('kpiCumpIdaVuelta').textContent = `${cumpIdaVueltaPct.toFixed(1)} %`;
-
       // MODALIDAD (Cosechadores & %)
       const modGroup = {};
       filteredDetalle.forEach(r => {
@@ -923,11 +874,30 @@
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      // TABLA RESUMEN POR MODALIDAD
+      // TABLA RESUMEN POR MODALIDAD - MODIFICACIÓN APLICADA
       const modData = {};
+      const totalNombresUnicosSet = new Set();
+
       filteredDetalle.forEach(r => {
-        const m = r.MODALIDAD || 'OTRO';
-        if (!modData[m]) modData[m] = { dnis: new Set(), cumpSum: 0, count: 0, dias: new Set(), kgSum: 0 };
+        const m = (r.MODALIDAD || 'OTRO').toUpperCase().trim();
+        const nombre = r['APELLIDOS Y NOMBRES'];
+
+        if (nombre) {
+          totalNombresUnicosSet.add(nombre);
+        }
+
+        if (!modData[m]) {
+          modData[m] = { 
+            nombres: new Set(), 
+            dnis: new Set(), 
+            cumpSum: 0, 
+            count: 0, 
+            dias: new Set(), 
+            kgSum: 0 
+          };
+        }
+        
+        if (nombre) modData[m].nombres.add(nombre);
         modData[m].dnis.add(r.DNI);
         modData[m].cumpSum += (parseFloat(r['CUMP. %']) || 0);
         modData[m].count++;
@@ -935,15 +905,32 @@
         modData[m].kgSum += (parseFloat(r['TOTAL KG.']) || 0);
       });
 
+      const totalNombresUnicos = totalNombresUnicosSet.size;
+      const totalCumpPctGeneral = avgCump; // CUMP% total general
+
       const tbodyMod = document.getElementById('tblModalidadResumen');
       const fragMod = document.createDocumentFragment();
+      
       Object.keys(modData).forEach(m => {
         const d = modData[m];
         const numCosechadores = d.dnis.size;
+        const numNombresUnicosModalidad = d.nombres.size;
         const numDias = d.dias.size;
         
         const avgKgDia = (numCosechadores > 0 && numDias > 0) ? ((d.kgSum / numCosechadores) / numDias) : 0;
-        const avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) / 100 : 0;
+        
+        let avgC = 0;
+
+        if (m === 'CAMPAMENTO' || m === 'IDA Y VUELTA') {
+          // Cálculo 1.1 y 1.2:
+          // (Total reg. únicos de la modalidad / Total reg. únicos de APELLIDOS Y NOMBRES) * Total de CUMP%
+          if (totalNombresUnicos > 0) {
+            avgC = (numNombresUnicosModalidad / totalNombresUnicos) * totalCumpPctGeneral;
+          }
+        } else {
+          avgC = d.count > 0 ? ((d.cumpSum / d.count) * 100) : 0;
+        }
+
         const modPct = totalModCount > 0 ? ((numCosechadores / totalModCount) * 100).toFixed(1) : 0;
 
         const tr = document.createElement('tr');
