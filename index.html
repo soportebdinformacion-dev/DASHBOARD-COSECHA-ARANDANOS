@@ -562,7 +562,7 @@
   </div>
 
   <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwPUAyqRrwSzYLP4bBgXvhaY7DIiMXgSgbFVgvU5Er9ifyO0z-oc-7eCJViY8COolsk/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzLDIJsrw3ugribpGh4_Q9rEeWNXo7D_50eFx52POFuM0qnWYMeGWkn9XCBbv4K5MJd/exec";
 
     let activeTab = 1;
     let rawDetalleData = [];
@@ -575,9 +575,8 @@
     let sortOrderFecha = 'asc';
     let sortOrderHistoricoProm = 'desc';
 
-    // Variables para ordenamiento de Página 2 (Reporte Detallado)
-    let sortOrderDetalleFecha = null; // 'asc' | 'desc'
-    let sortOrderDetalleNombre = null; // 'asc' | 'desc'
+    let sortOrderDetalleFecha = null;
+    let sortOrderDetalleNombre = null;
 
     let chartModalidadObj = null;
     let chartSexoObj = null;
@@ -616,10 +615,9 @@
       renderPage1();
     }
 
-    // Funciones de ordenamiento agregadas para la página 2
     function toggleSortDetalleFecha() {
       sortOrderDetalleFecha = sortOrderDetalleFecha === 'asc' ? 'desc' : 'asc';
-      sortOrderDetalleNombre = null; // Reiniciar el otro ordenamiento
+      sortOrderDetalleNombre = null;
 
       updateDetalleSortIcons();
 
@@ -637,7 +635,7 @@
 
     function toggleSortDetalleNombre() {
       sortOrderDetalleNombre = sortOrderDetalleNombre === 'asc' ? 'desc' : 'asc';
-      sortOrderDetalleFecha = null; // Reiniciar el otro ordenamiento
+      sortOrderDetalleFecha = null;
 
       updateDetalleSortIcons();
 
@@ -737,7 +735,10 @@
     async function loadDataFromGAS() {
       setConnectionStatus('loading', 'Sincronizando Sheets...');
       try {
-        const response = await fetch(GAS_API_URL);
+        const response = await fetch(`${GAS_API_URL}?action=getData`, {
+          method: 'GET',
+          redirect: 'follow'
+        });
         const result = await response.json();
 
         if (result.status === 'success') {
@@ -844,7 +845,6 @@
         return true;
       });
 
-      // Si había algún orden activo en la página 2, volver a aplicarlo
       if (sortOrderDetalleFecha) {
         filteredDetalle.sort((a, b) => {
           const valA = String(a.fecha || '');
@@ -938,7 +938,6 @@
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = uniqueCosechadores.size;
 
-      // KPI TOTAL CUMP. % POR MODALIDAD
       let sumCampCump = 0, countCamp = 0, setCampDni = new Set();
       let sumIdaCump = 0, countIda = 0, setIdaDni = new Set();
 
@@ -973,7 +972,6 @@
       document.getElementById('cumpIdaVueltaBarPct').textContent = `${pctIdaPond.toFixed(0)}% Ponderado`;
       document.getElementById('cumpIdaVueltaBar').style.width = `${Math.min(pctIdaPond, 100)}%`;
 
-      // GRÁFICOS
       const modCounts = {};
       filteredDetalle.forEach(item => {
         const m = item.modalidad || 'DESCONOCIDO';
@@ -1002,7 +1000,6 @@
 
       renderPieChart('chartSexo', chartSexoObj, sexoLabels, sexoData, ['#EC4899', '#3B82F6', '#94A3B8'], (chart) => chartSexoObj = chart);
 
-      // TABLA RESUMEN FECHA
       const byFecha = {};
       filteredDetalle.forEach(item => {
         const f = item.fecha;
@@ -1034,7 +1031,6 @@
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      // TABLA RESUMEN MODALIDAD
       const byMod = {};
       filteredDetalle.forEach(item => {
         const m = item.modalidad || 'SIN MODALIDAD';
@@ -1069,7 +1065,6 @@
       tbodyMod.innerHTML = '';
       tbodyMod.appendChild(fragMod);
 
-      // TOP 10 MEJORES COSECHADORES
       const byPerson = {};
       filteredDetalle.forEach(item => {
         const key = item.dni || item.nombre;
@@ -1107,7 +1102,6 @@
       tbodyTop.innerHTML = '';
       tbodyTop.appendChild(fragTop);
 
-      // DISTRIBUCION POR HISTORICO
       const byHist = {};
       filteredDetalle.forEach(item => {
         const h = item.historico || 'SIN HISTÓRICO';
