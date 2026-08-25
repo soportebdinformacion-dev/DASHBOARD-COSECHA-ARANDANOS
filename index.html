@@ -576,7 +576,6 @@
     let sortOrderFecha = 'desc';
     let sortOrderHistoricoProm = 'desc';
 
-    // Variables de ordenamiento para la tabla Reporte Detallado
     let sortColumnDetalle = null;
     let sortOrderDetalle = 'asc';
 
@@ -619,6 +618,49 @@
       });
     }
 
+    function processFetchedData(json) {
+      const statusBox = document.getElementById('connectionStatus');
+      const syncDot = document.getElementById('syncDot');
+      const syncText = document.getElementById('syncText');
+      const syncIcon = document.getElementById('syncIcon');
+
+      if (json && json.status === 'success') {
+        rawDetalleData = json.detalle || [];
+        rawTdpData = json.tdp || [];
+        saveLocalData('detalle', rawDetalleData);
+        saveLocalData('tdp', rawTdpData);
+
+        syncDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+        syncText.textContent = "Conectado";
+        syncIcon.className = "fa-solid fa-wifi text-emerald-600";
+        statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100";
+        showToast('success', 'Conexión Exitosa', '¡Sincronizado con Google Sheets correctamente!');
+        populateFilterOptions();
+        applyFilters();
+      } else {
+        throw new Error(json ? json.message : "Error desconocido");
+      }
+    }
+
+    function fetchJSONP(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          resolve(data);
+        };
+        const script = document.createElement('script');
+        script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+        script.onerror = function() {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          reject(new Error("Error al cargar script vía JSONP"));
+        };
+        document.body.appendChild(script);
+      });
+    }
+
     async function initData() {
       const statusBox = document.getElementById('connectionStatus');
       const syncDot = document.getElementById('syncDot');
@@ -633,27 +675,31 @@
         applyFilters();
       }
 
-      try {
-        if (!navigator.onLine) {
-          throw new Error("Dispositivo sin conexión a internet.");
-        }
-        const res = await fetch(GAS_API_URL + "?action=getData", { method: 'GET', redirect: 'follow' });
-        if (!res.ok) throw new Error("Error HTTP de servidor: " + res.status);
-        const json = await res.json();
-        if (json.status === 'success') {
-          rawDetalleData = json.detalle || [];
-          rawTdpData = json.tdp || [];
-          saveLocalData('detalle', rawDetalleData);
-          saveLocalData('tdp', rawTdpData);
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(data) {
+            processFetchedData(typeof data === 'string' ? JSON.parse(data) : data);
+          })
+          .withFailureHandler(function(err) {
+            console.warn("Fallo via google.script.run, probando endpoint...", err);
+            fetchDataFallback();
+          })
+          .getDataFromSheets();
+      } else {
+        fetchDataFallback();
+      }
+    }
 
-          syncDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
-          syncText.textContent = "Conectado";
-          syncIcon.className = "fa-solid fa-wifi text-emerald-600";
-          statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100";
-          showToast('success', 'Conexión Exitosa', '¡Sincronizado con Google Sheets correctamente!');
-        } else {
-          throw new Error(json.message || "Respuesta inválida desde Google Sheets");
-        }
+    async function fetchDataFallback() {
+      const statusBox = document.getElementById('connectionStatus');
+      const syncDot = document.getElementById('syncDot');
+      const syncText = document.getElementById('syncText');
+      const syncIcon = document.getElementById('syncIcon');
+
+      try {
+        if (!navigator.onLine) throw new Error("Sin conexión a internet.");
+        const json = await fetchJSONP(GAS_API_URL + "?action=getData");
+        processFetchedData(json);
       } catch (err) {
         console.warn("Conexión con Google Sheets no disponible:", err);
         syncDot.className = "w-2 h-2 rounded-full bg-amber-500";
@@ -661,10 +707,9 @@
         syncIcon.className = "fa-solid fa-database text-amber-600";
         statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100";
         showToast('warning', 'Modo Offline', 'Usando datos guardados previamente.');
+        populateFilterOptions();
+        applyFilters();
       }
-
-      populateFilterOptions();
-      applyFilters();
     }
 
     function populateFilterOptions() {
@@ -1125,7 +1170,6 @@
       const frag = document.createDocumentFragment();
 
       pageData.forEach(r => {
-        // División por 100 del valor CUMP. %
         const rawCump = parseFloat(r['CUMP. %']) || 0;
         const cumpVal = rawCump / 100;
         const badge = getCumplimientoBadge(cumpVal);
