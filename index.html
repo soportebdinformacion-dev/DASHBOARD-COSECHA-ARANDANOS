@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCT<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -14,16 +14,17 @@
     :root {
       --primary-green: #2D7A3A;
       --accent-red: #D93829;
-      --bg-light: #F4F6F8;
+      --bg-light: #F8FAFC;
     }
     body {
       background-color: var(--bg-light);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      color: #334155;
     }
-    .badge-malo { background-color: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
-    .badge-regular { background-color: #FFEDD5; color: #9A3412; border: 1px solid #FDBA74; }
-    .badge-bueno { background-color: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }
-    .badge-excelente { background-color: #DBEAFE; color: #1E40AF; border: 1px solid #93C5FD; }
+    .badge-malo { background-color: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; }
+    .badge-regular { background-color: #FFF7ED; color: #9A3412; border: 1px solid #FDBA74; }
+    .badge-bueno { background-color: #F0FDF4; color: #166534; border: 1px solid #86EFAC; }
+    .badge-excelente { background-color: #EFF6FF; color: #1E40AF; border: 1px solid #93C5FD; }
     
     .scroll-custom::-webkit-scrollbar { height: 6px; width: 6px; }
     .scroll-custom::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
@@ -33,8 +34,8 @@
       border-left: 4px solid transparent;
     }
     .nav-btn-vert.active {
-      background-color: #E8F5E9;
-      color: #2D7A3A;
+      background-color: #F0FDF4;
+      color: #166534;
       font-weight: 700;
       border-left-color: #2D7A3A;
     }
@@ -46,44 +47,44 @@
     <div id="toastIcon" class="text-xl"></div>
     <div class="flex-1">
       <h4 id="toastTitle" class="text-xs font-bold uppercase"></h4>
-      <p id="toastMessage" class="text-xs text-gray-600"></p>
+      <p id="toastMessage" class="text-xs text-slate-500"></p>
     </div>
-    <button onclick="hideToast()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark"></i></button>
+    <button onclick="hideToast()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
   </div>
 
-  <aside class="w-full md:w-64 bg-white border-r border-gray-200 md:min-h-screen flex flex-col justify-between z-40 shrink-0">
+  <aside class="w-full md:w-64 bg-white border-r border-slate-200 md:min-h-screen flex flex-col justify-between z-40 shrink-0">
     <div>
-      <div class="p-4 border-b border-gray-200 flex items-center space-x-3 bg-white">
-        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-green-50 border border-green-200 shrink-0">
-          <svg class="w-7 h-7 text-green-700" viewBox="0 0 100 100" fill="currentColor">
-            <path d="M50 15 C 30 15, 15 30, 15 50 C 15 70, 30 85, 50 85 C 70 85, 85 70, 85 50 C 85 30, 70 15, 50 15 Z" fill="#D93829" />
-            <path d="M40 10 C 60 5, 80 20, 75 40 C 60 25, 45 20, 40 10 Z" fill="#2D7A3A" />
+      <div class="p-4 border-b border-slate-100 flex items-center space-x-3 bg-white">
+        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-emerald-50 border border-emerald-100 shrink-0">
+          <svg class="w-7 h-7 text-emerald-600" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50 15 C 30 15, 15 30, 15 50 C 15 70, 30 85, 50 85 C 70 85, 85 70, 85 50 C 85 30, 70 15, 50 15 Z" fill="#E11D48" />
+            <path d="M40 10 C 60 5, 80 20, 75 40 C 60 25, 45 20, 40 10 Z" fill="#059669" />
             <circle cx="50" cy="50" r="32" fill="none" stroke="#FFFFFF" stroke-width="4" />
           </svg>
         </div>
         <div>
-          <h1 class="text-base font-bold text-gray-800 leading-tight">Agrícola Huarmey</h1>
-          <p class="text-xs text-gray-500 font-medium">Cosecha Arándanos <i class="fa-solid fa-seedling text-green-600"></i></p>
+          <h1 class="text-base font-bold text-slate-800 leading-tight">Agrícola Huarmey</h1>
+          <p class="text-xs text-slate-400 font-medium">Cosecha Arándanos <i class="fa-solid fa-seedling text-emerald-500"></i></p>
         </div>
       </div>
 
       <nav class="p-3 space-y-1.5 overflow-x-auto md:overflow-y-auto flex md:flex-col scroll-custom">
-        <button onclick="switchTab(1)" id="tab-1" class="nav-btn-vert active w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+        <button onclick="switchTab(1)" id="tab-1" class="nav-btn-vert active w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-slate-600 flex items-center space-x-2.5 whitespace-nowrap">
           <span>🫐</span> <span>Dashboard Cosecha</span>
         </button>
-        <button onclick="switchTab(2)" id="tab-2" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+        <button onclick="switchTab(2)" id="tab-2" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-slate-600 flex items-center space-x-2.5 whitespace-nowrap">
           <span>🫐</span> <span>Reporte Detallado</span>
         </button>
-        <button onclick="switchTab(3)" id="tab-3" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+        <button onclick="switchTab(3)" id="tab-3" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-slate-600 flex items-center space-x-2.5 whitespace-nowrap">
           <span>🫐</span> <span>Cosecha x Fechas</span>
         </button>
-        <button onclick="switchTab(4)" id="tab-4" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+        <button onclick="switchTab(4)" id="tab-4" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-slate-600 flex items-center space-x-2.5 whitespace-nowrap">
           <span>🫐</span> <span>Reg. Únicos</span>
         </button>
-        <button onclick="switchTab(5)" id="tab-5" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+        <button onclick="switchTab(5)" id="tab-5" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-slate-600 flex items-center space-x-2.5 whitespace-nowrap">
           <span>🫐</span> <span>Cosecha x Transporte</span>
         </button>
-        <button onclick="switchTab(6)" id="tab-6" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-gray-700 flex items-center space-x-2.5 whitespace-nowrap">
+        <button onclick="switchTab(6)" id="tab-6" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-slate-600 flex items-center space-x-2.5 whitespace-nowrap">
           <span>🫐</span> <span>Resumen Final</span>
         </button>
       </nav>
@@ -92,25 +93,25 @@
 
   <div class="flex-1 flex flex-col min-w-0">
     
-    <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-30">
+    <header class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-xs sticky top-0 z-30">
       <div class="flex items-center space-x-3">
-        <div id="connectionStatus" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 text-gray-700">
-          <span id="syncDot" class="w-2 h-2 rounded-full bg-gray-400"></span>
+        <div id="connectionStatus" class="flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600">
+          <span id="syncDot" class="w-2 h-2 rounded-full bg-slate-400"></span>
           <span id="syncText">Conectando...</span>
           <i id="syncIcon" class="fa-solid fa-spinner fa-spin ml-1"></i>
         </div>
         
-        <div class="text-xs font-bold text-gray-500 uppercase tracking-wider hidden lg:block">
+        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider hidden lg:block">
           MÓDULO DE GESTIÓN Y CONTROL
         </div>
       </div>
       
       <div class="flex items-center space-x-4 ml-auto">
         <div class="text-right">
-          <div id="liveTime" class="text-base font-black text-gray-800 leading-none">00:00:00</div>
-          <div id="liveDate" class="text-xs text-gray-500 font-semibold mt-0.5">00/00/2026</div>
+          <div id="liveTime" class="text-base font-bold text-slate-700 leading-none">00:00:00</div>
+          <div id="liveDate" class="text-xs text-slate-400 font-semibold mt-0.5">00/00/2026</div>
         </div>
-        <div class="w-8 h-8 rounded-full bg-green-100 text-green-700 flex items-center justify-center font-bold">
+        <div class="w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold border border-emerald-100">
           <i class="fa-regular fa-clock"></i>
         </div>
       </div>
@@ -118,56 +119,56 @@
 
     <main class="p-3 sm:p-5 space-y-5 flex-1 overflow-y-auto">
 
-      <section class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
+      <section class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
         <div class="flex items-center justify-between mb-3">
-          <h2 class="text-xs font-bold text-gray-700 flex items-center space-x-2 uppercase">
-            <i class="fa-solid fa-filter text-green-600"></i>
+          <h2 class="text-xs font-bold text-slate-700 flex items-center space-x-2 uppercase">
+            <i class="fa-solid fa-filter text-emerald-600"></i>
             <span>Filtros de Búsqueda</span>
           </h2>
-          <button onclick="resetFilters()" class="text-xs text-red-600 hover:underline font-semibold">Limpiar Filtros</button>
+          <button onclick="resetFilters()" class="text-xs text-rose-500 hover:underline font-semibold">Limpiar Filtros</button>
         </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-regular fa-calendar-days text-gray-400"></i> FECHA</label>
-            <input type="date" id="filterFecha" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+            <label class="block text-xs font-semibold text-slate-500 mb-1"><i class="fa-regular fa-calendar-days text-slate-400"></i> FECHA</label>
+            <input type="date" id="filterFecha" onchange="applyFilters()" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-calendar-week text-gray-400"></i> SEMANA</label>
-            <select id="filterSemana" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+            <label class="block text-xs font-semibold text-slate-500 mb-1"><i class="fa-solid fa-calendar-week text-slate-400"></i> SEMANA</label>
+            <select id="filterSemana" onchange="applyFilters()" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
               <option value="">Todas</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-layer-group text-gray-400"></i> CATEG. 2026</label>
-            <select id="filterCateg" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+            <label class="block text-xs font-semibold text-slate-500 mb-1"><i class="fa-solid fa-layer-group text-slate-400"></i> CATEG. 2026</label>
+            <select id="filterCateg" onchange="applyFilters()" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
               <option value="">Todas</option>
             </select>
           </div>
           <div id="filterVariedadBox">
-            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-seedling text-gray-400"></i> VARIEDAD</label>
-            <select id="filterVariedad" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+            <label class="block text-xs font-semibold text-slate-500 mb-1"><i class="fa-solid fa-seedling text-slate-400"></i> VARIEDAD</label>
+            <select id="filterVariedad" onchange="applyFilters()" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
               <option value="">Todas</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-truck-ramp-box text-gray-400"></i> MODALIDAD</label>
-            <select id="filterModalidad" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+            <label class="block text-xs font-semibold text-slate-500 mb-1"><i class="fa-solid fa-truck-ramp-box text-slate-400"></i> MODALIDAD</label>
+            <select id="filterModalidad" onchange="applyFilters()" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
               <option value="">Todas</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold text-gray-600 mb-1"><i class="fa-solid fa-chart-pie text-gray-400"></i> RANGO %</label>
-            <select id="filterRango" onchange="applyFilters()" class="w-full text-xs p-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+            <label class="block text-xs font-semibold text-slate-500 mb-1"><i class="fa-solid fa-chart-pie text-slate-400"></i> RANGO %</label>
+            <select id="filterRango" onchange="applyFilters()" class="w-full text-xs p-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
               <option value="">Todos</option>
             </select>
           </div>
         </div>
       </section>
 
-      <section id="leyendaCumplimiento" class="hidden bg-white p-3 rounded-xl shadow-sm border border-gray-200">
-        <div class="text-xs font-bold text-gray-700 mb-2 flex items-center space-x-1">
-          <i class="fa-solid fa-circle-info text-blue-600"></i>
+      <section id="leyendaCumplimiento" class="hidden bg-white p-3 rounded-xl shadow-xs border border-slate-200">
+        <div class="text-xs font-bold text-slate-700 mb-2 flex items-center space-x-1">
+          <i class="fa-solid fa-circle-info text-sky-500"></i>
           <span>LEYENDA DE CUMPLIMIENTO</span>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-semibold">
@@ -178,338 +179,338 @@
         </div>
       </section>
 
-      <section id="searchPersonBox" class="hidden bg-white p-3 rounded-xl shadow-sm border border-gray-200">
+      <section id="searchPersonBox" class="hidden bg-white p-3 rounded-xl shadow-xs border border-slate-200">
         <div class="relative">
-          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
             <i class="fa-solid fa-magnifying-glass"></i>
           </span>
-          <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full text-xs pl-9 pr-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500">
+          <input type="text" id="searchInput" onkeyup="applyFilters()" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full text-xs pl-9 pr-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 bg-slate-50/50">
         </div>
       </section>
 
       <div id="page-1" class="page-content space-y-5">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
+          <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-sm flex items-center justify-between border border-emerald-400/20">
             <div>
-              <p class="text-xs text-green-100 font-medium">TOTAL KG</p>
+              <p class="text-xs text-emerald-100 font-medium">TOTAL KG</p>
               <p id="kpiTotalKg" class="text-2xl font-black">0.00 <span class="text-sm font-normal">kg</span></p>
             </div>
-            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl">🫐</div>
+            <div class="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-xs flex items-center justify-center text-lg">🫐</div>
           </div>
 
-          <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
+          <div class="bg-gradient-to-br from-teal-500 to-cyan-600 text-white p-4 rounded-2xl shadow-sm flex items-center justify-between border border-teal-400/20">
             <div>
-              <p class="text-xs text-emerald-100 font-medium">TOTAL CUMP. %</p>
+              <p class="text-xs text-teal-100 font-medium">TOTAL CUMP. %</p>
               <p id="kpiTotalCump" class="text-2xl font-black">0.0 %</p>
             </div>
-            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-xs flex items-center justify-center text-lg"><i class="fa-solid fa-bullseye"></i></div>
           </div>
 
-          <div class="bg-gradient-to-r from-red-500 to-rose-600 text-white p-4 rounded-2xl shadow-md flex items-center justify-between">
+          <div class="bg-gradient-to-br from-rose-400 to-pink-500 text-white p-4 rounded-2xl shadow-sm flex items-center justify-between border border-rose-300/20">
             <div>
-              <p class="text-xs text-red-100 font-medium">TOTAL COSECHADORES</p>
+              <p class="text-xs text-rose-100 font-medium">TOTAL COSECHADORES</p>
               <p id="kpiTotalCosechadores" class="text-2xl font-black">0</p>
             </div>
-            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center text-xl"><i class="fa-solid fa-users"></i></div>
+            <div class="w-11 h-11 rounded-xl bg-white/15 backdrop-blur-xs flex items-center justify-center text-lg"><i class="fa-solid fa-users"></i></div>
           </div>
         </div>
 
-        <!-- VISUAL ELEGANTE Y COMPACTO: TOTAL CUMP. % POR MODALIDAD -->
-        <div class="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white p-3 sm:p-4 rounded-2xl shadow-md border border-emerald-800/40">
-          <div class="flex items-center justify-between mb-2.5 border-b border-emerald-800/30 pb-2">
+        <!-- VISUAL ELEGANTE, CLARO Y COMPACTO: TOTAL CUMP. % POR MODALIDAD -->
+        <div class="bg-gradient-to-br from-white via-slate-50 to-emerald-50/40 p-3 sm:p-4 rounded-2xl shadow-xs border border-emerald-100/80">
+          <div class="flex items-center justify-between mb-2.5 border-b border-emerald-100/60 pb-2">
             <div class="flex items-center space-x-2">
-              <div class="w-7 h-7 bg-emerald-500/20 text-emerald-400 rounded-lg border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <div class="w-7 h-7 bg-emerald-100/60 text-emerald-700 rounded-lg border border-emerald-200/60 flex items-center justify-center shrink-0">
                 <i class="fa-solid fa-chart-line text-xs"></i>
               </div>
               <div>
-                <h3 class="text-xs font-black text-emerald-300 uppercase tracking-wide leading-tight">TOTAL CUMP. % POR MODALIDAD</h3>
-                <p class="text-[10px] text-gray-400 leading-none">Distribución ponderada por tipo de servicio</p>
+                <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wide leading-tight">TOTAL CUMP. % POR MODALIDAD</h3>
+                <p class="text-[10px] text-slate-400 leading-none">Distribución ponderada por tipo de servicio</p>
               </div>
             </div>
-            <span class="text-[9px] font-bold bg-emerald-900/60 text-emerald-300 border border-emerald-700/50 px-2 py-0.5 rounded-full uppercase tracking-wider">
-              <i class="fa-solid fa-bolt mr-1 text-amber-400"></i>Ponderado
+            <span class="text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200/80 px-2 py-0.5 rounded-full uppercase tracking-wider">
+              <i class="fa-solid fa-bolt mr-1 text-amber-500"></i>Ponderado
             </span>
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-            <!-- TARJETA CAMPAMENTO COMPACTA -->
-            <div class="relative overflow-hidden bg-white/5 backdrop-blur-md rounded-xl p-2.5 border border-white/10 hover:border-emerald-500/40 transition-all duration-300 group flex flex-col justify-between">
+            <!-- TARJETA CAMPAMENTO COMPACTA (CLARA Y ELEGANTE) -->
+            <div class="relative overflow-hidden bg-white rounded-xl p-2.5 border border-teal-100 shadow-xs hover:border-teal-300 transition-all duration-300 group flex flex-col justify-between">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-teal-500/20 text-teal-300 border border-teal-500/30 uppercase tracking-wide">
+                  <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-teal-50 text-teal-700 border border-teal-200/60 uppercase tracking-wide">
                     MOD 01
                   </span>
-                  <h4 class="text-xs font-bold text-gray-200 mt-0.5 inline-block ml-1">CAMPAMENTO</h4>
+                  <h4 class="text-xs font-bold text-slate-700 mt-0.5 inline-block ml-1">CAMPAMENTO</h4>
                 </div>
-                <div class="w-8 h-8 rounded-lg bg-teal-500/10 text-teal-400 border border-teal-500/30 flex items-center justify-center text-sm shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition-transform">
                   <i class="fa-solid fa-campground"></i>
                 </div>
               </div>
 
-              <div class="mt-1.5 flex items-baseline justify-between border-t border-white/5 pt-1.5">
+              <div class="mt-1.5 flex items-baseline justify-between border-t border-slate-100 pt-1.5">
                 <div>
-                  <span id="cumpCampamentoVal" class="text-xl font-black text-teal-400">0.0 %</span>
-                  <p id="cumpCampamentoRatio" class="text-[9px] text-gray-400">0 / 0 cosecha. únicos</p>
+                  <span id="cumpCampamentoVal" class="text-xl font-extrabold text-teal-600">0.0 %</span>
+                  <p id="cumpCampamentoRatio" class="text-[9px] text-slate-400">0 / 0 cosecha. únicos</p>
                 </div>
                 <div class="text-right">
-                  <span id="cumpCampamentoBarPct" class="text-[10px] font-bold text-teal-300">0% Ponderado</span>
+                  <span id="cumpCampamentoBarPct" class="text-[10px] font-bold text-teal-700">0% Ponderado</span>
                 </div>
               </div>
 
-              <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden border border-white/5">
-                <div id="cumpCampamentoBar" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-1.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+              <div class="w-full bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
+                <div id="cumpCampamentoBar" class="bg-gradient-to-r from-teal-400 to-emerald-500 h-1.5 rounded-full transition-all duration-700" style="width: 0%"></div>
               </div>
             </div>
 
-            <!-- TARJETA IDA Y VUELTA COMPACTA -->
-            <div class="relative overflow-hidden bg-white/5 backdrop-blur-md rounded-xl p-2.5 border border-white/10 hover:border-indigo-500/40 transition-all duration-300 group flex flex-col justify-between">
+            <!-- TARJETA IDA Y VUELTA COMPACTA (CLARA Y ELEGANTE) -->
+            <div class="relative overflow-hidden bg-white rounded-xl p-2.5 border border-indigo-100 shadow-xs hover:border-indigo-300 transition-all duration-300 group flex flex-col justify-between">
               <div class="flex items-center justify-between">
                 <div>
-                  <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 uppercase tracking-wide">
+                  <span class="inline-block px-1.5 py-0.2 rounded text-[9px] font-extrabold bg-indigo-50 text-indigo-700 border border-indigo-200/60 uppercase tracking-wide">
                     MOD 02
                   </span>
-                  <h4 class="text-xs font-bold text-gray-200 mt-0.5 inline-block ml-1">IDA Y VUELTA</h4>
+                  <h4 class="text-xs font-bold text-slate-700 mt-0.5 inline-block ml-1">IDA Y VUELTA</h4>
                 </div>
-                <div class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 flex items-center justify-center text-sm shadow-inner shrink-0 group-hover:scale-105 transition-transform">
+                <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition-transform">
                   <i class="fa-solid fa-bus-simple"></i>
                 </div>
               </div>
 
-              <div class="mt-1.5 flex items-baseline justify-between border-t border-white/5 pt-1.5">
+              <div class="mt-1.5 flex items-baseline justify-between border-t border-slate-100 pt-1.5">
                 <div>
-                  <span id="cumpIdaVueltaVal" class="text-xl font-black text-indigo-400">0.0 %</span>
-                  <p id="cumpIdaVueltaRatio" class="text-[9px] text-gray-400">0 / 0 cosecha. únicos</p>
+                  <span id="cumpIdaVueltaVal" class="text-xl font-extrabold text-indigo-600">0.0 %</span>
+                  <p id="cumpIdaVueltaRatio" class="text-[9px] text-slate-400">0 / 0 cosecha. únicos</p>
                 </div>
                 <div class="text-right">
-                  <span id="cumpIdaVueltaBarPct" class="text-[10px] font-bold text-indigo-300">0% Ponderado</span>
+                  <span id="cumpIdaVueltaBarPct" class="text-[10px] font-bold text-indigo-700">0% Ponderado</span>
                 </div>
               </div>
 
-              <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden border border-white/5">
-                <div id="cumpIdaVueltaBar" class="bg-gradient-to-r from-indigo-500 to-blue-400 h-1.5 rounded-full transition-all duration-700" style="width: 0%"></div>
+              <div class="w-full bg-slate-100 rounded-full h-1.5 mt-1 overflow-hidden">
+                <div id="cumpIdaVueltaBar" class="bg-gradient-to-r from-indigo-400 to-sky-500 h-1.5 rounded-full transition-all duration-700" style="width: 0%"></div>
               </div>
             </div>
           </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center justify-between">
-              <span class="flex items-center space-x-1"><i class="fa-solid fa-chart-pie text-green-600"></i> <span>MODALIDAD (Cosechadores & %)</span></span>
-              <span id="lblTotalMod" class="text-xs font-extrabold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200">TOTAL: 0</span>
+          <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+            <h3 class="text-xs font-bold text-slate-700 mb-3 flex items-center justify-between">
+              <span class="flex items-center space-x-1"><i class="fa-solid fa-chart-pie text-emerald-600"></i> <span>MODALIDAD (Cosechadores & %)</span></span>
+              <span id="lblTotalMod" class="text-xs font-extrabold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">TOTAL: 0</span>
             </h3>
             <div class="h-64 relative"><canvas id="chartModalidad"></canvas></div>
           </div>
 
-          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xs font-bold text-gray-700 mb-3 flex items-center justify-between">
+          <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+            <h3 class="text-xs font-bold text-slate-700 mb-3 flex items-center justify-between">
               <span class="flex items-center space-x-1"><i class="fa-solid fa-venus-mars text-rose-500"></i> <span>SEXO (Cosechadores & %)</span></span>
-              <span id="lblTotalSexo" class="text-xs font-extrabold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">TOTAL: 0</span>
+              <span id="lblTotalSexo" class="text-xs font-extrabold text-rose-800 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">TOTAL: 0</span>
             </h3>
             <div class="h-64 relative"><canvas id="chartSexo"></canvas></div>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-indigo-900 mb-3 flex items-center space-x-2">
-            <i class="fa-solid fa-calendar-check text-indigo-600"></i>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-800 mb-3 flex items-center space-x-2">
+            <i class="fa-solid fa-calendar-check text-indigo-500"></i>
             <span>RESUMEN DE COSECHA POR FECHA</span>
           </h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse">
-              <thead class="bg-indigo-50 text-indigo-950 uppercase font-bold">
+              <thead class="bg-slate-50 text-slate-700 uppercase font-bold">
                 <tr>
-                  <th class="p-2 border cursor-pointer hover:bg-indigo-100" onclick="toggleSortResumenFecha()">
+                  <th class="p-2 border border-slate-200 cursor-pointer hover:bg-slate-100" onclick="toggleSortResumenFecha()">
                     <div class="flex items-center justify-between">
-                      <span><i class="fa-regular fa-calendar-days text-indigo-700 mr-1.5"></i>FECHA</span>
-                      <i id="sortIconFecha" class="fa-solid fa-sort text-indigo-400"></i>
+                      <span><i class="fa-regular fa-calendar-days text-indigo-500 mr-1.5"></i>FECHA</span>
+                      <i id="sortIconFecha" class="fa-solid fa-sort text-slate-400"></i>
                     </div>
                   </th>
-                  <th class="p-2 border text-right"><i class="fa-solid fa-weight-scale text-indigo-700 mr-1.5"></i>TOTAL KG</th>
-                  <th class="p-2 border text-right"><i class="fa-solid fa-chart-line text-indigo-700 mr-1.5"></i>TOTAL PROMEDIO DEL TOTAL KG.</th>
-                  <th class="p-2 border text-right"><i class="fa-solid fa-users text-indigo-700 mr-1.5"></i>TOTAL COSECHADORES</th>
+                  <th class="p-2 border border-slate-200 text-right"><i class="fa-solid fa-weight-scale text-indigo-500 mr-1.5"></i>TOTAL KG</th>
+                  <th class="p-2 border border-slate-200 text-right"><i class="fa-solid fa-chart-line text-indigo-500 mr-1.5"></i>TOTAL PROMEDIO DEL TOTAL KG.</th>
+                  <th class="p-2 border border-slate-200 text-right"><i class="fa-solid fa-users text-indigo-500 mr-1.5"></i>TOTAL COSECHADORES</th>
                 </tr>
               </thead>
-              <tbody id="tblResumenFecha" class="divide-y"></tbody>
+              <tbody id="tblResumenFecha" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-table text-green-600"></i> RESUMEN POR MODALIDAD</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-table text-emerald-600"></i> RESUMEN POR MODALIDAD</h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse">
-              <thead class="bg-gray-100 uppercase">
+              <thead class="bg-slate-50 text-slate-700 uppercase">
                 <tr>
-                  <th class="p-2 border">MODALIDAD</th>
-                  <th class="p-2 border text-right">TOTAL COSECHADORES</th>
-                  <th class="p-2 border text-right">TOTAL CUMP. %</th>
-                  <th class="p-2 border text-right">TOTAL DÍAS</th>
-                  <th class="p-2 border text-right">PROM. KG / DÍA</th>
-                  <th class="p-2 border text-right">TOTAL KG</th>
+                  <th class="p-2 border border-slate-200">MODALIDAD</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL COSECHADORES</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL CUMP. %</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL DÍAS</th>
+                  <th class="p-2 border border-slate-200 text-right">PROM. KG / DÍA</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL KG</th>
                 </tr>
               </thead>
-              <tbody id="tblModalidadResumen" class="divide-y"></tbody>
+              <tbody id="tblModalidadResumen" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-trophy text-amber-500"></i> TOP 10 MEJORES COSECHADORES</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-trophy text-amber-500"></i> TOP 10 MEJORES COSECHADORES</h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse">
-              <thead class="bg-amber-50 text-amber-900 uppercase">
+              <thead class="bg-amber-50/70 text-amber-900 uppercase">
                 <tr>
-                  <th class="p-2 border text-center">RANKING</th>
-                  <th class="p-2 border">APELLIDOS Y NOMBRES</th>
-                  <th class="p-2 border text-center">MODALIDAD</th>
-                  <th class="p-2 border text-right">TOTAL DÍAS</th>
-                  <th class="p-2 border text-right">PROM. KG / DÍA</th>
-                  <th class="p-2 border text-right">TOTAL CUMP. %</th>
-                  <th class="p-2 border text-right">TOTAL KG</th>
+                  <th class="p-2 border border-amber-100 text-center">RANKING</th>
+                  <th class="p-2 border border-amber-100">APELLIDOS Y NOMBRES</th>
+                  <th class="p-2 border border-amber-100 text-center">MODALIDAD</th>
+                  <th class="p-2 border border-amber-100 text-right">TOTAL DÍAS</th>
+                  <th class="p-2 border border-amber-100 text-right">PROM. KG / DÍA</th>
+                  <th class="p-2 border border-amber-100 text-right">TOTAL CUMP. %</th>
+                  <th class="p-2 border border-amber-100 text-right">TOTAL KG</th>
                 </tr>
               </thead>
-              <tbody id="tblTop10" class="divide-y"></tbody>
+              <tbody id="tblTop10" class="divide-y divide-amber-50"></tbody>
             </table>
           </div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-history text-indigo-600"></i> DISTRIBUCION DE COSECHADORES POR HISTORICO</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-history text-sky-600"></i> DISTRIBUCION DE COSECHADORES POR HISTORICO</h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse">
-              <thead class="bg-gray-100 uppercase">
+              <thead class="bg-slate-50 uppercase">
                 <tr>
-                  <th class="p-2 border">HISTORICO</th>
-                  <th class="p-2 border text-right">TOTAL COSECHADORES</th>
-                  <th class="p-2 border text-right cursor-pointer hover:bg-gray-200" onclick="toggleSortHistoricoPromedio()">
+                  <th class="p-2 border border-slate-200">HISTORICO</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL COSECHADORES</th>
+                  <th class="p-2 border border-slate-200 text-right cursor-pointer hover:bg-slate-100" onclick="toggleSortHistoricoPromedio()">
                     <div class="flex items-center justify-end space-x-1">
                       <span>PROMEDIO TOTAL KG</span>
-                      <i id="sortIconHistorico" class="fa-solid fa-sort text-gray-400"></i>
+                      <i id="sortIconHistorico" class="fa-solid fa-sort text-slate-400"></i>
                     </div>
                   </th>
                 </tr>
               </thead>
-              <tbody id="tblHistoricoResumen" class="divide-y"></tbody>
+              <tbody id="tblHistoricoResumen" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <div id="page-2" class="page-content hidden space-y-4">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-list-check text-green-600"></i> REPORTE DETALLADO DE COSECHA</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-list-check text-emerald-600"></i> REPORTE DETALLADO DE COSECHA</h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
-              <thead class="bg-gray-100 uppercase">
+              <thead class="bg-slate-50 uppercase">
                 <tr>
-                  <th class="p-2 border">FECHA</th>
-                  <th class="p-2 border">DNI</th>
-                  <th class="p-2 border">APELLIDOS Y NOMBRES</th>
-                  <th class="p-2 border">HISTÓRICO</th>
-                  <th class="p-2 border">MODALIDAD</th>
-                  <th class="p-2 border">VARIEDAD</th>
-                  <th class="p-2 border">MÓDULO|TURNO</th>
-                  <th class="p-2 border">LABOR</th>
-                  <th class="p-2 border text-right">TOTAL KG</th>
-                  <th class="p-2 border text-right">META</th>
-                  <th class="p-2 border text-right">CUMP. %</th>
-                  <th class="p-2 border text-center">CATEG. 2026</th>
-                  <th class="p-2 border text-center">RANGO %</th>
+                  <th class="p-2 border border-slate-200">FECHA</th>
+                  <th class="p-2 border border-slate-200">DNI</th>
+                  <th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th>
+                  <th class="p-2 border border-slate-200">HISTÓRICO</th>
+                  <th class="p-2 border border-slate-200">MODALIDAD</th>
+                  <th class="p-2 border border-slate-200">VARIEDAD</th>
+                  <th class="p-2 border border-slate-200">MÓDULO|TURNO</th>
+                  <th class="p-2 border border-slate-200">LABOR</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL KG</th>
+                  <th class="p-2 border border-slate-200 text-right">META</th>
+                  <th class="p-2 border border-slate-200 text-right">CUMP. %</th>
+                  <th class="p-2 border border-slate-200 text-center">CATEG. 2026</th>
+                  <th class="p-2 border border-slate-200 text-center">RANGO %</th>
                 </tr>
               </thead>
-              <tbody id="tblDetalle" class="divide-y"></tbody>
+              <tbody id="tblDetalle" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <div id="page-3" class="page-content hidden space-y-4">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-calendar-days text-green-600"></i> COSECHA MATRIZ X FECHAS</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-calendar-days text-emerald-600"></i> COSECHA MATRIZ X FECHAS</h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse whitespace-nowrap" id="tableFechasMatriz">
-              <thead class="bg-gray-100 uppercase" id="theadFechas"></thead>
-              <tbody id="tbodyFechas" class="divide-y"></tbody>
+              <thead class="bg-slate-50 uppercase" id="theadFechas"></thead>
+              <tbody id="tbodyFechas" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <div id="page-4" class="page-content hidden space-y-4">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-id-card text-green-600"></i> REGISTROS ÚNICOS POR TRABAJADOR</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-id-card text-emerald-600"></i> REGISTROS ÚNICOS POR TRABAJADOR</h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
-              <thead class="bg-gray-100 uppercase">
+              <thead class="bg-slate-50 uppercase">
                 <tr>
-                  <th class="p-2 border">FECHA</th>
-                  <th class="p-2 border">SEM</th>
-                  <th class="p-2 border">DNI</th>
-                  <th class="p-2 border">APELLIDOS Y NOMBRES</th>
-                  <th class="p-2 border">MODALIDAD</th>
-                  <th class="p-2 border">HISTÓRICO</th>
-                  <th class="p-2 border">CATEG. 2026</th>
-                  <th class="p-2 border text-right">TOTAL KG</th>
-                  <th class="p-2 border text-right">META</th>
-                  <th class="p-2 border text-right">CUMP. %</th>
-                  <th class="p-2 border text-center">RANGO %</th>
+                  <th class="p-2 border border-slate-200">FECHA</th>
+                  <th class="p-2 border border-slate-200">SEM</th>
+                  <th class="p-2 border border-slate-200">DNI</th>
+                  <th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th>
+                  <th class="p-2 border border-slate-200">MODALIDAD</th>
+                  <th class="p-2 border border-slate-200">HISTÓRICO</th>
+                  <th class="p-2 border border-slate-200">CATEG. 2026</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL KG</th>
+                  <th class="p-2 border border-slate-200 text-right">META</th>
+                  <th class="p-2 border border-slate-200 text-right">CUMP. %</th>
+                  <th class="p-2 border border-slate-200 text-center">RANGO %</th>
                 </tr>
               </thead>
-              <tbody id="tblRegUnicos" class="divide-y"></tbody>
+              <tbody id="tblRegUnicos" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <div id="page-5" class="page-content hidden space-y-5">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-bus text-green-600"></i> PROMEDIO KG Y TENDENCIA POR UNIDAD (LÍNEAS)</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-bus text-emerald-600"></i> PROMEDIO KG Y TENDENCIA POR UNIDAD (LÍNEAS)</h3>
           <div class="h-64 relative"><canvas id="chartTransporteLines"></canvas></div>
         </div>
 
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-truck-moving text-green-600"></i> MATRIZ DE TRANSPORTE Y COSECHA POR FECHA</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-truck-moving text-emerald-600"></i> MATRIZ DE TRANSPORTE Y COSECHA POR FECHA</h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse whitespace-nowrap" id="tableTransporteMatriz">
-              <thead class="bg-gray-100 uppercase" id="theadTransporte"></thead>
-              <tbody id="tbodyTransporte" class="divide-y"></tbody>
+              <thead class="bg-slate-50 uppercase" id="theadTransporte"></thead>
+              <tbody id="tbodyTransporte" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
       </div>
 
       <div id="page-6" class="page-content hidden space-y-5">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-          <h3 class="text-xs font-bold text-gray-700 mb-3"><i class="fa-solid fa-flag-checkered text-green-600"></i> RESUMEN GENERAL EVALUADO</h3>
+        <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+          <h3 class="text-xs font-bold text-slate-700 mb-3"><i class="fa-solid fa-flag-checkered text-emerald-600"></i> RESUMEN GENERAL EVALUADO</h3>
           <div class="overflow-x-auto scroll-custom">
             <table class="w-full text-xs text-left border-collapse">
-              <thead class="bg-gray-100 uppercase">
+              <thead class="bg-slate-50 uppercase">
                 <tr>
-                  <th class="p-2 border">MODALIDAD</th>
-                  <th class="p-2 border">HISTÓRICO</th>
-                  <th class="p-2 border text-right">TOTAL KG</th>
-                  <th class="p-2 border text-right">CUMP. %</th>
-                  <th class="p-2 border text-right">TOTAL DÍAS</th>
-                  <th class="p-2 border text-center">CATEG. 2026 (EVALUADA)</th>
+                  <th class="p-2 border border-slate-200">MODALIDAD</th>
+                  <th class="p-2 border border-slate-200">HISTÓRICO</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL KG</th>
+                  <th class="p-2 border border-slate-200 text-right">CUMP. %</th>
+                  <th class="p-2 border border-slate-200 text-right">TOTAL DÍAS</th>
+                  <th class="p-2 border border-slate-200 text-center">CATEG. 2026 (EVALUADA)</th>
                 </tr>
               </thead>
-              <tbody id="tblResumenFinal1" class="divide-y"></tbody>
+              <tbody id="tblResumenFinal1" class="divide-y divide-slate-100"></tbody>
             </table>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xs font-bold text-gray-700 mb-3">MODALIDAD Y HISTÓRICO</h3>
+          <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+            <h3 class="text-xs font-bold text-slate-700 mb-3">MODALIDAD Y HISTÓRICO</h3>
             <div class="overflow-x-auto scroll-custom">
               <table class="w-full text-xs border-collapse">
-                <thead class="bg-gray-50 uppercase">
+                <thead class="bg-slate-50 uppercase">
                   <tr>
-                    <th class="p-2 border">MODALIDAD</th>
-                    <th class="p-2 border">HISTÓRICO</th>
-                    <th class="p-2 border text-right">TOTAL KG</th>
-                    <th class="p-2 border text-right">CUMP %</th>
+                    <th class="p-2 border border-slate-200">MODALIDAD</th>
+                    <th class="p-2 border border-slate-200">HISTÓRICO</th>
+                    <th class="p-2 border border-slate-200 text-right">TOTAL KG</th>
+                    <th class="p-2 border border-slate-200 text-right">CUMP %</th>
                   </tr>
                 </thead>
                 <tbody id="tblResumenSub1"></tbody>
@@ -517,16 +518,16 @@
             </div>
           </div>
 
-          <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <h3 class="text-xs font-bold text-gray-700 mb-3">MODALIDAD Y CATEG. 2026</h3>
+          <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
+            <h3 class="text-xs font-bold text-slate-700 mb-3">MODALIDAD Y CATEG. 2026</h3>
             <div class="overflow-x-auto scroll-custom">
               <table class="w-full text-xs border-collapse">
-                <thead class="bg-gray-50 uppercase">
+                <thead class="bg-slate-50 uppercase">
                   <tr>
-                    <th class="p-2 border">MODALIDAD</th>
-                    <th class="p-2 border">CATEG. 2026</th>
-                    <th class="p-2 border text-right">TOTAL KG</th>
-                    <th class="p-2 border text-right">CUMP %</th>
+                    <th class="p-2 border border-slate-200">MODALIDAD</th>
+                    <th class="p-2 border border-slate-200">CATEG. 2026</th>
+                    <th class="p-2 border border-slate-200 text-right">TOTAL KG</th>
+                    <th class="p-2 border border-slate-200 text-right">CUMP %</th>
                   </tr>
                 </thead>
                 <tbody id="tblResumenSub2"></tbody>
@@ -574,7 +575,7 @@
       sortOrderFecha = sortOrderFecha === 'asc' ? 'desc' : 'asc';
       const icon = document.getElementById('sortIconFecha');
       if (icon) {
-        icon.className = sortOrderFecha === 'asc' ? 'fa-solid fa-sort-up text-indigo-700' : 'fa-solid fa-sort-down text-indigo-700';
+        icon.className = sortOrderFecha === 'asc' ? 'fa-solid fa-sort-up text-indigo-500' : 'fa-solid fa-sort-down text-indigo-500';
       }
       renderPage1();
     }
@@ -583,7 +584,7 @@
       sortOrderHistoricoProm = sortOrderHistoricoProm === 'desc' ? 'asc' : 'desc';
       const icon = document.getElementById('sortIconHistorico');
       if (icon) {
-        icon.className = sortOrderHistoricoProm === 'asc' ? 'fa-solid fa-sort-up text-gray-700' : 'fa-solid fa-sort-down text-gray-700';
+        icon.className = sortOrderHistoricoProm === 'asc' ? 'fa-solid fa-sort-up text-slate-600' : 'fa-solid fa-sort-down text-slate-600';
       }
       renderPage1();
     }
@@ -594,20 +595,20 @@
       const tTitle = document.getElementById('toastTitle');
       const tMsg = document.getElementById('toastMessage');
 
-      toast.classList.remove('hidden', 'border-green-500', 'border-amber-500', 'border-red-500');
+      toast.classList.remove('hidden', 'border-emerald-500', 'border-amber-500', 'border-rose-500');
 
       if (type === 'success') {
-        toast.classList.add('border-green-500');
-        icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-600"></i>';
-        tTitle.className = 'text-xs font-bold uppercase text-green-800';
+        toast.classList.add('border-emerald-500');
+        icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i>';
+        tTitle.className = 'text-xs font-bold uppercase text-emerald-800';
       } else if (type === 'warning') {
         toast.classList.add('border-amber-500');
         icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-amber-600"></i>';
         tTitle.className = 'text-xs font-bold uppercase text-amber-800';
       } else {
-        toast.classList.add('border-red-500');
-        icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-600"></i>';
-        tTitle.className = 'text-xs font-bold uppercase text-red-800';
+        toast.classList.add('border-rose-500');
+        icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-rose-600"></i>';
+        tTitle.className = 'text-xs font-bold uppercase text-rose-800';
       }
 
       tTitle.textContent = title;
@@ -724,10 +725,10 @@
           saveLocalData('detalle', rawDetalleData);
           saveLocalData('tdp', rawTdpData);
 
-          syncDot.className = "w-2 h-2 rounded-full bg-green-500 animate-pulse";
+          syncDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
           syncText.textContent = "Conectado";
-          syncIcon.className = "fa-solid fa-wifi text-green-700";
-          statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-100 text-green-800";
+          syncIcon.className = "fa-solid fa-wifi text-emerald-600";
+          statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100";
 
           showToast('success', 'Conexión Exitosa', '¡Sincronizado con Google Sheets correctamente!');
         } else {
@@ -739,8 +740,8 @@
 
         syncDot.className = "w-2 h-2 rounded-full bg-amber-500";
         syncText.textContent = "Offline (Caché)";
-        syncIcon.className = "fa-solid fa-database text-amber-700";
-        statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-100 text-amber-800";
+        syncIcon.className = "fa-solid fa-database text-amber-600";
+        statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100";
 
         showToast('warning', 'Modo Offline', 'Sin conexión con Google Sheets. Usando datos guardados.');
       }
@@ -871,7 +872,7 @@
       const cumpCampamento = totalUnicosNom > 0 ? (campUnicosNom / totalUnicosNom) * avgCump : 0;
       const cumpIdaVuelta = totalUnicosNom > 0 ? (idaVueltaUnicosNom / totalUnicosNom) * avgCump : 0;
 
-      // Actualización Visual Dashboard - Tarjetas Elegantes y Compactas
+      // Actualización Visual Dashboard - Tarjetas Elegantes y Claras
       document.getElementById('cumpCampamentoVal').textContent = `${cumpCampamento.toFixed(1)} %`;
       document.getElementById('cumpCampamentoRatio').textContent = `${campUnicosNom} / ${totalUnicosNom} cosecha. únicos`;
       
@@ -886,7 +887,7 @@
       document.getElementById('cumpIdaVueltaBarPct').textContent = `${pctIdaBar.toFixed(1)}% Ponderado`;
       document.getElementById('cumpIdaVueltaBar').style.width = `${pctIdaBar}%`;
 
-      // MODALIDAD (Cosechadores & %)
+      // MODALIDAD (Cosechadores & %) - Colores Suaves
       const modGroup = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || 'SIN REGISTRO';
@@ -907,20 +908,20 @@
       if (chartModalidadObj) chartModalidadObj.destroy();
       chartModalidadObj = new Chart(document.getElementById('chartModalidad'), {
         type: 'doughnut',
-        data: { labels: modLegendLabels, datasets: [{ data: modCounts, backgroundColor: ['#2D7A3A', '#D93829', '#3B82F6', '#F59E0B', '#10B981'] }] },
+        data: { labels: modLegendLabels, datasets: [{ data: modCounts, backgroundColor: ['#10B981', '#F43F5E', '#3B82F6', '#F59E0B', '#6366F1'] }] },
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
           plugins: { 
             legend: { 
               position: 'right',
-              labels: { font: { size: 11, weight: 'bold' } }
+              labels: { font: { size: 11, weight: '600' }, color: '#475569' }
             }
           } 
         }
       });
 
-      // SEXO (Cosechadores & %)
+      // SEXO (Cosechadores & %) - Colores Suaves
       const sexoGroup = {};
       filteredDetalle.forEach(r => {
         const s = r.SEXO || 'NO ESPECIFICA';
@@ -941,14 +942,14 @@
       if (chartSexoObj) chartSexoObj.destroy();
       chartSexoObj = new Chart(document.getElementById('chartSexo'), {
         type: 'doughnut',
-        data: { labels: sexoLegendLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#3B82F6', '#9CA3AF'] }] },
+        data: { labels: sexoLegendLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#60A5FA', '#94A3B8'] }] },
         options: { 
           responsive: true, 
           maintainAspectRatio: false, 
           plugins: { 
             legend: { 
               position: 'right',
-              labels: { font: { size: 11, weight: 'bold' } }
+              labels: { font: { size: 11, weight: '600' }, color: '#475569' }
             }
           } 
         }
@@ -978,12 +979,12 @@
         const promKg = totalCosechadoresFecha > 0 ? (d.kgSum / totalCosechadoresFecha) : 0;
         const formattedFecha = formatDateDisplay(f);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
+        tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-            <td class="p-2 border font-bold text-gray-800">${formattedFecha}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${formatNumber(d.kgSum)} kg</td>
-            <td class="p-2 border text-right font-semibold text-blue-700">${formatNumber(promKg, 2)} kg</td>
-            <td class="p-2 border text-right font-medium">${formatNumber(totalCosechadoresFecha, 0)}</td>`;
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${formattedFecha}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(d.kgSum)} kg</td>
+            <td class="p-2 border border-slate-200 text-right font-semibold text-sky-600">${formatNumber(promKg, 2)} kg</td>
+            <td class="p-2 border border-slate-200 text-right font-medium text-slate-600">${formatNumber(totalCosechadoresFecha, 0)}</td>`;
         fragFecha.appendChild(tr);
       });
       tbodyFecha.innerHTML = '';
@@ -1021,7 +1022,6 @@
       Object.keys(modData).forEach(m => {
         const d = modData[m];
         const numCosechadores = d.dnis.size;
-        const numNombresUnicosModalidad = d.nombres.size;
         const numDias = d.dias.size;
         
         const avgKgDia = (numCosechadores > 0 && numDias > 0) ? ((d.kgSum / numCosechadores) / numDias) : 0;
@@ -1039,14 +1039,14 @@
         const modPct = totalModCount > 0 ? ((numCosechadores / totalModCount) * 100).toFixed(1) : 0;
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
+        tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-            <td class="p-2 border font-semibold">${m} <span class="text-gray-500 font-normal">(${modPct}%)</span></td>
-            <td class="p-2 border text-right">${formatNumber(numCosechadores, 0)}</td>
-            <td class="p-2 border text-right font-bold text-blue-700">${avgC.toFixed(1)} %</td>
-            <td class="p-2 border text-right">${numDias}</td>
-            <td class="p-2 border text-right font-medium">${formatNumber(avgKgDia)}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${formatNumber(d.kgSum)}</td>`;
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${m} <span class="text-slate-400 font-normal">(${modPct}%)</span></td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(numCosechadores, 0)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-sky-600">${avgC.toFixed(1)} %</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${numDias}</td>
+            <td class="p-2 border border-slate-200 text-right font-medium text-slate-600">${formatNumber(avgKgDia)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(d.kgSum)}</td>`;
         fragMod.appendChild(tr);
       });
       tbodyMod.innerHTML = '';
@@ -1070,30 +1070,30 @@
         const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
         const totalPromedioCump = c.count > 0 ? ((c.cumpSum / c.count) * 100) / 100 : 0;
 
-        let rankBadge = `<span class="font-bold text-gray-600">#${i+1}</span>`;
-        let rowBg = 'hover:bg-amber-50/50';
+        let rankBadge = `<span class="font-bold text-slate-500">#${i+1}</span>`;
+        let rowBg = 'hover:bg-amber-50/30';
 
         if (i === 0) {
-          rankBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-full border border-amber-300 inline-flex items-center space-x-1">🥇 <span>1°</span></span>`;
-          rowBg = 'bg-amber-50/60 hover:bg-amber-100/60';
+          rankBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-full border border-amber-200 inline-flex items-center space-x-1">🥇 <span>1°</span></span>`;
+          rowBg = 'bg-amber-50/40 hover:bg-amber-50/70';
         } else if (i === 1) {
-          rankBadge = `<span class="bg-slate-100 text-slate-800 font-extrabold px-2 py-0.5 rounded-full border border-slate-300 inline-flex items-center space-x-1">🥈 <span>2°</span></span>`;
-          rowBg = 'bg-slate-50/60 hover:bg-slate-100/60';
+          rankBadge = `<span class="bg-slate-100 text-slate-700 font-extrabold px-2 py-0.5 rounded-full border border-slate-200 inline-flex items-center space-x-1">🥈 <span>2°</span></span>`;
+          rowBg = 'bg-slate-50/50 hover:bg-slate-100/50';
         } else if (i === 2) {
-          rankBadge = `<span class="bg-orange-100 text-orange-800 font-extrabold px-2 py-0.5 rounded-full border border-orange-300 inline-flex items-center space-x-1">🥉 <span>3°</span></span>`;
-          rowBg = 'bg-orange-50/60 hover:bg-orange-100/60';
+          rankBadge = `<span class="bg-orange-100/80 text-orange-800 font-extrabold px-2 py-0.5 rounded-full border border-orange-200 inline-flex items-center space-x-1">🥉 <span>3°</span></span>`;
+          rowBg = 'bg-orange-50/30 hover:bg-orange-50/60';
         }
 
         const tr = document.createElement('tr');
         tr.className = `${rowBg} transition-colors`;
         tr.innerHTML = `
-            <td class="p-2 border text-center">${rankBadge}</td>
-            <td class="p-2 border font-bold text-gray-800">${c.nom || 'S/N'}</td>
-            <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-semibold text-[11px]">${c.mod || '-'}</span></td>
-            <td class="p-2 border text-right">${c.dias.size}</td>
-            <td class="p-2 border text-right font-semibold">${formatNumber(avgKgDia)}</td>
-            <td class="p-2 border text-right text-blue-700 font-bold">${totalPromedioCump.toFixed(1)} %</td>
-            <td class="p-2 border text-right font-black text-green-800 text-sm">${formatNumber(c.kgSum)}</td>`;
+            <td class="p-2 border border-slate-200 text-center">${rankBadge}</td>
+            <td class="p-2 border border-slate-200 font-bold text-slate-700">${c.nom || 'S/N'}</td>
+            <td class="p-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[11px]">${c.mod || '-'}</span></td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${c.dias.size}</td>
+            <td class="p-2 border border-slate-200 text-right font-semibold text-slate-600">${formatNumber(avgKgDia)}</td>
+            <td class="p-2 border border-slate-200 text-right text-sky-600 font-bold">${totalPromedioCump.toFixed(1)} %</td>
+            <td class="p-2 border border-slate-200 text-right font-black text-emerald-700 text-sm">${formatNumber(c.kgSum)}</td>`;
         fragTop.appendChild(tr);
       });
       tbodyTop.innerHTML = '';
@@ -1125,11 +1125,11 @@
         const histPct = totalCosechadores > 0 ? ((d.dnis.size / totalCosechadores) * 100).toFixed(1) : 0;
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
+        tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-            <td class="p-2 border font-semibold">${d.hName}</td>
-            <td class="p-2 border text-right font-bold">${formatNumber(d.dnis.size, 0)} <span class="text-gray-500 font-normal">(${histPct}%)</span></td>
-            <td class="p-2 border text-right font-bold text-indigo-700">${formatNumber(d.avgKg)} kg</td>`;
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${d.hName}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-slate-700">${formatNumber(d.dnis.size, 0)} <span class="text-slate-400 font-normal">(${histPct}%)</span></td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-indigo-600">${formatNumber(d.avgKg)} kg</td>`;
         fragHist.appendChild(tr);
       });
       tbodyHist.innerHTML = '';
@@ -1143,21 +1143,21 @@
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badge = getCumplimientoBadge(cumpVal);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
+        tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-            <td class="p-2 border">${formatDateDisplay(r.FECHA)}</td>
-            <td class="p-2 border font-mono">${r.DNI || ''}</td>
-            <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
-            <td class="p-2 border">${r.HISTORICO || ''}</td>
-            <td class="p-2 border">${r.MODALIDAD || ''}</td>
-            <td class="p-2 border">${r.VARIEDAD || ''}</td>
-            <td class="p-2 border">${r['MODULO|TURNO'] || ''}</td>
-            <td class="p-2 border">${r.LABOR || ''}</td>
-            <td class="p-2 border text-right font-bold">${formatNumber(parseFloat(r['TOTAL KG.'])||0)}</td>
-            <td class="p-2 border text-right">${formatNumber(parseFloat(r.META)||0)}</td>
-            <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
-            <td class="p-2 border text-center font-bold">${badge.text}</td>
-            <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>`;
+            <td class="p-2 border border-slate-200 text-slate-600">${formatDateDisplay(r.FECHA)}</td>
+            <td class="p-2 border border-slate-200 font-mono text-slate-600">${r.DNI || ''}</td>
+            <td class="p-2 border border-slate-200 font-medium text-slate-700">${r['APELLIDOS Y NOMBRES'] || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.HISTORICO || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.MODALIDAD || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.VARIEDAD || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r['MODULO|TURNO'] || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.LABOR || ''}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-slate-700">${formatNumber(parseFloat(r['TOTAL KG.'])||0)}</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(parseFloat(r.META)||0)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-sky-600">${(cumpVal*100).toFixed(1)}%</td>
+            <td class="p-2 border border-slate-200 text-center font-bold text-slate-700">${badge.text}</td>
+            <td class="p-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>`;
         frag.appendChild(tr);
       });
       tbody.innerHTML = '';
@@ -1182,9 +1182,9 @@
       });
 
       const thead = document.getElementById('theadFechas');
-      let thHTML = `<tr><th class="p-2 border">DNI</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">PLACA</th><th class="p-2 border">ORIGEN</th>`;
-      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${formatDateDisplay(f)}</th>`);
-      thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right bg-blue-50">CUMP. %</th></tr>`;
+      let thHTML = `<tr><th class="p-2 border border-slate-200">DNI</th><th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th><th class="p-2 border border-slate-200">MODALIDAD</th><th class="p-2 border border-slate-200">CATEG. 2026</th><th class="p-2 border border-slate-200">PLACA</th><th class="p-2 border border-slate-200">ORIGEN</th>`;
+      fechas.forEach(f => thHTML += `<th class="p-2 border border-slate-200 text-center bg-emerald-50/60 text-emerald-800">${formatDateDisplay(f)}</th>`);
+      thHTML += `<th class="p-2 border border-slate-200 text-right bg-amber-50/60 text-amber-900">TOTAL KG</th><th class="p-2 border border-slate-200 text-right bg-sky-50/60 text-sky-900">CUMP. %</th></tr>`;
       thead.innerHTML = thHTML;
 
       const tbody = document.getElementById('tbodyFechas');
@@ -1193,20 +1193,20 @@
         const avgCump = row.count > 0 ? (row.cumpSum / row.count) : 0;
         const badge = getCumplimientoBadge(avgCump);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
+        tr.className = 'hover:bg-slate-50 transition-colors';
         let trHTML = `
-          <td class="p-2 border font-mono">${row.dni || ''}</td>
-          <td class="p-2 border font-medium">${row.nombre || ''}</td>
-          <td class="p-2 border">${row.modalidad || ''}</td>
-          <td class="p-2 border">${row.categ || ''}</td>
-          <td class="p-2 border">${row.placa || ''}</td>
-          <td class="p-2 border">${row.origen || ''}</td>`;
+          <td class="p-2 border border-slate-200 font-mono text-slate-600">${row.dni || ''}</td>
+          <td class="p-2 border border-slate-200 font-medium text-slate-700">${row.nombre || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.modalidad || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.categ || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.placa || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.origen || ''}</td>`;
         fechas.forEach(f => {
           const val = row.fechasKg[f];
-          trHTML += `<td class="p-2 border text-right">${val ? formatNumber(val, 1) : '-'}</td>`;
+          trHTML += `<td class="p-2 border border-slate-200 text-right text-slate-600">${val ? formatNumber(val, 1) : '-'}</td>`;
         });
-        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${formatNumber(row.totalKg)}</td>
-                   <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgCump*100).toFixed(1)}%</span></td>`;
+        trHTML += `<td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(row.totalKg)}</td>
+                   <td class="p-2 border border-slate-200 text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgCump*100).toFixed(1)}%</span></td>`;
         tr.innerHTML = trHTML;
         frag.appendChild(tr);
       });
@@ -1221,19 +1221,19 @@
         const cumpVal = parseFloat(r['CUMP. %']) || 0;
         const badge = getCumplimientoBadge(cumpVal);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
+        tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-            <td class="p-2 border">${formatDateDisplay(r.FECHA)}</td>
-            <td class="p-2 border text-center font-bold">${r.SEMANA || ''}</td>
-            <td class="p-2 border font-mono">${r.DNI || ''}</td>
-            <td class="p-2 border font-medium">${r['APELLIDOS Y NOMBRES'] || ''}</td>
-            <td class="p-2 border">${r.MODALIDAD || ''}</td>
-            <td class="p-2 border">${r.HISTORICO || ''}</td>
-            <td class="p-2 border font-semibold">${badge.text}</td>
-            <td class="p-2 border text-right font-bold">${formatNumber(parseFloat(r['TOTAL KG.'])||0)}</td>
-            <td class="p-2 border text-right">${formatNumber(parseFloat(r.META)||0)}</td>
-            <td class="p-2 border text-right font-bold text-blue-700">${(cumpVal*100).toFixed(1)}%</td>
-            <td class="p-2 border text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>`;
+            <td class="p-2 border border-slate-200 text-slate-600">${formatDateDisplay(r.FECHA)}</td>
+            <td class="p-2 border border-slate-200 text-center font-bold text-slate-700">${r.SEMANA || ''}</td>
+            <td class="p-2 border border-slate-200 font-mono text-slate-600">${r.DNI || ''}</td>
+            <td class="p-2 border border-slate-200 font-medium text-slate-700">${r['APELLIDOS Y NOMBRES'] || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.MODALIDAD || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.HISTORICO || ''}</td>
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${badge.text}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-slate-700">${formatNumber(parseFloat(r['TOTAL KG.'])||0)}</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(parseFloat(r.META)||0)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-sky-600">${(cumpVal*100).toFixed(1)}%</td>
+            <td class="p-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>`;
         frag.appendChild(tr);
       });
       tbody.innerHTML = '';
@@ -1260,11 +1260,11 @@
           datasets: [{
             label: 'Promedio Total KG por Unidad',
             data: pAvgs,
-            borderColor: '#2D7A3A',
-            backgroundColor: 'rgba(45, 122, 58, 0.1)',
+            borderColor: '#059669',
+            backgroundColor: 'rgba(5, 150, 105, 0.08)',
             fill: true,
             tension: 0.3,
-            borderWidth: 3
+            borderWidth: 2.5
           }]
         },
         options: { responsive: true, maintainAspectRatio: false }
@@ -1288,9 +1288,9 @@
       });
 
       const thead = document.getElementById('theadTransporte');
-      let thHTML = `<tr><th class="p-2 border">PLACA</th><th class="p-2 border">APELLIDOS Y NOMBRES</th><th class="p-2 border">MODALIDAD</th><th class="p-2 border">CATEG. 2026</th><th class="p-2 border">RUTA</th>`;
-      fechas.forEach(f => thHTML += `<th class="p-2 border text-center bg-green-50">${formatDateDisplay(f)}</th>`);
-      thHTML += `<th class="p-2 border text-right bg-amber-50">TOTAL KG</th><th class="p-2 border text-right">META</th><th class="p-2 border text-right">CUMP. %</th></tr>`;
+      let thHTML = `<tr><th class="p-2 border border-slate-200">PLACA</th><th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th><th class="p-2 border border-slate-200">MODALIDAD</th><th class="p-2 border border-slate-200">CATEG. 2026</th><th class="p-2 border border-slate-200">RUTA</th>`;
+      fechas.forEach(f => thHTML += `<th class="p-2 border border-slate-200 text-center bg-emerald-50/60 text-emerald-800">${formatDateDisplay(f)}</th>`);
+      thHTML += `<th class="p-2 border border-slate-200 text-right bg-amber-50/60 text-amber-900">TOTAL KG</th><th class="p-2 border border-slate-200 text-right">META</th><th class="p-2 border border-slate-200 text-right">CUMP. %</th></tr>`;
       thead.innerHTML = thHTML;
 
       const tbody = document.getElementById('tbodyTransporte');
@@ -1299,20 +1299,20 @@
         const avgC = row.count > 0 ? (row.cumpSum / row.count) : 0;
         const badge = getCumplimientoBadge(avgC);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
+        tr.className = 'hover:bg-slate-50 transition-colors';
         let trHTML = `
-          <td class="p-2 border font-bold">${row.placa || ''}</td>
-          <td class="p-2 border">${row.nombre || ''}</td>
-          <td class="p-2 border">${row.modalidad || ''}</td>
-          <td class="p-2 border">${row.categ || ''}</td>
-          <td class="p-2 border">${row.ruta || ''}</td>`;
+          <td class="p-2 border border-slate-200 font-bold text-slate-700">${row.placa || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.nombre || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.modalidad || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.categ || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.ruta || ''}</td>`;
         fechas.forEach(f => {
           const val = row.fechasKg[f];
-          trHTML += `<td class="p-2 border text-right">${val ? formatNumber(val, 1) : '-'}</td>`;
+          trHTML += `<td class="p-2 border border-slate-200 text-right text-slate-600">${val ? formatNumber(val, 1) : '-'}</td>`;
         });
-        trHTML += `<td class="p-2 border text-right font-bold text-green-700">${formatNumber(row.totalKg)}</td>
-                   <td class="p-2 border text-right">${formatNumber(row.metaSum, 1)}</td>
-                   <td class="p-2 border text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgC*100).toFixed(1)}%</span></td>`;
+        trHTML += `<td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(row.totalKg)}</td>
+                   <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(row.metaSum, 1)}</td>
+                   <td class="p-2 border border-slate-200 text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${(avgC*100).toFixed(1)}%</span></td>`;
         tr.innerHTML = trHTML;
         frag.appendChild(tr);
       });
@@ -1355,14 +1355,14 @@
         const avgC = g.count > 0 ? (g.cumpSum / g.count) : 0;
         const badgeEvaluada = getCumplimientoBadge(avgC);
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50';
+        tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-            <td class="p-2 border font-semibold">${g.mod}</td>
-            <td class="p-2 border">${g.hist}</td>
-            <td class="p-2 border text-right font-bold text-green-700">${formatNumber(g.kgSum)}</td>
-            <td class="p-2 border text-right font-bold text-blue-700">${(avgC*100).toFixed(1)} %</td>
-            <td class="p-2 border text-right">${g.dias.size}</td>
-            <td class="p-2 border text-center"><span class="px-2.5 py-1 rounded font-bold ${badgeEvaluada.cls}">${badgeEvaluada.text}</span></td>`;
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${g.mod}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${g.hist}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(g.kgSum)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-sky-600">${(avgC*100).toFixed(1)} %</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${g.dias.size}</td>
+            <td class="p-2 border border-slate-200 text-center"><span class="px-2.5 py-1 rounded font-bold ${badgeEvaluada.cls}">${badgeEvaluada.text}</span></td>`;
         frag1.appendChild(tr);
       });
       tbody1.innerHTML = '';
@@ -1373,11 +1373,12 @@
       Object.values(subGroup1).forEach(g => {
         const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
         const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-            <td class="p-2 border">${g.mod}</td>
-            <td class="p-2 border">${g.hist}</td>
-            <td class="p-2 border text-right font-semibold">${formatNumber(g.kgSum)}</td>
-            <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>`;
+            <td class="p-2 border border-slate-200 text-slate-600">${g.mod}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${g.hist}</td>
+            <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(g.kgSum)}</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${avgC.toFixed(1)}%</td>`;
         fragSub1.appendChild(tr);
       });
       tbodySub1.innerHTML = '';
@@ -1388,11 +1389,12 @@
       Object.values(subGroup2).forEach(g => {
         const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
         const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-            <td class="p-2 border">${g.mod}</td>
-            <td class="p-2 border">${g.cat}</td>
-            <td class="p-2 border text-right font-semibold">${formatNumber(g.kgSum)}</td>
-            <td class="p-2 border text-right">${avgC.toFixed(1)}%</td>`;
+            <td class="p-2 border border-slate-200 text-slate-600">${g.mod}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${g.cat}</td>
+            <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(g.kgSum)}</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${avgC.toFixed(1)}%</td>`;
         fragSub2.appendChild(tr);
       });
       tbodySub2.innerHTML = '';
