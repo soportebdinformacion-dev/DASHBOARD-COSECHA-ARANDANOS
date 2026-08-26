@@ -1,7 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-<head><!DOCTYPE html>
-<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -217,7 +215,6 @@
           </div>
         </div>
 
-        <!-- VISUAL ELEGANTE, CLARO Y COMPACTO: TOTAL CUMP. % POR MODALIDAD -->
         <div class="bg-gradient-to-br from-white via-slate-50 to-emerald-50/40 p-3 sm:p-4 rounded-2xl shadow-xs border border-emerald-100/80">
           <div class="flex items-center justify-between mb-2.5 border-b border-emerald-100/60 pb-2">
             <div class="flex items-center space-x-2">
@@ -235,7 +232,6 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-            <!-- TARJETA CAMPAMENTO COMPACTA -->
             <div class="relative overflow-hidden bg-white rounded-xl p-2.5 border border-teal-100 shadow-xs hover:border-teal-300 transition-all duration-300 group flex flex-col justify-between">
               <div class="flex items-center justify-between">
                 <div>
@@ -264,7 +260,6 @@
               </div>
             </div>
 
-            <!-- TARJETA IDA Y VUELTA COMPACTA -->
             <div class="relative overflow-hidden bg-white rounded-xl p-2.5 border border-indigo-100 shadow-xs hover:border-indigo-300 transition-all duration-300 group flex flex-col justify-between">
               <div class="flex items-center justify-between">
                 <div>
@@ -940,14 +935,12 @@
       });
       const totalCosechadores = uniqueDnis.size;
 
-      // 1. Modificación 1: TOTAL CUMP. % muestra el total del promedio de la columna CUMP. % de la tabla DETALLE
       let sumCumpPct = 0;
       let countCumpPct = 0;
 
       filteredDetalle.forEach(r => {
         let val = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct);
         if (!isNaN(val)) {
-          // Si los datos están expresados en decimal (ej. 1.05 = 105%), ajustar a porcentaje
           if (val <= 2 && val > 0) val = val * 100;
           sumCumpPct += val;
           countCumpPct++;
@@ -960,7 +953,6 @@
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = formatNumber(totalCosechadores, 0);
 
-      // 2. Modificación 2: VISUAL TOTAL CUMP. % POR MODALIDAD
       const totalNombresSet = new Set();
       const campamentoNombresSet = new Set();
       const idaVueltaNombresSet = new Set();
@@ -982,12 +974,9 @@
       const campUnicosNom = campamentoNombresSet.size;
       const idaVueltaUnicosNom = idaVueltaNombresSet.size;
 
-      // 2.1 CAMPAMENTO = Total de registros únicos CAMPAMENTO / Total registros únicos * TOTAL CUMP. %
       const cumpCampamento = totalUnicosNom > 0 ? (campUnicosNom / totalUnicosNom) * avgCump : 0;
-      // 2.2 IDA Y VUELTA = Total de registros únicos IDA Y VUELTA / Total registros únicos * TOTAL CUMP. %
       const cumpIdaVuelta = totalUnicosNom > 0 ? (idaVueltaUnicosNom / totalUnicosNom) * avgCump : 0;
 
-      // Actualización visual del módulo Total Cump. % por Modalidad
       document.getElementById('cumpCampamentoVal').textContent = `${cumpCampamento.toFixed(1)} %`;
       document.getElementById('cumpCampamentoRatio').textContent = `${campUnicosNom} / ${totalUnicosNom} cosecha. únicos`;
       
@@ -1002,7 +991,6 @@
       document.getElementById('cumpIdaVueltaBarPct').textContent = `${pctIdaBar.toFixed(1)}% Ponderado`;
       document.getElementById('cumpIdaVueltaBar').style.width = `${pctIdaBar}%`;
 
-      // MODALIDAD (Cosechadores & %) - Colores Suaves
       const modGroup = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || r.modalidad || 'SIN REGISTRO';
@@ -1037,7 +1025,6 @@
         }
       });
 
-      // SEXO (Cosechadores & %) - Colores Suaves
       const sexoGroup = {};
       filteredDetalle.forEach(r => {
         const s = r.SEXO || r.sexo || 'NO ESPECIFICA';
@@ -1072,7 +1059,6 @@
         }
       });
 
-      // TABLA RESUMEN POR FECHA
       const fechaGroup = {};
       filteredDetalle.forEach(r => {
         const rawF = r.FECHA || r.fecha;
@@ -1109,7 +1095,6 @@
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      // TABLA RESUMEN POR MODALIDAD
       const modData = {};
 
       filteredDetalle.forEach(r => {
@@ -1175,7 +1160,6 @@
       tbodyMod.innerHTML = '';
       tbodyMod.appendChild(fragMod);
 
-      // TOP 10 MEJORES COSECHADORES
       const cosMap = {};
       filteredDetalle.forEach(r => {
         const key = r.DNI || r.dni;
@@ -1225,7 +1209,6 @@
       tbodyTop.innerHTML = '';
       tbodyTop.appendChild(fragTop);
 
-      // DISTRIBUCION DE COSECHADORES POR HISTORICO
       const histMap = {};
       filteredDetalle.forEach(r => {
         const h = r.HISTORICO || r.historico || 'SIN HISTORICO';
@@ -1323,24 +1306,30 @@
       renderPage2();
     }
 
+    // MODIFICACIÓN SOLICITADA EN PÁGINA 3 (COSECHA MATRIZ X FECHAS)
     function renderPage3() {
-      const fechas = [...new Set(filteredTdp.map(r => {
+      const dataset = filteredTdp.length > 0 ? filteredTdp : filteredDetalle;
+
+      // Obtener lista dinámica de fechas para las columnas
+      const fechas = [...new Set(dataset.map(r => {
         const f = r.FECHA || r.fecha;
         return f ? f.split('T')[0] : '';
       }).filter(Boolean))].sort();
 
       const rowsMap = {};
 
-      filteredTdp.forEach(r => {
-        const key = r.DNI || r.dni;
+      dataset.forEach(r => {
+        const key = r.DNI || r.dni || r['APELLIDOS Y NOMBRES'] || r.nombre;
+        if (!key) return;
+
         if (!rowsMap[key]) {
           rowsMap[key] = { 
-            dni: r.DNI || r.dni, 
-            nombre: r['APELLIDOS Y NOMBRES'] || r.nombre, 
-            modalidad: r.MODALIDAD || r.modalidad, 
-            categ: r['CATEG. 2026'] || r.categoria2026, 
-            placa: r.PLACA || r.placaVehiculo, 
-            origen: r.RUTA || r.empresaTransporte, 
+            dni: r.DNI || r.dni || '-', 
+            nombre: r['APELLIDOS Y NOMBRES'] || r.nombre || 'SIN NOMBRE', 
+            modalidad: r.MODALIDAD || r.modalidad || '-', 
+            categ: r['CATEG. 2026'] || r.categoria2026 || '-', 
+            placa: r.PLACA || r.placaVehiculo || '-', 
+            origen: r.RUTA || r.empresaTransporte || '-', 
             fechasKg: {}, 
             cumpSum: 0, 
             count: 0, 
@@ -1349,44 +1338,70 @@
         }
         const rawF = r.FECHA || r.fecha;
         const f = rawF ? rawF.split('T')[0] : '';
-        const kg = parseFloat(r['TOTAL KG.'] || r.totalKg) || 0;
-        rowsMap[key].fechasKg[f] = (rowsMap[key].fechasKg[f] || 0) + kg;
+        const kg = parseFloat(r['TOTAL KG.'] || r.totalKg || r['TOTAL KG']) || 0;
+        
+        if (f) {
+          rowsMap[key].fechasKg[f] = (rowsMap[key].fechasKg[f] || 0) + kg;
+        }
         rowsMap[key].totalKg += kg;
+        
         let cVal = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct) || 0;
         if (cVal <= 2 && cVal > 0) cVal = cVal * 100;
         rowsMap[key].cumpSum += cVal;
         rowsMap[key].count++;
       });
 
+      // Construcción del Encabezado (Las Fechas en Columnas + TOTAL CUMP. %)
       const thead = document.getElementById('theadFechas');
-      let thHTML = `<tr><th class="p-2 border border-slate-200">DNI</th><th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th><th class="p-2 border border-slate-200">MODALIDAD</th><th class="p-2 border border-slate-200">CATEG. 2026</th><th class="p-2 border border-slate-200">PLACA</th><th class="p-2 border border-slate-200">ORIGEN</th>`;
-      fechas.forEach(f => thHTML += `<th class="p-2 border border-slate-200 text-center bg-emerald-50/60 text-emerald-800">${formatDateDisplay(f)}</th>`);
-      thHTML += `<th class="p-2 border border-slate-200 text-right bg-amber-50/60 text-amber-900">TOTAL KG</th><th class="p-2 border border-slate-200 text-right bg-sky-50/60 text-sky-900">CUMP. %</th></tr>`;
+      let thHTML = `<tr>
+        <th class="p-2 border border-slate-200">DNI</th>
+        <th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th>
+        <th class="p-2 border border-slate-200">MODALIDAD</th>
+        <th class="p-2 border border-slate-200">CATEG. 2026</th>
+        <th class="p-2 border border-slate-200">PLACA</th>
+        <th class="p-2 border border-slate-200">ORIGEN</th>`;
+      
+      fechas.forEach(f => {
+        thHTML += `<th class="p-2 border border-slate-200 text-center bg-emerald-50/60 text-emerald-800">${formatDateDisplay(f)}</th>`;
+      });
+
+      thHTML += `
+        <th class="p-2 border border-slate-200 text-right bg-amber-50/60 text-amber-900">TOTAL KG</th>
+        <th class="p-2 border border-slate-200 text-right bg-sky-50/60 text-sky-900">TOTAL CUMP. %</th>
+      </tr>`;
       thead.innerHTML = thHTML;
 
+      // Construcción del Cuerpo de la Tabla
       const tbody = document.getElementById('tbodyFechas');
       const frag = document.createDocumentFragment();
-      Object.values(rowsMap).slice(0, 50).forEach(row => {
+
+      Object.values(rowsMap).forEach(row => {
         const avgCump = row.count > 0 ? (row.cumpSum / row.count) : 0;
         const badge = getCumplimientoBadge(avgCump);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
+        
         let trHTML = `
-          <td class="p-2 border border-slate-200 font-mono text-slate-600">${row.dni || ''}</td>
-          <td class="p-2 border border-slate-200 font-medium text-slate-700">${row.nombre || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${row.modalidad || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${row.categ || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${row.placa || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${row.origen || ''}</td>`;
+          <td class="p-2 border border-slate-200 font-mono text-slate-600">${row.dni}</td>
+          <td class="p-2 border border-slate-200 font-medium text-slate-700">${row.nombre}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.modalidad}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.categ}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.placa}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.origen}</td>`;
+
         fechas.forEach(f => {
           const val = row.fechasKg[f];
           trHTML += `<td class="p-2 border border-slate-200 text-right text-slate-600">${val ? formatNumber(val, 1) : '-'}</td>`;
         });
-        trHTML += `<td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(row.totalKg)}</td>
-                   <td class="p-2 border border-slate-200 text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${avgCump.toFixed(1)}%</span></td>`;
+
+        trHTML += `
+          <td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(row.totalKg)} kg</td>
+          <td class="p-2 border border-slate-200 text-right"><span class="px-2 py-0.5 rounded font-bold ${badge.cls}">${avgCump.toFixed(1)}%</span></td>`;
+        
         tr.innerHTML = trHTML;
         frag.appendChild(tr);
       });
+
       tbody.innerHTML = '';
       tbody.appendChild(frag);
     }
@@ -1602,11 +1617,9 @@
       tbodySub2.appendChild(fragSub2);
     }
 
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js');
-    }
-
-    window.addEventListener('load', initData);
+    document.addEventListener('DOMContentLoaded', () => {
+      initData();
+    });
   </script>
 </body>
 </html>
