@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
+<head><!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -411,9 +413,19 @@
             <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
               <thead class="bg-slate-50 uppercase">
                 <tr>
-                  <th class="p-2 border border-slate-200">FECHA</th>
+                  <th class="p-2 border border-slate-200 cursor-pointer hover:bg-slate-100" onclick="toggleSortDetalleFecha()">
+                    <div class="flex items-center justify-between space-x-1">
+                      <span>FECHA</span>
+                      <i id="sortIconDetalleFecha" class="fa-solid fa-sort text-slate-400"></i>
+                    </div>
+                  </th>
                   <th class="p-2 border border-slate-200">DNI</th>
-                  <th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th>
+                  <th class="p-2 border border-slate-200 cursor-pointer hover:bg-slate-100" onclick="toggleSortDetalleNombre()">
+                    <div class="flex items-center justify-between space-x-1">
+                      <span>APELLIDOS Y NOMBRES</span>
+                      <i id="sortIconDetalleNombre" class="fa-solid fa-sort text-slate-400"></i>
+                    </div>
+                  </th>
                   <th class="p-2 border border-slate-200">HISTÓRICO</th>
                   <th class="p-2 border border-slate-200">MODALIDAD</th>
                   <th class="p-2 border border-slate-200">VARIEDAD</th>
@@ -568,6 +580,8 @@
 
     let sortOrderFecha = 'asc';
     let sortOrderHistoricoProm = 'desc';
+    let sortOrderDetalleFecha = null;
+    let sortOrderDetalleNombre = null;
 
     let chartModalidadObj = null;
     let chartSexoObj = null;
@@ -604,6 +618,44 @@
         icon.className = sortOrderHistoricoProm === 'asc' ? 'fa-solid fa-sort-up text-slate-600' : 'fa-solid fa-sort-down text-slate-600';
       }
       renderPage1();
+    }
+
+    function toggleSortDetalleFecha() {
+      sortOrderDetalleFecha = sortOrderDetalleFecha === 'asc' ? 'desc' : 'asc';
+      sortOrderDetalleNombre = null;
+
+      const iconFecha = document.getElementById('sortIconDetalleFecha');
+      const iconNombre = document.getElementById('sortIconDetalleNombre');
+      if (iconFecha) iconFecha.className = sortOrderDetalleFecha === 'asc' ? 'fa-solid fa-sort-up text-emerald-600' : 'fa-solid fa-sort-down text-emerald-600';
+      if (iconNombre) iconNombre.className = 'fa-solid fa-sort text-slate-400';
+
+      filteredDetalle.sort((a, b) => {
+        const fa = String(a.FECHA || a.fecha || '');
+        const fb = String(b.FECHA || b.fecha || '');
+        return sortOrderDetalleFecha === 'asc' ? fa.localeCompare(fb) : fb.localeCompare(fa);
+      });
+
+      currentPagePage2 = 1;
+      renderPage2();
+    }
+
+    function toggleSortDetalleNombre() {
+      sortOrderDetalleNombre = sortOrderDetalleNombre === 'asc' ? 'desc' : 'asc';
+      sortOrderDetalleFecha = null;
+
+      const iconFecha = document.getElementById('sortIconDetalleFecha');
+      const iconNombre = document.getElementById('sortIconDetalleNombre');
+      if (iconNombre) iconNombre.className = sortOrderDetalleNombre === 'asc' ? 'fa-solid fa-sort-up text-emerald-600' : 'fa-solid fa-sort-down text-emerald-600';
+      if (iconFecha) iconFecha.className = 'fa-solid fa-sort text-slate-400';
+
+      filteredDetalle.sort((a, b) => {
+        const na = String(a['APELLIDOS Y NOMBRES'] || a.nombre || '').toLowerCase();
+        const nb = String(b['APELLIDOS Y NOMBRES'] || b.nombre || '').toLowerCase();
+        return sortOrderDetalleNombre === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
+      });
+
+      currentPagePage2 = 1;
+      renderPage2();
     }
 
     function showToast(type, title, message) {
@@ -853,6 +905,20 @@
 
       filteredDetalle = rawDetalleData.filter(d => matchesFilter(d, true));
       filteredTdp = rawTdpData.filter(d => matchesFilter(d, false));
+
+      if (sortOrderDetalleFecha) {
+        filteredDetalle.sort((a, b) => {
+          const fa = String(a.FECHA || a.fecha || '');
+          const fb = String(b.FECHA || b.fecha || '');
+          return sortOrderDetalleFecha === 'asc' ? fa.localeCompare(fb) : fb.localeCompare(fa);
+        });
+      } else if (sortOrderDetalleNombre) {
+        filteredDetalle.sort((a, b) => {
+          const na = String(a['APELLIDOS Y NOMBRES'] || a.nombre || '').toLowerCase();
+          const nb = String(b['APELLIDOS Y NOMBRES'] || b.nombre || '').toLowerCase();
+          return sortOrderDetalleNombre === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
+        });
+      }
 
       currentPagePage2 = 1;
 
