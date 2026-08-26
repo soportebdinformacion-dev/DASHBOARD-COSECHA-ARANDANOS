@@ -215,6 +215,7 @@
           </div>
         </div>
 
+        <!-- VISUAL ELEGANTE, CLARO Y COMPACTO: TOTAL CUMP. % POR MODALIDAD -->
         <div class="bg-gradient-to-br from-white via-slate-50 to-emerald-50/40 p-3 sm:p-4 rounded-2xl shadow-xs border border-emerald-100/80">
           <div class="flex items-center justify-between mb-2.5 border-b border-emerald-100/60 pb-2">
             <div class="flex items-center space-x-2">
@@ -232,6 +233,7 @@
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            <!-- TARJETA CAMPAMENTO COMPACTA -->
             <div class="relative overflow-hidden bg-white rounded-xl p-2.5 border border-teal-100 shadow-xs hover:border-teal-300 transition-all duration-300 group flex flex-col justify-between">
               <div class="flex items-center justify-between">
                 <div>
@@ -260,6 +262,7 @@
               </div>
             </div>
 
+            <!-- TARJETA IDA Y VUELTA COMPACTA -->
             <div class="relative overflow-hidden bg-white rounded-xl p-2.5 border border-indigo-100 shadow-xs hover:border-indigo-300 transition-all duration-300 group flex flex-col justify-between">
               <div class="flex items-center justify-between">
                 <div>
@@ -408,19 +411,9 @@
             <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
               <thead class="bg-slate-50 uppercase">
                 <tr>
-                  <th class="p-2 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors" onclick="toggleSortDetalleFecha()">
-                    <div class="flex items-center justify-between space-x-1">
-                      <span>FECHA</span>
-                      <i id="sortIconDetalleFecha" class="fa-solid fa-sort text-slate-400"></i>
-                    </div>
-                  </th>
+                  <th class="p-2 border border-slate-200">FECHA</th>
                   <th class="p-2 border border-slate-200">DNI</th>
-                  <th class="p-2 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors" onclick="toggleSortDetalleNombre()">
-                    <div class="flex items-center justify-between space-x-1">
-                      <span>APELLIDOS Y NOMBRES</span>
-                      <i id="sortIconDetalleNombre" class="fa-solid fa-sort text-slate-400"></i>
-                    </div>
-                  </th>
+                  <th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th>
                   <th class="p-2 border border-slate-200">HISTÓRICO</th>
                   <th class="p-2 border border-slate-200">MODALIDAD</th>
                   <th class="p-2 border border-slate-200">VARIEDAD</th>
@@ -562,21 +555,19 @@
   </div>
 
   <script>
-    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzLDIJsrw3ugribpGh4_Q9rEeWNXo7D_50eFx52POFuM0qnWYMeGWkn9XCBbv4K5MJd/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwA17ZMW0S-OEtzZA1sONzaJHGuZ_xVSX5DX8tTIHImZAXZAfgPCFr2Ot8Bd1h2mIYW/exec";
 
     let activeTab = 1;
     let rawDetalleData = [];
     let rawTdpData = [];
     let filteredDetalle = [];
     let filteredTdp = [];
+
     let currentPagePage2 = 1;
     const pageSizePage2 = 100;
 
     let sortOrderFecha = 'asc';
     let sortOrderHistoricoProm = 'desc';
-
-    let sortOrderDetalleFecha = null;
-    let sortOrderDetalleNombre = null;
 
     let chartModalidadObj = null;
     let chartSexoObj = null;
@@ -615,59 +606,6 @@
       renderPage1();
     }
 
-    function toggleSortDetalleFecha() {
-      sortOrderDetalleFecha = sortOrderDetalleFecha === 'asc' ? 'desc' : 'asc';
-      sortOrderDetalleNombre = null;
-
-      updateDetalleSortIcons();
-
-      filteredDetalle.sort((a, b) => {
-        const valA = String(a.fecha || '');
-        const valB = String(b.fecha || '');
-        return sortOrderDetalleFecha === 'asc' 
-          ? valA.localeCompare(valB) 
-          : valB.localeCompare(valA);
-      });
-
-      currentPagePage2 = 1;
-      renderPage2();
-    }
-
-    function toggleSortDetalleNombre() {
-      sortOrderDetalleNombre = sortOrderDetalleNombre === 'asc' ? 'desc' : 'asc';
-      sortOrderDetalleFecha = null;
-
-      updateDetalleSortIcons();
-
-      filteredDetalle.sort((a, b) => {
-        const valA = String(a.nombre || '').trim();
-        const valB = String(b.nombre || '').trim();
-        return sortOrderDetalleNombre === 'asc' 
-          ? valA.localeCompare(valB, 'es', { sensitivity: 'base' }) 
-          : valB.localeCompare(valA, 'es', { sensitivity: 'base' });
-      });
-
-      currentPagePage2 = 1;
-      renderPage2();
-    }
-
-    function updateDetalleSortIcons() {
-      const iconFecha = document.getElementById('sortIconDetalleFecha');
-      const iconNombre = document.getElementById('sortIconDetalleNombre');
-
-      if (iconFecha) {
-        if (sortOrderDetalleFecha === 'asc') iconFecha.className = 'fa-solid fa-sort-up text-emerald-600';
-        else if (sortOrderDetalleFecha === 'desc') iconFecha.className = 'fa-solid fa-sort-down text-emerald-600';
-        else iconFecha.className = 'fa-solid fa-sort text-slate-400';
-      }
-
-      if (iconNombre) {
-        if (sortOrderDetalleNombre === 'asc') iconNombre.className = 'fa-solid fa-sort-up text-emerald-600';
-        else if (sortOrderDetalleNombre === 'desc') iconNombre.className = 'fa-solid fa-sort-down text-emerald-600';
-        else iconNombre.className = 'fa-solid fa-sort text-slate-400';
-      }
-    }
-
     function showToast(type, title, message) {
       const toast = document.getElementById('toastNotification');
       const icon = document.getElementById('toastIcon');
@@ -692,6 +630,7 @@
 
       tTitle.textContent = title;
       tMsg.textContent = message;
+
       toast.classList.remove('translate-x-full');
 
       setTimeout(() => {
@@ -712,88 +651,154 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    function setConnectionStatus(status, text) {
+    function switchTab(tabIndex) {
+      activeTab = tabIndex;
+      document.querySelectorAll('.nav-btn-vert').forEach((btn, idx) => {
+        if (idx + 1 === tabIndex) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+      document.getElementById(`page-${tabIndex}`).classList.remove('hidden');
+
+      const ley = document.getElementById('leyendaCumplimiento');
+      const sBox = document.getElementById('searchPersonBox');
+      const vBox = document.getElementById('filterVariedadBox');
+
+      if (tabIndex >= 2) ley.classList.remove('hidden'); else ley.classList.add('hidden');
+      if (tabIndex >= 2 && tabIndex <= 4) sBox.classList.remove('hidden'); else sBox.classList.add('hidden');
+      if (tabIndex === 1 || tabIndex === 2 || tabIndex === 3) vBox.classList.remove('hidden'); else vBox.classList.add('hidden');
+
+      applyFilters();
+    }
+
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open('HuarmeyCosechaDB', 1);
+        req.onupgradeneeded = (e) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('detalle')) db.createObjectStore('detalle', { keyPath: 'id', autoIncrement: true });
+          if (!db.objectStoreNames.contains('tdp')) db.createObjectStore('tdp', { keyPath: 'id', autoIncrement: true });
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function saveLocalData(storeName, dataList) {
+      const db = await openDB();
+      const tx = db.transaction(storeName, 'readwrite');
+      const store = tx.objectStore(storeName);
+      store.clear();
+      dataList.forEach(item => store.add(item));
+      return tx.complete;
+    }
+
+    async function getLocalData(storeName) {
+      const db = await openDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => resolve([]);
+      });
+    }
+
+    async function initData() {
+      const statusBox = document.getElementById('connectionStatus');
       const syncDot = document.getElementById('syncDot');
       const syncText = document.getElementById('syncText');
       const syncIcon = document.getElementById('syncIcon');
 
-      if (status === 'loading') {
-        syncDot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-        syncText.textContent = text || 'Cargando...';
-        syncIcon.className = 'fa-solid fa-spinner fa-spin ml-1 text-amber-500';
-      } else if (status === 'online') {
-        syncDot.className = 'w-2 h-2 rounded-full bg-emerald-500';
-        syncText.textContent = text || 'En Línea';
-        syncIcon.className = 'fa-solid fa-check ml-1 text-emerald-500';
-      } else {
-        syncDot.className = 'w-2 h-2 rounded-full bg-rose-500';
-        syncText.textContent = text || 'Error de Conexión';
-        syncIcon.className = 'fa-solid fa-triangle-exclamation ml-1 text-rose-500';
+      rawDetalleData = await getLocalData('detalle');
+      rawTdpData = await getLocalData('tdp');
+      if (rawDetalleData.length > 0) {
+        populateFilterOptions();
+        applyFilters();
       }
-    }
 
-    async function loadDataFromGAS() {
-      setConnectionStatus('loading', 'Sincronizando Sheets...');
       try {
-        const response = await fetch(`${GAS_API_URL}?action=getData`, {
+        if (!navigator.onLine) {
+          throw new Error("Dispositivo sin conexión a internet.");
+        }
+
+        const res = await fetch(GAS_API_URL + "?action=getData", {
           method: 'GET',
           redirect: 'follow'
         });
-        const result = await response.json();
 
-        if (result.status === 'success') {
-          rawDetalleData = result.detalle || [];
-          rawTdpData = result.tdp || [];
+        if (!res.ok) throw new Error("Error HTTP de servidor: " + res.status);
 
-          populateFilterDropdowns();
-          applyFilters();
+        const json = await res.json();
 
-          setConnectionStatus('online', 'Actualizado');
-          showToast('success', 'Conexión Exitosa', 'Datos cargados desde Google Sheets.');
+        if (json.status === 'success') {
+          rawDetalleData = json.detalle || [];
+          rawTdpData = json.tdp || [];
+
+          saveLocalData('detalle', rawDetalleData);
+          saveLocalData('tdp', rawTdpData);
+
+          syncDot.className = "w-2 h-2 rounded-full bg-emerald-500 animate-pulse";
+          syncText.textContent = "Conectado";
+          syncIcon.className = "fa-solid fa-wifi text-emerald-600";
+          statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100";
+
+          showToast('success', 'Conexión Exitosa', '¡Sincronizado con Google Sheets correctamente!');
         } else {
-          throw new Error(result.message || 'Error en respuesta');
+          throw new Error(json.message || "Respuesta inválida desde Google Sheets");
         }
+
       } catch (err) {
-        console.error(err);
-        setConnectionStatus('offline', 'Error de carga');
-        showToast('error', 'Error de Carga', 'No se pudieron recuperar los datos de Google Sheets.');
+        console.warn("Conexión con Google Sheets no disponible:", err);
+
+        syncDot.className = "w-2 h-2 rounded-full bg-amber-500";
+        syncText.textContent = "Offline (Caché)";
+        syncIcon.className = "fa-solid fa-database text-amber-600";
+        statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-100";
+
+        showToast('warning', 'Modo Offline', 'Sin conexión con Google Sheets. Usando datos guardados.');
       }
+
+      populateFilterOptions();
+      applyFilters();
     }
 
-    function populateFilterDropdowns() {
-      const semanas = new Set();
-      const categs = new Set();
-      const variedades = new Set();
-      const modalidades = new Set();
-      const rangos = new Set();
+    function populateFilterOptions() {
+      const dataset = [...rawDetalleData, ...rawTdpData];
+      const semanas = [...new Set(dataset.map(d => d.SEMANA || d.semana).filter(Boolean))].sort((a,b)=>a-b);
+      const categs = [...new Set(dataset.map(d => d['CATEG. 2026'] || d.categoria2026).filter(Boolean))].sort();
+      const variedades = [...new Set(rawDetalleData.map(d => d.VARIEDAD || d.variedad).filter(Boolean))].sort();
+      const modalidades = [...new Set(dataset.map(d => d.MODALIDAD || d.modalidad).filter(Boolean))].sort();
+      
+      const rangos = [...new Set(rawDetalleData.map(d => d['RANGO %'] || d.rangoPct).filter(Boolean))].sort();
 
-      rawDetalleData.forEach(item => {
-        if (item.semana) semanas.add(item.semana);
-        if (item.categoria2026) categs.add(item.categoria2026);
-        if (item.variedad) variedades.add(item.variedad);
-        if (item.modalidad) modalidades.add(item.modalidad);
-        if (item.rangoPct) rangos.add(item.rangoPct);
-      });
+      const fillSelect = (id, items) => {
+        const sel = document.getElementById(id);
+        const curr = sel.value;
+        const frag = document.createDocumentFragment();
+        const defOpt = document.createElement('option');
+        defOpt.value = ''; defOpt.textContent = 'Todas';
+        frag.appendChild(defOpt);
 
-      fillSelect('filterSemana', Array.from(semanas).sort((a,b)=>a-b));
-      fillSelect('filterCateg', Array.from(categs).sort());
-      fillSelect('filterVariedad', Array.from(variedades).sort());
-      fillSelect('filterModalidad', Array.from(modalidades).sort());
-      fillSelect('filterRango', Array.from(rangos).sort());
-    }
+        items.forEach(i => {
+          const opt = document.createElement('option');
+          opt.value = i; opt.textContent = i;
+          frag.appendChild(opt);
+        });
+        sel.innerHTML = '';
+        sel.appendChild(frag);
+        sel.value = curr;
+      };
 
-    function fillSelect(id, list) {
-      const select = document.getElementById(id);
-      const currentVal = select.value;
-      const firstOptText = select.options[0].text;
-      select.innerHTML = `<option value="">${firstOptText}</option>`;
-      list.forEach(val => {
-        const opt = document.createElement('option');
-        opt.value = val;
-        opt.textContent = val;
-        select.appendChild(opt);
-      });
-      select.value = currentVal;
+      fillSelect('filterSemana', semanas);
+      fillSelect('filterCateg', categs);
+      fillSelect('filterVariedad', variedades);
+      fillSelect('filterModalidad', modalidades);
+      fillSelect('filterRango', rangos);
     }
 
     function resetFilters() {
@@ -807,6 +812,14 @@
       applyFilters();
     }
 
+    function getCumplimientoBadge(porcentaje) {
+      const p = porcentaje > 1 ? porcentaje : porcentaje * 100;
+      if (p <= 85) return { text: 'MALO', cls: 'badge-malo' };
+      if (p <= 99) return { text: 'REGULAR', cls: 'badge-regular' };
+      if (p <= 104) return { text: 'BUENO', cls: 'badge-bueno' };
+      return { text: 'EXCELENTE', cls: 'badge-excelente' };
+    }
+
     function applyFilters() {
       const fFecha = document.getElementById('filterFecha').value;
       const fSemana = document.getElementById('filterSemana').value;
@@ -814,405 +827,429 @@
       const fVariedad = document.getElementById('filterVariedad').value;
       const fModalidad = document.getElementById('filterModalidad').value;
       const fRango = document.getElementById('filterRango').value;
-      const fSearch = document.getElementById('searchInput').value.toLowerCase().trim();
+      const qSearch = document.getElementById('searchInput').value.toLowerCase().trim();
 
-      filteredDetalle = rawDetalleData.filter(item => {
-        if (fFecha && item.fecha !== fFecha) return false;
-        if (fSemana && String(item.semana) !== fSemana) return false;
-        if (fCateg && item.categoria2026 !== fCateg) return false;
-        if (fVariedad && item.variedad !== fVariedad) return false;
-        if (fModalidad && item.modalidad !== fModalidad) return false;
-        if (fRango && item.rangoPct !== fRango) return false;
-        if (fSearch) {
-          const dni = String(item.dni || '').toLowerCase();
-          const nom = String(item.nombre || '').toLowerCase();
-          if (!dni.includes(fSearch) && !nom.includes(fSearch)) return false;
+      const matchesFilter = (item, isDetalle = true) => {
+        const fechaVal = item.FECHA || item.fecha || '';
+        const semanaVal = item.SEMANA || item.semana || '';
+        const categVal = item['CATEG. 2026'] || item.categoria2026 || '';
+        const variedadVal = item.VARIEDAD || item.variedad || '';
+        const modalidadVal = item.MODALIDAD || item.modalidad || '';
+        const rangoVal = item['RANGO %'] || item.rangoPct || '';
+        const dniVal = String(item.DNI || item.dni || '').toLowerCase();
+        const nombreVal = String(item['APELLIDOS Y NOMBRES'] || item.nombre || '').toLowerCase();
+
+        if (fFecha && fechaVal && !fechaVal.includes(fFecha)) return false;
+        if (fSemana && String(semanaVal) !== String(fSemana)) return false;
+        if (fCateg && categVal !== fCateg) return false;
+        if (isDetalle && fVariedad && variedadVal !== fVariedad) return false;
+        if (fModalidad && modalidadVal !== fModalidad) return false;
+        if (fRango && rangoVal !== fRango) return false;
+        if (qSearch) {
+          if (!dniVal.includes(qSearch) && !nombreVal.includes(qSearch)) return false;
         }
         return true;
-      });
+      };
 
-      filteredTdp = rawTdpData.filter(item => {
-        if (fFecha && item.fecha !== fFecha) return false;
-        if (fSemana && String(item.semana) !== fSemana) return false;
-        if (fCateg && item.categoria2026 !== fCateg) return false;
-        if (fModalidad && item.modalidad !== fModalidad) return false;
-        if (fRango && item.rangoPct !== fRango) return false;
-        if (fSearch) {
-          const dni = String(item.dni || '').toLowerCase();
-          const nom = String(item.nombre || '').toLowerCase();
-          if (!dni.includes(fSearch) && !nom.includes(fSearch)) return false;
-        }
-        return true;
-      });
-
-      if (sortOrderDetalleFecha) {
-        filteredDetalle.sort((a, b) => {
-          const valA = String(a.fecha || '');
-          const valB = String(b.fecha || '');
-          return sortOrderDetalleFecha === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
-        });
-      } else if (sortOrderDetalleNombre) {
-        filteredDetalle.sort((a, b) => {
-          const valA = String(a.nombre || '').trim();
-          const valB = String(b.nombre || '').trim();
-          return sortOrderDetalleNombre === 'asc' 
-            ? valA.localeCompare(valB, 'es', { sensitivity: 'base' }) 
-            : valB.localeCompare(valA, 'es', { sensitivity: 'base' });
-        });
-      }
+      filteredDetalle = rawDetalleData.filter(d => matchesFilter(d, true));
+      filteredTdp = rawTdpData.filter(d => matchesFilter(d, false));
 
       currentPagePage2 = 1;
-      renderCurrentTab();
-    }
 
-    function switchTab(tabNum) {
-      activeTab = tabNum;
-      for (let i = 1; i <= 6; i++) {
-        const page = document.getElementById(`page-${i}`);
-        const tabBtn = document.getElementById(`tab-${i}`);
-        if (i === tabNum) {
-          page.classList.remove('hidden');
-          tabBtn.classList.add('active');
-        } else {
-          page.classList.add('hidden');
-          tabBtn.classList.remove('active');
-        }
-      }
-
-      const leyenda = document.getElementById('leyendaCumplimiento');
-      const searchBox = document.getElementById('searchPersonBox');
-      const varBox = document.getElementById('filterVariedadBox');
-
-      if (tabNum === 2 || tabNum === 4) {
-        leyenda.classList.remove('hidden');
-        searchBox.classList.remove('hidden');
-      } else {
-        leyenda.classList.add('hidden');
-        searchBox.classList.add('hidden');
-      }
-
-      if (tabNum === 4 || tabNum === 5) {
-        varBox.classList.add('hidden');
-      } else {
-        varBox.classList.remove('hidden');
-      }
-
-      renderCurrentTab();
-    }
-
-    function renderCurrentTab() {
-      switch (activeTab) {
-        case 1: renderPage1(); break;
-        case 2: renderPage2(); break;
-        case 3: renderPage3(); break;
-        case 4: renderPage4(); break;
-        case 5: renderPage5(); break;
-        case 6: renderPage6(); break;
-      }
-    }
-
-    function getBadgeClass(rango) {
-      if (!rango) return '';
-      const r = rango.toUpperCase();
-      if (r.includes('MALO')) return 'badge-malo';
-      if (r.includes('REGULAR')) return 'badge-regular';
-      if (r.includes('BUENO')) return 'badge-bueno';
-      if (r.includes('EXCELENTE')) return 'badge-excelente';
-      return '';
+      if (activeTab === 1) renderPage1();
+      else if (activeTab === 2) renderPage2();
+      else if (activeTab === 3) renderPage3();
+      else if (activeTab === 4) renderPage4();
+      else if (activeTab === 5) renderPage5();
+      else if (activeTab === 6) renderPage6();
     }
 
     function renderPage1() {
-      let totalKg = 0;
-      let totalCumpSum = 0;
-      const uniqueCosechadores = new Set();
+      const totalKg = filteredDetalle.reduce((acc, r) => acc + (parseFloat(r['TOTAL KG.'] || r.totalKg) || 0), 0);
+      
+      const uniqueDnis = new Set();
+      filteredDetalle.forEach(r => {
+        const dni = r.DNI || r.dni;
+        if (dni) uniqueDnis.add(dni);
+      });
+      const totalCosechadores = uniqueDnis.size;
 
-      filteredDetalle.forEach(item => {
-        totalKg += Number(item.totalKg || 0);
-        totalCumpSum += Number(item.cumpPct || 0);
-        if (item.dni) uniqueCosechadores.add(item.dni);
+      // 1. Modificación 1: TOTAL CUMP. % muestra el total del promedio de la columna CUMP. % de la tabla DETALLE
+      let sumCumpPct = 0;
+      let countCumpPct = 0;
+
+      filteredDetalle.forEach(r => {
+        let val = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct);
+        if (!isNaN(val)) {
+          // Si los datos están expresados en decimal (ej. 1.05 = 105%), ajustar a porcentaje
+          if (val <= 2 && val > 0) val = val * 100;
+          sumCumpPct += val;
+          countCumpPct++;
+        }
       });
 
-      const avgCump = filteredDetalle.length > 0 ? (totalCumpSum / filteredDetalle.length) * 100 : 0;
+      const avgCump = countCumpPct > 0 ? (sumCumpPct / countCumpPct) : 0;
 
-      document.getElementById('kpiTotalKg').childNodes[0].nodeValue = formatNumber(totalKg) + ' ';
+      document.getElementById('kpiTotalKg').innerHTML = `${formatNumber(totalKg)} <span class="text-sm font-normal">kg</span>`;
       document.getElementById('kpiTotalCump').textContent = `${avgCump.toFixed(1)} %`;
-      document.getElementById('kpiTotalCosechadores').textContent = uniqueCosechadores.size;
+      document.getElementById('kpiTotalCosechadores').textContent = formatNumber(totalCosechadores, 0);
 
-      let sumCampCump = 0, countCamp = 0, setCampDni = new Set();
-      let sumIdaCump = 0, countIda = 0, setIdaDni = new Set();
+      // 2. Modificación 2: VISUAL TOTAL CUMP. % POR MODALIDAD
+      const totalNombresSet = new Set();
+      const campamentoNombresSet = new Set();
+      const idaVueltaNombresSet = new Set();
 
-      filteredDetalle.forEach(item => {
-        const mod = String(item.modalidad || '').toUpperCase();
-        const cumpVal = Number(item.cumpPct || 0) * 100;
-        if (mod.includes('CAMP')) {
-          sumCampCump += cumpVal;
-          countCamp++;
-          if (item.dni) setCampDni.add(item.dni);
-        } else if (mod.includes('IDA') || mod.includes('VUELTA')) {
-          sumIdaCump += cumpVal;
-          countIda++;
-          if (item.dni) setIdaDni.add(item.dni);
+      filteredDetalle.forEach(r => {
+        const nom = r['APELLIDOS Y NOMBRES'] || r.nombre;
+        const mod = String(r.MODALIDAD || r.modalidad || '').toUpperCase().trim();
+        if (nom) {
+          totalNombresSet.add(nom);
+          if (mod.indexOf('CAMPAMENTO') !== -1) {
+            campamentoNombresSet.add(nom);
+          } else if (mod.indexOf('IDA') !== -1 || mod.indexOf('VUELTA') !== -1) {
+            idaVueltaNombresSet.add(nom);
+          }
         }
       });
 
-      const avgCamp = countCamp > 0 ? sumCampCump / countCamp : 0;
-      const avgIda = countIda > 0 ? sumIdaCump / countIda : 0;
+      const totalUnicosNom = totalNombresSet.size;
+      const campUnicosNom = campamentoNombresSet.size;
+      const idaVueltaUnicosNom = idaVueltaNombresSet.size;
 
-      const totalUnicosGlobal = setCampDni.size + setIdaDni.size;
-      const pctCampPond = totalUnicosGlobal > 0 ? (setCampDni.size / totalUnicosGlobal) * 100 : 0;
-      const pctIdaPond = totalUnicosGlobal > 0 ? (setIdaDni.size / totalUnicosGlobal) * 100 : 0;
+      // 2.1 CAMPAMENTO = Total de registros únicos CAMPAMENTO / Total registros únicos * TOTAL CUMP. %
+      const cumpCampamento = totalUnicosNom > 0 ? (campUnicosNom / totalUnicosNom) * avgCump : 0;
+      // 2.2 IDA Y VUELTA = Total de registros únicos IDA Y VUELTA / Total registros únicos * TOTAL CUMP. %
+      const cumpIdaVuelta = totalUnicosNom > 0 ? (idaVueltaUnicosNom / totalUnicosNom) * avgCump : 0;
 
-      document.getElementById('cumpCampamentoVal').textContent = `${avgCamp.toFixed(1)} %`;
-      document.getElementById('cumpCampamentoRatio').textContent = `${setCampDni.size} / ${uniqueCosechadores.size} cosecha. únicos`;
-      document.getElementById('cumpCampamentoBarPct').textContent = `${pctCampPond.toFixed(0)}% Ponderado`;
-      document.getElementById('cumpCampamentoBar').style.width = `${Math.min(pctCampPond, 100)}%`;
+      // Actualización visual del módulo Total Cump. % por Modalidad
+      document.getElementById('cumpCampamentoVal').textContent = `${cumpCampamento.toFixed(1)} %`;
+      document.getElementById('cumpCampamentoRatio').textContent = `${campUnicosNom} / ${totalUnicosNom} cosecha. únicos`;
+      
+      const pctCampBar = avgCump > 0 ? Math.min(100, Math.max(0, (cumpCampamento / avgCump) * 100)) : 0;
+      document.getElementById('cumpCampamentoBarPct').textContent = `${pctCampBar.toFixed(1)}% Ponderado`;
+      document.getElementById('cumpCampamentoBar').style.width = `${pctCampBar}%`;
 
-      document.getElementById('cumpIdaVueltaVal').textContent = `${avgIda.toFixed(1)} %`;
-      document.getElementById('cumpIdaVueltaRatio').textContent = `${setIdaDni.size} / ${uniqueCosechadores.size} cosecha. únicos`;
-      document.getElementById('cumpIdaVueltaBarPct').textContent = `${pctIdaPond.toFixed(0)}% Ponderado`;
-      document.getElementById('cumpIdaVueltaBar').style.width = `${Math.min(pctIdaPond, 100)}%`;
+      document.getElementById('cumpIdaVueltaVal').textContent = `${cumpIdaVuelta.toFixed(1)} %`;
+      document.getElementById('cumpIdaVueltaRatio').textContent = `${idaVueltaUnicosNom} / ${totalUnicosNom} cosecha. únicos`;
+      
+      const pctIdaBar = avgCump > 0 ? Math.min(100, Math.max(0, (cumpIdaVuelta / avgCump) * 100)) : 0;
+      document.getElementById('cumpIdaVueltaBarPct').textContent = `${pctIdaBar.toFixed(1)}% Ponderado`;
+      document.getElementById('cumpIdaVueltaBar').style.width = `${pctIdaBar}%`;
 
-      const modCounts = {};
-      filteredDetalle.forEach(item => {
-        const m = item.modalidad || 'DESCONOCIDO';
-        if (item.dni) {
-          if (!modCounts[m]) modCounts[m] = new Set();
-          modCounts[m].add(item.dni);
+      // MODALIDAD (Cosechadores & %) - Colores Suaves
+      const modGroup = {};
+      filteredDetalle.forEach(r => {
+        const m = r.MODALIDAD || r.modalidad || 'SIN REGISTRO';
+        const dni = r.DNI || r.dni;
+        if (!modGroup[m]) modGroup[m] = new Set();
+        if (dni) modGroup[m].add(dni);
+      });
+      const modLabelsRaw = Object.keys(modGroup);
+      const modCounts = modLabelsRaw.map(m => modGroup[m].size);
+      const totalModCount = modCounts.reduce((a, b) => a + b, 0);
+      document.getElementById('lblTotalMod').textContent = `TOTAL: ${formatNumber(totalModCount, 0)}`;
+
+      const modLegendLabels = modLabelsRaw.map((m, idx) => {
+        const cnt = modCounts[idx];
+        const pct = totalModCount > 0 ? ((cnt / totalModCount) * 100).toFixed(1) : 0;
+        return `${m}: ${formatNumber(cnt, 0)} (${pct}%)`;
+      });
+
+      if (chartModalidadObj) chartModalidadObj.destroy();
+      chartModalidadObj = new Chart(document.getElementById('chartModalidad'), {
+        type: 'doughnut',
+        data: { labels: modLegendLabels, datasets: [{ data: modCounts, backgroundColor: ['#10B981', '#F43F5E', '#3B82F6', '#F59E0B', '#6366F1'] }] },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { 
+              position: 'right',
+              labels: { font: { size: 11, weight: '600' }, color: '#475569' }
+            }
+          } 
         }
       });
-      const modLabels = Object.keys(modCounts);
-      const modData = modLabels.map(m => modCounts[m].size);
-      document.getElementById('lblTotalMod').textContent = `TOTAL: ${uniqueCosechadores.size}`;
 
-      renderPieChart('chartModalidad', chartModalidadObj, modLabels, modData, ['#0D9488', '#6366F1', '#F59E0B'], (chart) => chartModalidadObj = chart);
+      // SEXO (Cosechadores & %) - Colores Suaves
+      const sexoGroup = {};
+      filteredDetalle.forEach(r => {
+        const s = r.SEXO || r.sexo || 'NO ESPECIFICA';
+        const dni = r.DNI || r.dni;
+        if (!sexoGroup[s]) sexoGroup[s] = new Set();
+        if (dni) sexoGroup[s].add(dni);
+      });
+      const sexoLabelsRaw = Object.keys(sexoGroup);
+      const sexoCounts = sexoLabelsRaw.map(s => sexoGroup[s].size);
+      const totalSexoCount = sexoCounts.reduce((a, b) => a + b, 0);
+      document.getElementById('lblTotalSexo').textContent = `TOTAL: ${formatNumber(totalSexoCount, 0)}`;
 
-      const sexoCounts = {};
-      filteredDetalle.forEach(item => {
-        const s = item.sexo || 'NO REGISTRADO';
-        if (item.dni) {
-          if (!sexoCounts[s]) sexoCounts[s] = new Set();
-          sexoCounts[s].add(item.dni);
+      const sexoLegendLabels = sexoLabelsRaw.map((s, idx) => {
+        const cnt = sexoCounts[idx];
+        const pct = totalSexoCount > 0 ? ((cnt / totalSexoCount) * 100).toFixed(1) : 0;
+        return `${s}: ${formatNumber(cnt, 0)} (${pct}%)`;
+      });
+
+      if (chartSexoObj) chartSexoObj.destroy();
+      chartSexoObj = new Chart(document.getElementById('chartSexo'), {
+        type: 'doughnut',
+        data: { labels: sexoLegendLabels, datasets: [{ data: sexoCounts, backgroundColor: ['#EC4899', '#60A5FA', '#94A3B8'] }] },
+        options: { 
+          responsive: true, 
+          maintainAspectRatio: false, 
+          plugins: { 
+            legend: { 
+              position: 'right',
+              labels: { font: { size: 11, weight: '600' }, color: '#475569' }
+            }
+          } 
         }
       });
-      const sexoLabels = Object.keys(sexoCounts);
-      const sexoData = sexoLabels.map(s => sexoCounts[s].size);
-      document.getElementById('lblTotalSexo').textContent = `TOTAL: ${uniqueCosechadores.size}`;
 
-      renderPieChart('chartSexo', chartSexoObj, sexoLabels, sexoData, ['#EC4899', '#3B82F6', '#94A3B8'], (chart) => chartSexoObj = chart);
-
-      const byFecha = {};
-      filteredDetalle.forEach(item => {
-        const f = item.fecha;
-        if (!byFecha[f]) byFecha[f] = { kg: 0, cumpSum: 0, count: 0, dnis: new Set() };
-        byFecha[f].kg += Number(item.totalKg || 0);
-        byFecha[f].cumpSum += Number(item.cumpPct || 0);
-        byFecha[f].count++;
-        if (item.dni) byFecha[f].dnis.add(item.dni);
+      // TABLA RESUMEN POR FECHA
+      const fechaGroup = {};
+      filteredDetalle.forEach(r => {
+        const rawF = r.FECHA || r.fecha;
+        const f = rawF ? rawF.split('T')[0] : 'SIN FECHA';
+        const dni = r.DNI || r.dni;
+        if (!fechaGroup[f]) fechaGroup[f] = { kgSum: 0, count: 0, dnis: new Set() };
+        const kg = parseFloat(r['TOTAL KG.'] || r.totalKg) || 0;
+        fechaGroup[f].kgSum += kg;
+        fechaGroup[f].count++;
+        if (dni) fechaGroup[f].dnis.add(dni);
       });
 
-      let sortedFechas = Object.keys(byFecha).sort();
-      if (sortOrderFecha === 'desc') sortedFechas.reverse();
+      const sortedFechas = Object.keys(fechaGroup).sort((a, b) => {
+        if (sortOrderFecha === 'asc') return a.localeCompare(b);
+        return b.localeCompare(a);
+      });
 
       const tbodyFecha = document.getElementById('tblResumenFecha');
       const fragFecha = document.createDocumentFragment();
       sortedFechas.forEach(f => {
-        const data = byFecha[f];
-        const avgKg = data.count > 0 ? data.kg / data.count : 0;
+        const d = fechaGroup[f];
+        const totalCosechadoresFecha = d.dnis.size;
+        const promKg = totalCosechadoresFecha > 0 ? (d.kgSum / totalCosechadoresFecha) : 0;
+        const formattedFecha = formatDateDisplay(f);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-          <td class="p-2 border border-slate-200 font-medium text-slate-700">${formatDateDisplay(f)}</td>
-          <td class="p-2 border border-slate-200 text-right font-semibold text-slate-800">${formatNumber(data.kg)}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(avgKg)}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${data.dnis.size}</td>
-        `;
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${formattedFecha}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(d.kgSum)} kg</td>
+            <td class="p-2 border border-slate-200 text-right font-semibold text-sky-600">${formatNumber(promKg, 2)} kg</td>
+            <td class="p-2 border border-slate-200 text-right font-medium text-slate-600">${formatNumber(totalCosechadoresFecha, 0)}</td>`;
         fragFecha.appendChild(tr);
       });
       tbodyFecha.innerHTML = '';
       tbodyFecha.appendChild(fragFecha);
 
-      const byMod = {};
-      filteredDetalle.forEach(item => {
-        const m = item.modalidad || 'SIN MODALIDAD';
-        if (!byMod[m]) byMod[m] = { kg: 0, cumpSum: 0, count: 0, dnis: new Set(), fechas: new Set() };
-        byMod[m].kg += Number(item.totalKg || 0);
-        byMod[m].cumpSum += Number(item.cumpPct || 0);
-        byMod[m].count++;
-        if (item.dni) byMod[m].dnis.add(item.dni);
-        if (item.fecha) byMod[m].fechas.add(item.fecha);
+      // TABLA RESUMEN POR MODALIDAD
+      const modData = {};
+
+      filteredDetalle.forEach(r => {
+        const m = (r.MODALIDAD || r.modalidad || 'OTRO').toUpperCase().trim();
+        const nombre = r['APELLIDOS Y NOMBRES'] || r.nombre;
+        const dni = r.DNI || r.dni;
+        const rawF = r.FECHA || r.fecha;
+
+        if (!modData[m]) {
+          modData[m] = { 
+            nombres: new Set(), 
+            dnis: new Set(), 
+            cumpSum: 0, 
+            count: 0, 
+            dias: new Set(), 
+            kgSum: 0 
+          };
+        }
+        
+        if (nombre) modData[m].nombres.add(nombre);
+        if (dni) modData[m].dnis.add(dni);
+        let cVal = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct) || 0;
+        if (cVal <= 2 && cVal > 0) cVal = cVal * 100;
+        modData[m].cumpSum += cVal;
+        modData[m].count++;
+        if (rawF) modData[m].dias.add(rawF.split('T')[0]);
+        modData[m].kgSum += (parseFloat(r['TOTAL KG.'] || r.totalKg) || 0);
       });
 
       const tbodyMod = document.getElementById('tblModalidadResumen');
       const fragMod = document.createDocumentFragment();
-      Object.keys(byMod).forEach(m => {
-        const data = byMod[m];
-        const avgCump = data.count > 0 ? (data.cumpSum / data.count) * 100 : 0;
-        const totalDias = data.fechas.size;
-        const promKgDia = totalDias > 0 ? data.kg / totalDias : 0;
+      
+      Object.keys(modData).forEach(m => {
+        const d = modData[m];
+        const numCosechadores = d.dnis.size;
+        const numDias = d.dias.size;
+        
+        const avgKgDia = (numCosechadores > 0 && numDias > 0) ? ((d.kgSum / numCosechadores) / numDias) : 0;
+        
+        let avgC = 0;
+
+        if (m === 'CAMPAMENTO') {
+          avgC = cumpCampamento;
+        } else if (m === 'IDA Y VUELTA') {
+          avgC = cumpIdaVuelta;
+        } else {
+          avgC = d.count > 0 ? (d.cumpSum / d.count) : 0;
+        }
+
+        const modPct = totalModCount > 0 ? ((numCosechadores / totalModCount) * 100).toFixed(1) : 0;
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-          <td class="p-2 border border-slate-200 font-medium text-slate-700">${m}</td>
-          <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${data.dnis.size}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${avgCump.toFixed(1)}%</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${totalDias}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(promKgDia)}</td>
-          <td class="p-2 border border-slate-200 text-right font-bold text-emerald-700">${formatNumber(data.kg)}</td>
-        `;
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${m} <span class="text-slate-400 font-normal">(${modPct}%)</span></td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(numCosechadores, 0)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-sky-600">${avgC.toFixed(1)} %</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${numDias}</td>
+            <td class="p-2 border border-slate-200 text-right font-medium text-slate-600">${formatNumber(avgKgDia)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(d.kgSum)}</td>`;
         fragMod.appendChild(tr);
       });
       tbodyMod.innerHTML = '';
       tbodyMod.appendChild(fragMod);
 
-      const byPerson = {};
-      filteredDetalle.forEach(item => {
-        const key = item.dni || item.nombre;
-        if (!key) return;
-        if (!byPerson[key]) {
-          byPerson[key] = { nombre: item.nombre, modalidad: item.modalidad, kg: 0, cumpSum: 0, count: 0, fechas: new Set() };
-        }
-        byPerson[key].kg += Number(item.totalKg || 0);
-        byPerson[key].cumpSum += Number(item.cumpPct || 0);
-        byPerson[key].count++;
-        if (item.fecha) byPerson[key].fechas.add(item.fecha);
+      // TOP 10 MEJORES COSECHADORES
+      const cosMap = {};
+      filteredDetalle.forEach(r => {
+        const key = r.DNI || r.dni;
+        const rawF = r.FECHA || r.fecha;
+        if (!cosMap[key]) cosMap[key] = { nom: r['APELLIDOS Y NOMBRES'] || r.nombre, mod: r.MODALIDAD || r.modalidad, dias: new Set(), cumpSum: 0, count: 0, kgSum: 0 };
+        if (rawF) cosMap[key].dias.add(rawF.split('T')[0]);
+        let cVal = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct) || 0;
+        if (cVal <= 2 && cVal > 0) cVal = cVal * 100;
+        cosMap[key].cumpSum += cVal;
+        cosMap[key].count++;
+        cosMap[key].kgSum += (parseFloat(r['TOTAL KG.'] || r.totalKg) || 0);
       });
 
-      const sortedTop = Object.values(byPerson).sort((a, b) => b.kg - a.kg).slice(0, 10);
+      const top10 = Object.values(cosMap).sort((a,b) => b.kgSum - a.kgSum).slice(0, 10);
       const tbodyTop = document.getElementById('tblTop10');
       const fragTop = document.createDocumentFragment();
-      sortedTop.forEach((p, idx) => {
-        const avgCump = p.count > 0 ? (p.cumpSum / p.count) * 100 : 0;
-        const totalDias = p.fechas.size;
-        const promKgDia = totalDias > 0 ? p.kg / totalDias : 0;
+      top10.forEach((c, i) => {
+        const avgKgDia = c.dias.size > 0 ? (c.kgSum / c.dias.size) : 0;
+        const totalPromedioCump = c.count > 0 ? (c.cumpSum / c.count) : 0;
+
+        let rankBadge = `<span class="font-bold text-slate-500">#${i+1}</span>`;
+        let rowBg = 'hover:bg-amber-50/30';
+
+        if (i === 0) {
+          rankBadge = `<span class="bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-full border border-amber-200 inline-flex items-center space-x-1">🥇 <span>1°</span></span>`;
+          rowBg = 'bg-amber-50/40 hover:bg-amber-50/70';
+        } else if (i === 1) {
+          rankBadge = `<span class="bg-slate-100 text-slate-700 font-extrabold px-2 py-0.5 rounded-full border border-slate-200 inline-flex items-center space-x-1">🥈 <span>2°</span></span>`;
+          rowBg = 'bg-slate-50/50 hover:bg-slate-100/50';
+        } else if (i === 2) {
+          rankBadge = `<span class="bg-orange-100/80 text-orange-800 font-extrabold px-2 py-0.5 rounded-full border border-orange-200 inline-flex items-center space-x-1">🥉 <span>3°</span></span>`;
+          rowBg = 'bg-orange-50/30 hover:bg-orange-50/60';
+        }
 
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-amber-50/40 transition-colors';
+        tr.className = `${rowBg} transition-colors`;
         tr.innerHTML = `
-          <td class="p-2 border border-amber-100 text-center font-bold text-amber-700">#${idx + 1}</td>
-          <td class="p-2 border border-amber-100 font-semibold text-slate-800">${p.nombre}</td>
-          <td class="p-2 border border-amber-100 text-center text-slate-600">${p.modalidad || ''}</td>
-          <td class="p-2 border border-amber-100 text-right text-slate-600">${totalDias}</td>
-          <td class="p-2 border border-amber-100 text-right text-slate-600">${formatNumber(promKgDia)}</td>
-          <td class="p-2 border border-amber-100 text-right text-slate-600">${avgCump.toFixed(1)}%</td>
-          <td class="p-2 border border-amber-100 text-right font-bold text-amber-800">${formatNumber(p.kg)}</td>
-        `;
+            <td class="p-2 border border-slate-200 text-center">${rankBadge}</td>
+            <td class="p-2 border border-slate-200 font-bold text-slate-700">${c.nom || 'S/N'}</td>
+            <td class="p-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[11px]">${c.mod || '-'}</span></td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${c.dias.size}</td>
+            <td class="p-2 border border-slate-200 text-right font-semibold text-slate-600">${formatNumber(avgKgDia)}</td>
+            <td class="p-2 border border-slate-200 text-right text-sky-600 font-bold">${totalPromedioCump.toFixed(1)} %</td>
+            <td class="p-2 border border-slate-200 text-right font-black text-emerald-700 text-sm">${formatNumber(c.kgSum)}</td>`;
         fragTop.appendChild(tr);
       });
       tbodyTop.innerHTML = '';
       tbodyTop.appendChild(fragTop);
 
-      const byHist = {};
-      filteredDetalle.forEach(item => {
-        const h = item.historico || 'SIN HISTÓRICO';
-        if (!byHist[h]) byHist[h] = { kg: 0, dnis: new Set() };
-        byHist[h].kg += Number(item.totalKg || 0);
-        if (item.dni) byHist[h].dnis.add(item.dni);
+      // DISTRIBUCION DE COSECHADORES POR HISTORICO
+      const histMap = {};
+      filteredDetalle.forEach(r => {
+        const h = r.HISTORICO || r.historico || 'SIN HISTORICO';
+        const dni = r.DNI || r.dni;
+        if (!histMap[h]) histMap[h] = { hName: h, dnis: new Set(), kgSum: 0, count: 0 };
+        if (dni) histMap[h].dnis.add(dni);
+        histMap[h].kgSum += (parseFloat(r['TOTAL KG.'] || r.totalKg) || 0);
+        histMap[h].count++;
       });
 
-      let histKeys = Object.keys(byHist);
-      histKeys.sort((a, b) => {
-        const promA = byHist[a].dnis.size > 0 ? byHist[a].kg / byHist[a].dnis.size : 0;
-        const promB = byHist[b].dnis.size > 0 ? byHist[b].kg / byHist[b].dnis.size : 0;
-        return sortOrderHistoricoProm === 'asc' ? promA - promB : promB - promA;
+      const histArray = Object.values(histMap).map(d => {
+        d.avgKg = d.count > 0 ? (d.kgSum / d.count) : 0;
+        return d;
+      });
+
+      histArray.sort((a, b) => {
+        if (sortOrderHistoricoProm === 'asc') return a.avgKg - b.avgKg;
+        return b.avgKg - a.avgKg;
       });
 
       const tbodyHist = document.getElementById('tblHistoricoResumen');
       const fragHist = document.createDocumentFragment();
-      histKeys.forEach(h => {
-        const data = byHist[h];
-        const countDnis = data.dnis.size;
-        const promKg = countDnis > 0 ? data.kg / countDnis : 0;
+      histArray.forEach(d => {
+        const histPct = totalCosechadores > 0 ? ((d.dnis.size / totalCosechadores) * 100).toFixed(1) : 0;
 
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-          <td class="p-2 border border-slate-200 font-medium text-slate-700">${h}</td>
-          <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${countDnis}</td>
-          <td class="p-2 border border-slate-200 text-right font-bold text-slate-800">${formatNumber(promKg)}</td>
-        `;
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${d.hName}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-slate-700">${formatNumber(d.dnis.size, 0)} <span class="text-slate-400 font-normal">(${histPct}%)</span></td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-indigo-600">${formatNumber(d.avgKg)} kg</td>`;
         fragHist.appendChild(tr);
       });
       tbodyHist.innerHTML = '';
       tbodyHist.appendChild(fragHist);
     }
 
-    function renderPieChart(canvasId, chartInstance, labels, data, bgColors, setChartCb) {
-      if (chartInstance) chartInstance.destroy();
-      const ctx = document.getElementById(canvasId).getContext('2d');
-      const newChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: labels,
-          datasets: [{
-            data: data,
-            backgroundColor: bgColors,
-            borderWidth: 2,
-            borderColor: '#ffffff'
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-          }
-        }
-      });
-      setChartCb(newChart);
-    }
-
     function renderPage2() {
-      const total = filteredDetalle.length;
-      const startIdx = (currentPagePage2 - 1) * pageSizePage2;
-      const endIdx = Math.min(startIdx + pageSizePage2, total);
+      const totalItems = filteredDetalle.length;
+      const totalPages = Math.ceil(totalItems / pageSizePage2) || 1;
 
-      const displayData = filteredDetalle.slice(startIdx, endIdx);
+      if (currentPagePage2 < 1) currentPagePage2 = 1;
+      if (currentPagePage2 > totalPages) currentPagePage2 = totalPages;
 
-      const infoStr = total === 0 ? 'Mostrando 0 - 0 de 0' : `Mostrando ${startIdx + 1} - ${endIdx} de ${total}`;
-      document.getElementById('page2Info').textContent = infoStr;
-      document.getElementById('page2InfoBottom').textContent = infoStr;
-
-      const btnPrev = document.getElementById('btnPage2Prev');
-      const btnNext = document.getElementById('btnPage2Next');
-      const btnPrevB = document.getElementById('btnPage2PrevBottom');
-      const btnNextB = document.getElementById('btnPage2NextBottom');
-
-      btnPrev.disabled = currentPagePage2 <= 1;
-      btnPrevB.disabled = currentPagePage2 <= 1;
-      btnNext.disabled = endIdx >= total;
-      btnNextB.disabled = endIdx >= total;
+      const startIndex = (currentPagePage2 - 1) * pageSizePage2;
+      const endIndex = Math.min(startIndex + pageSizePage2, totalItems);
+      const pageData = filteredDetalle.slice(startIndex, endIndex);
 
       const tbody = document.getElementById('tblDetalle');
       const frag = document.createDocumentFragment();
 
-      displayData.forEach(item => {
+      pageData.forEach(r => {
+        let cumpVal = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct) || 0;
+        const badge = getCumplimientoBadge(cumpVal);
+        const displayCump = cumpVal <= 2 && cumpVal > 0 ? (cumpVal * 100).toFixed(1) : cumpVal.toFixed(1);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
-
-        const cumpPctVal = (Number(item.cumpPct || 0) * 100).toFixed(1);
-        const badgeClass = getBadgeClass(item.rangoPct);
-
         tr.innerHTML = `
-          <td class="p-2 border border-slate-200 text-slate-600">${formatDateDisplay(item.fecha)}</td>
-          <td class="p-2 border border-slate-200 text-slate-600 font-mono">${item.dni || ''}</td>
-          <td class="p-2 border border-slate-200 font-medium text-slate-800">${item.nombre || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${item.historico || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${item.modalidad || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${item.variedad || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${item.moduloTurno || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${item.labor || ''}</td>
-          <td class="p-2 border border-slate-200 text-right font-bold text-slate-700">${formatNumber(item.totalKg)}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-500">${formatNumber(item.meta)}</td>
-          <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${cumpPctVal}%</td>
-          <td class="p-2 border border-slate-200 text-center text-slate-600">${item.categoria2026 || ''}</td>
-          <td class="p-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${item.rangoPct || ''}</span></td>
-        `;
+            <td class="p-2 border border-slate-200 text-slate-600">${formatDateDisplay(r.FECHA || r.fecha)}</td>
+            <td class="p-2 border border-slate-200 font-mono text-slate-600">${r.DNI || r.dni || ''}</td>
+            <td class="p-2 border border-slate-200 font-medium text-slate-700">${r['APELLIDOS Y NOMBRES'] || r.nombre || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.HISTORICO || r.historico || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.MODALIDAD || r.modalidad || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.VARIEDAD || r.variedad || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r['MODULO|TURNO'] || r.moduloTurno || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.LABOR || r.labor || ''}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-slate-700">${formatNumber(parseFloat(r['TOTAL KG.'] || r.totalKg)||0)}</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(parseFloat(r.META || r.meta)||0)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-sky-600">${displayCump}%</td>
+            <td class="p-2 border border-slate-200 text-center font-bold text-slate-700">${badge.text}</td>
+            <td class="p-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>`;
         frag.appendChild(tr);
       });
-
       tbody.innerHTML = '';
       tbody.appendChild(frag);
+
+      const textInfo = totalItems > 0 
+        ? `Mostrando ${startIndex + 1} - ${endIndex} de ${totalItems} (Pág. ${currentPagePage2}/${totalPages})` 
+        : 'Mostrando 0 - 0 de 0';
+
+      document.getElementById('page2Info').textContent = textInfo;
+      document.getElementById('page2InfoBottom').textContent = textInfo;
+
+      const isFirst = currentPagePage2 <= 1;
+      const isLast = currentPagePage2 >= totalPages;
+
+      document.getElementById('btnPage2Prev').disabled = isFirst;
+      document.getElementById('btnPage2Next').disabled = isLast;
+      document.getElementById('btnPage2PrevBottom').disabled = isFirst;
+      document.getElementById('btnPage2NextBottom').disabled = isLast;
     }
 
     function changePage2(delta) {
@@ -1221,65 +1258,69 @@
     }
 
     function renderPage3() {
-      const fechasSet = new Set();
-      const matriz = {};
+      const fechas = [...new Set(filteredTdp.map(r => {
+        const f = r.FECHA || r.fecha;
+        return f ? f.split('T')[0] : '';
+      }).filter(Boolean))].sort();
 
-      filteredDetalle.forEach(item => {
-        if (item.fecha) fechasSet.add(item.fecha);
-        const key = item.dni || item.nombre;
-        if (!key) return;
+      const rowsMap = {};
 
-        if (!matriz[key]) {
-          matriz[key] = {
-            dni: item.dni,
-            nombre: item.nombre,
-            modalidad: item.modalidad,
-            historico: item.historico,
-            fechas: {}
+      filteredTdp.forEach(r => {
+        const key = r.DNI || r.dni;
+        if (!rowsMap[key]) {
+          rowsMap[key] = { 
+            dni: r.DNI || r.dni, 
+            nombre: r['APELLIDOS Y NOMBRES'] || r.nombre, 
+            modalidad: r.MODALIDAD || r.modalidad, 
+            categ: r['CATEG. 2026'] || r.categoria2026, 
+            placa: r.PLACA || r.placaVehiculo, 
+            origen: r.RUTA || r.empresaTransporte, 
+            fechasKg: {}, 
+            cumpSum: 0, 
+            count: 0, 
+            totalKg: 0 
           };
         }
-        matriz[key].fechas[item.fecha] = Number(item.totalKg || 0);
+        const rawF = r.FECHA || r.fecha;
+        const f = rawF ? rawF.split('T')[0] : '';
+        const kg = parseFloat(r['TOTAL KG.'] || r.totalKg) || 0;
+        rowsMap[key].fechasKg[f] = (rowsMap[key].fechasKg[f] || 0) + kg;
+        rowsMap[key].totalKg += kg;
+        let cVal = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct) || 0;
+        if (cVal <= 2 && cVal > 0) cVal = cVal * 100;
+        rowsMap[key].cumpSum += cVal;
+        rowsMap[key].count++;
       });
 
-      const fechasArr = Array.from(fechasSet).sort();
       const thead = document.getElementById('theadFechas');
-      let thHtml = `<tr>
-        <th class="p-2 border border-slate-200">DNI</th>
-        <th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th>
-        <th class="p-2 border border-slate-200">MODALIDAD</th>
-        <th class="p-2 border border-slate-200">HISTÓRICO</th>`;
-      fechasArr.forEach(f => {
-        thHtml += `<th class="p-2 border border-slate-200 text-right">${formatDateDisplay(f)}</th>`;
-      });
-      thHtml += `<th class="p-2 border border-slate-200 text-right">TOTAL KG</th></tr>`;
-      thead.innerHTML = thHtml;
+      let thHTML = `<tr><th class="p-2 border border-slate-200">DNI</th><th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th><th class="p-2 border border-slate-200">MODALIDAD</th><th class="p-2 border border-slate-200">CATEG. 2026</th><th class="p-2 border border-slate-200">PLACA</th><th class="p-2 border border-slate-200">ORIGEN</th>`;
+      fechas.forEach(f => thHTML += `<th class="p-2 border border-slate-200 text-center bg-emerald-50/60 text-emerald-800">${formatDateDisplay(f)}</th>`);
+      thHTML += `<th class="p-2 border border-slate-200 text-right bg-amber-50/60 text-amber-900">TOTAL KG</th><th class="p-2 border border-slate-200 text-right bg-sky-50/60 text-sky-900">CUMP. %</th></tr>`;
+      thead.innerHTML = thHTML;
 
       const tbody = document.getElementById('tbodyFechas');
       const frag = document.createDocumentFragment();
-
-      Object.values(matriz).forEach(row => {
+      Object.values(rowsMap).slice(0, 50).forEach(row => {
+        const avgCump = row.count > 0 ? (row.cumpSum / row.count) : 0;
+        const badge = getCumplimientoBadge(avgCump);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
-        let rowTotal = 0;
-
-        let tdHtml = `
+        let trHTML = `
           <td class="p-2 border border-slate-200 font-mono text-slate-600">${row.dni || ''}</td>
-          <td class="p-2 border border-slate-200 font-medium text-slate-800">${row.nombre || ''}</td>
+          <td class="p-2 border border-slate-200 font-medium text-slate-700">${row.nombre || ''}</td>
           <td class="p-2 border border-slate-200 text-slate-600">${row.modalidad || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${row.historico || ''}</td>
-        `;
-
-        fechasArr.forEach(f => {
-          const val = row.fechas[f] || 0;
-          rowTotal += val;
-          tdHtml += `<td class="p-2 border border-slate-200 text-right ${val > 0 ? 'text-slate-700 font-medium' : 'text-slate-300'}">${val > 0 ? formatNumber(val) : '-'}</td>`;
+          <td class="p-2 border border-slate-200 text-slate-600">${row.categ || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.placa || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.origen || ''}</td>`;
+        fechas.forEach(f => {
+          const val = row.fechasKg[f];
+          trHTML += `<td class="p-2 border border-slate-200 text-right text-slate-600">${val ? formatNumber(val, 1) : '-'}</td>`;
         });
-
-        tdHtml += `<td class="p-2 border border-slate-200 text-right font-bold text-emerald-700">${formatNumber(rowTotal)}</td>`;
-        tr.innerHTML = tdHtml;
+        trHTML += `<td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(row.totalKg)}</td>
+                   <td class="p-2 border border-slate-200 text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${avgCump.toFixed(1)}%</span></td>`;
+        tr.innerHTML = trHTML;
         frag.appendChild(tr);
       });
-
       tbody.innerHTML = '';
       tbody.appendChild(frag);
     }
@@ -1287,194 +1328,176 @@
     function renderPage4() {
       const tbody = document.getElementById('tblRegUnicos');
       const frag = document.createDocumentFragment();
-
-      filteredTdp.forEach(item => {
+      filteredTdp.slice(0, 100).forEach(r => {
+        let cumpVal = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct) || 0;
+        const badge = getCumplimientoBadge(cumpVal);
+        const displayCump = cumpVal <= 2 && cumpVal > 0 ? (cumpVal * 100).toFixed(1) : cumpVal.toFixed(1);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
-
-        const cumpPctVal = (Number(item.cumpPct || 0) * 100).toFixed(1);
-        const badgeClass = getBadgeClass(item.rangoPct);
-
         tr.innerHTML = `
-          <td class="p-2 border border-slate-200 text-slate-600">${formatDateDisplay(item.fecha)}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${item.semana || ''}</td>
-          <td class="p-2 border border-slate-200 font-mono text-slate-600">${item.dni || ''}</td>
-          <td class="p-2 border border-slate-200 font-medium text-slate-800">${item.nombre || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${item.modalidad || ''}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${item.historico || ''}</td>
-          <td class="p-2 border border-slate-200 text-center text-slate-600">${item.categoria2026 || ''}</td>
-          <td class="p-2 border border-slate-200 text-right font-bold text-slate-700">${formatNumber(item.totalKg)}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-500">${formatNumber(item.meta)}</td>
-          <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${cumpPctVal}%</td>
-          <td class="p-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${item.rangoPct || ''}</span></td>
-        `;
+            <td class="p-2 border border-slate-200 text-slate-600">${formatDateDisplay(r.FECHA || r.fecha)}</td>
+            <td class="p-2 border border-slate-200 text-center font-bold text-slate-700">${r.SEMANA || r.semana || ''}</td>
+            <td class="p-2 border border-slate-200 font-mono text-slate-600">${r.DNI || r.dni || ''}</td>
+            <td class="p-2 border border-slate-200 font-medium text-slate-700">${r['APELLIDOS Y NOMBRES'] || r.nombre || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.MODALIDAD || r.modalidad || ''}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${r.HISTORICO || r.historico || ''}</td>
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${badge.text}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-slate-700">${formatNumber(parseFloat(r['TOTAL KG.'] || r.totalKg)||0)}</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(parseFloat(r.META || r.meta)||0)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-sky-600">${displayCump}%</td>
+            <td class="p-2 border border-slate-200 text-center"><span class="px-2 py-0.5 rounded ${badge.cls}">${badge.text}</span></td>`;
         frag.appendChild(tr);
       });
-
       tbody.innerHTML = '';
       tbody.appendChild(frag);
     }
 
     function renderPage5() {
-      const transByFecha = {};
-      const empresasSet = new Set();
-      const fechasSet = new Set();
-
-      filteredDetalle.forEach(item => {
-        const emp = item.empresaTransporte || 'SIN TRANSPORTE';
-        const f = item.fecha;
-        if (!f) return;
-
-        empresasSet.add(emp);
-        fechasSet.add(f);
-
-        if (!transByFecha[emp]) transByFecha[emp] = {};
-        if (!transByFecha[emp][f]) transByFecha[emp][f] = { kg: 0, count: 0 };
-
-        transByFecha[emp][f].kg += Number(item.totalKg || 0);
-        transByFecha[emp][f].count++;
+      const transMap = {};
+      filteredTdp.forEach(r => {
+        const p = r.PLACA || r.placaVehiculo || 'SIN PLACA';
+        if (!transMap[p]) transMap[p] = { kgSum: 0, count: 0 };
+        transMap[p].kgSum += (parseFloat(r['TOTAL KG.'] || r.totalKg) || 0);
+        transMap[p].count++;
       });
 
-      const fechasArr = Array.from(fechasSet).sort();
-      const empresasArr = Array.from(empresasSet).sort();
-
-      const datasets = empresasArr.map((emp, idx) => {
-        const data = fechasArr.map(f => {
-          const item = transByFecha[emp]?.[f];
-          return item && item.count > 0 ? (item.kg / item.count) : 0;
-        });
-        const colors = ['#0D9488', '#6366F1', '#EC4899', '#F59E0B', '#10B981', '#3B82F6'];
-        const color = colors[idx % colors.length];
-
-        return {
-          label: emp,
-          data: data,
-          borderColor: color,
-          backgroundColor: color,
-          tension: 0.3,
-          fill: false
-        };
-      });
+      const pLabels = Object.keys(transMap);
+      const pAvgs = pLabels.map(p => transMap[p].count > 0 ? (transMap[p].kgSum / transMap[p].count) : 0);
 
       if (chartTransporteLinesObj) chartTransporteLinesObj.destroy();
-      const ctx = document.getElementById('chartTransporteLines').getContext('2d');
-      chartTransporteLinesObj = new Chart(ctx, {
+      chartTransporteLinesObj = new Chart(document.getElementById('chartTransporteLines'), {
         type: 'line',
         data: {
-          labels: fechasArr.map(f => formatDateDisplay(f)),
-          datasets: datasets
+          labels: pLabels,
+          datasets: [{
+            label: 'Promedio Total KG por Unidad',
+            data: pAvgs,
+            borderColor: '#059669',
+            backgroundColor: 'rgba(5, 150, 105, 0.08)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 2.5
+          }]
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } },
-          scales: { y: { beginAtZero: true } }
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      const fechas = [...new Set(filteredTdp.map(r => {
+        const f = r.FECHA || r.fecha;
+        return f ? f.split('T')[0] : '';
+      }).filter(Boolean))].sort();
+
+      const placaRows = {};
+
+      filteredTdp.forEach(r => {
+        const placa = r.PLACA || r.placaVehiculo;
+        const nombre = r['APELLIDOS Y NOMBRES'] || r.nombre;
+        const key = `${placa}_${nombre}`;
+        if (!placaRows[key]) {
+          placaRows[key] = { 
+            placa: placa, 
+            nombre: nombre, 
+            modalidad: r.MODALIDAD || r.modalidad, 
+            categ: r['CATEG. 2026'] || r.categoria2026, 
+            ruta: r.RUTA || r.empresaTransporte, 
+            fechasKg: {}, 
+            totalKg: 0, 
+            metaSum: 0, 
+            cumpSum: 0, 
+            count: 0 
+          };
         }
+        const rawF = r.FECHA || r.fecha;
+        const f = rawF ? rawF.split('T')[0] : '';
+        const kg = parseFloat(r['TOTAL KG.'] || r.totalKg) || 0;
+        placaRows[key].fechasKg[f] = (placaRows[key].fechasKg[f] || 0) + kg;
+        placaRows[key].totalKg += kg;
+        placaRows[key].metaSum += (parseFloat(r.META || r.meta) || 0);
+        let cVal = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct) || 0;
+        if (cVal <= 2 && cVal > 0) cVal = cVal * 100;
+        placaRows[key].cumpSum += cVal;
+        placaRows[key].count++;
       });
 
       const thead = document.getElementById('theadTransporte');
-      let thHtml = `<tr>
-        <th class="p-2 border border-slate-200">EMPRESA TRANSPORTE</th>
-        <th class="p-2 border border-slate-200">PLACA</th>`;
-      fechasArr.forEach(f => {
-        thHtml += `<th class="p-2 border border-slate-200 text-right">${formatDateDisplay(f)}</th>`;
-      });
-      thHtml += `<th class="p-2 border border-slate-200 text-right">PROM. TOTAL</th></tr>`;
-      thead.innerHTML = thHtml;
+      let thHTML = `<tr><th class="p-2 border border-slate-200">PLACA</th><th class="p-2 border border-slate-200">APELLIDOS Y NOMBRES</th><th class="p-2 border border-slate-200">MODALIDAD</th><th class="p-2 border border-slate-200">CATEG. 2026</th><th class="p-2 border border-slate-200">RUTA</th>`;
+      fechas.forEach(f => thHTML += `<th class="p-2 border border-slate-200 text-center bg-emerald-50/60 text-emerald-800">${formatDateDisplay(f)}</th>`);
+      thHTML += `<th class="p-2 border border-slate-200 text-right bg-amber-50/60 text-amber-900">TOTAL KG</th><th class="p-2 border border-slate-200 text-right">META</th><th class="p-2 border border-slate-200 text-right">CUMP. %</th></tr>`;
+      thead.innerHTML = thHTML;
 
       const tbody = document.getElementById('tbodyTransporte');
       const frag = document.createDocumentFragment();
-
-      const byPlacaEmp = {};
-      filteredDetalle.forEach(item => {
-        const emp = item.empresaTransporte || 'SIN TRANSPORTE';
-        const placa = item.placaVehiculo || 'SIN PLACA';
-        const key = `${emp}_${placa}`;
-        if (!byPlacaEmp[key]) byPlacaEmp[key] = { emp, placa, fechas: {} };
-        const f = item.fecha;
-        if (f) {
-          if (!byPlacaEmp[key].fechas[f]) byPlacaEmp[key].fechas[f] = { kg: 0, count: 0 };
-          byPlacaEmp[key].fechas[f].kg += Number(item.totalKg || 0);
-          byPlacaEmp[key].fechas[f].count++;
-        }
-      });
-
-      Object.values(byPlacaEmp).forEach(row => {
+      Object.values(placaRows).slice(0, 50).forEach(row => {
+        const avgC = row.count > 0 ? (row.cumpSum / row.count) : 0;
+        const badge = getCumplimientoBadge(avgC);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
-
-        let totalKgRow = 0;
-        let totalCountRow = 0;
-
-        let tdHtml = `
-          <td class="p-2 border border-slate-200 font-medium text-slate-800">${row.emp}</td>
-          <td class="p-2 border border-slate-200 font-mono text-slate-600">${row.placa}</td>
-        `;
-
-        fechasArr.forEach(f => {
-          const item = row.fechas[f];
-          const avg = item && item.count > 0 ? item.kg / item.count : 0;
-          if (item) {
-            totalKgRow += item.kg;
-            totalCountRow += item.count;
-          }
-          tdHtml += `<td class="p-2 border border-slate-200 text-right ${avg > 0 ? 'text-slate-700 font-medium' : 'text-slate-300'}">${avg > 0 ? formatNumber(avg) : '-'}</td>`;
+        let trHTML = `
+          <td class="p-2 border border-slate-200 font-bold text-slate-700">${row.placa || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.nombre || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.modalidad || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.categ || ''}</td>
+          <td class="p-2 border border-slate-200 text-slate-600">${row.ruta || ''}</td>`;
+        fechas.forEach(f => {
+          const val = row.fechasKg[f];
+          trHTML += `<td class="p-2 border border-slate-200 text-right text-slate-600">${val ? formatNumber(val, 1) : '-'}</td>`;
         });
-
-        const promTotalRow = totalCountRow > 0 ? totalKgRow / totalCountRow : 0;
-        tdHtml += `<td class="p-2 border border-slate-200 text-right font-bold text-emerald-700">${formatNumber(promTotalRow)}</td>`;
-
-        tr.innerHTML = tdHtml;
+        trHTML += `<td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(row.totalKg)}</td>
+                   <td class="p-2 border border-slate-200 text-right text-slate-600">${formatNumber(row.metaSum, 1)}</td>
+                   <td class="p-2 border border-slate-200 text-right"><span class="px-2 py-0.5 rounded ${badge.cls}">${avgC.toFixed(1)}%</span></td>`;
+        tr.innerHTML = trHTML;
         frag.appendChild(tr);
       });
-
       tbody.innerHTML = '';
       tbody.appendChild(frag);
     }
 
     function renderPage6() {
-      const group1 = {};
+      const mainGroup = {};
       const subGroup1 = {};
       const subGroup2 = {};
 
-      filteredDetalle.forEach(item => {
-        const mod = item.modalidad || 'SIN MOD';
-        const hist = item.historico || 'SIN HIST';
-        const cat = item.categoria2026 || 'SIN CAT';
+      filteredTdp.forEach(r => {
+        const mod = r.MODALIDAD || r.modalidad || 'OTRO';
+        const hist = r.HISTORICO || r.historico || 'SIN REGISTRO';
+        const cat = r['CATEG. 2026'] || r.categoria2026 || 'SIN CAT';
+        const rawF = r.FECHA || r.fecha;
+        const keyMain = `${mod}_${hist}`;
 
-        const k1 = `${mod}_${hist}`;
-        if (!group1[k1]) group1[k1] = { mod, hist, kgSum: 0, cumpSum: 0, count: 0, fechas: new Set(), cat };
-        group1[k1].kgSum += Number(item.totalKg || 0);
-        group1[k1].cumpSum += Number(item.cumpPct || 0);
-        group1[k1].count++;
-        if (item.fecha) group1[k1].fechas.add(item.fecha);
+        if (!mainGroup[keyMain]) mainGroup[keyMain] = { mod, hist, kgSum: 0, cumpSum: 0, count: 0, dias: new Set() };
+        mainGroup[keyMain].kgSum += (parseFloat(r['TOTAL KG.'] || r.totalKg) || 0);
+        let cVal = parseFloat(r['CUMP. %'] !== undefined ? r['CUMP. %'] : r.cumpPct) || 0;
+        if (cVal <= 2 && cVal > 0) cVal = cVal * 100;
+        mainGroup[keyMain].cumpSum += cVal;
+        mainGroup[keyMain].count++;
+        if (rawF) mainGroup[keyMain].dias.add(rawF.split('T')[0]);
 
-        if (!subGroup1[k1]) subGroup1[k1] = { mod, hist, kgSum: 0, cumpSum: 0, count: 0 };
-        subGroup1[k1].kgSum += Number(item.totalKg || 0);
-        subGroup1[k1].cumpSum += Number(item.cumpPct || 0);
-        subGroup1[k1].count++;
+        if (!subGroup1[keyMain]) subGroup1[keyMain] = { mod, hist, kgSum: 0, cumpSum: 0, count: 0 };
+        subGroup1[keyMain].kgSum += (parseFloat(r['TOTAL KG.'] || r.totalKg) || 0);
+        subGroup1[keyMain].cumpSum += cVal;
+        subGroup1[keyMain].count++;
 
-        const k2 = `${mod}_${cat}`;
-        if (!subGroup2[k2]) subGroup2[k2] = { mod, cat, kgSum: 0, cumpSum: 0, count: 0 };
-        subGroup2[k2].kgSum += Number(item.totalKg || 0);
-        subGroup2[k2].cumpSum += Number(item.cumpPct || 0);
-        subGroup2[k2].count++;
+        const keySub2 = `${mod}_${cat}`;
+        if (!subGroup2[keySub2]) subGroup2[keySub2] = { mod, cat, kgSum: 0, cumpSum: 0, count: 0 };
+        subGroup2[keySub2].kgSum += (parseFloat(r['TOTAL KG.'] || r.totalKg) || 0);
+        subGroup2[keySub2].cumpSum += cVal;
+        subGroup2[keySub2].count++;
       });
 
       const tbody1 = document.getElementById('tblResumenFinal1');
       const frag1 = document.createDocumentFragment();
-      Object.values(group1).forEach(g => {
-        const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
+      Object.values(mainGroup).forEach(g => {
+        const avgC = g.count > 0 ? (g.cumpSum / g.count) : 0;
+        const badgeEvaluada = getCumplimientoBadge(avgC);
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-          <td class="p-2 border border-slate-200 font-medium text-slate-700">${g.mod}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${g.hist}</td>
-          <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(g.kgSum)}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${avgC.toFixed(1)}%</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${g.fechas.size}</td>
-          <td class="p-2 border border-slate-200 text-center font-bold text-emerald-700">${g.cat}</td>
-        `;
+            <td class="p-2 border border-slate-200 font-semibold text-slate-700">${g.mod}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${g.hist}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(g.kgSum)}</td>
+            <td class="p-2 border border-slate-200 text-right font-bold text-sky-600">${avgC.toFixed(1)} %</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${g.dias.size}</td>
+            <td class="p-2 border border-slate-200 text-center"><span class="px-2.5 py-1 rounded font-bold ${badgeEvaluada.cls}">${badgeEvaluada.text}</span></td>`;
         frag1.appendChild(tr);
       });
       tbody1.innerHTML = '';
@@ -1483,15 +1506,14 @@
       const tbodySub1 = document.getElementById('tblResumenSub1');
       const fragSub1 = document.createDocumentFragment();
       Object.values(subGroup1).forEach(g => {
-        const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
+        const avgC = g.count > 0 ? (g.cumpSum / g.count) : 0;
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-          <td class="p-2 border border-slate-200 text-slate-600">${g.mod}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${g.hist}</td>
-          <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(g.kgSum)}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${avgC.toFixed(1)}%</td>
-        `;
+            <td class="p-2 border border-slate-200 text-slate-600">${g.mod}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${g.hist}</td>
+            <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(g.kgSum)}</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${avgC.toFixed(1)}%</td>`;
         fragSub1.appendChild(tr);
       });
       tbodySub1.innerHTML = '';
@@ -1500,24 +1522,25 @@
       const tbodySub2 = document.getElementById('tblResumenSub2');
       const fragSub2 = document.createDocumentFragment();
       Object.values(subGroup2).forEach(g => {
-        const avgC = g.count > 0 ? (g.cumpSum / g.count) * 100 : 0;
+        const avgC = g.count > 0 ? (g.cumpSum / g.count) : 0;
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
         tr.innerHTML = `
-          <td class="p-2 border border-slate-200 text-slate-600">${g.mod}</td>
-          <td class="p-2 border border-slate-200 text-slate-600">${g.cat}</td>
-          <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(g.kgSum)}</td>
-          <td class="p-2 border border-slate-200 text-right text-slate-600">${avgC.toFixed(1)}%</td>
-        `;
+            <td class="p-2 border border-slate-200 text-slate-600">${g.mod}</td>
+            <td class="p-2 border border-slate-200 text-slate-600">${g.cat}</td>
+            <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(g.kgSum)}</td>
+            <td class="p-2 border border-slate-200 text-right text-slate-600">${avgC.toFixed(1)}%</td>`;
         fragSub2.appendChild(tr);
       });
       tbodySub2.innerHTML = '';
       tbodySub2.appendChild(fragSub2);
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      loadDataFromGAS();
-    });
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+
+    window.addEventListener('load', initData);
   </script>
 </body>
 </html>
