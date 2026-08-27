@@ -8,6 +8,8 @@
   <meta name="theme-color" content="#2D7A3A">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Plugin de Chart.js para mostrar las etiquetas y porcentajes directamente en el gráfico -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -581,6 +583,11 @@
   <script>
     const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyc8T_f2K4Zz0Ww19EskW4zN81n_m_Z30d2W1e9bY_J2N2_1a2b3c4d/exec';
     
+    // Registrar el plugin de DataLabels globalmente en Chart.js
+    if (typeof ChartDataLabels !== 'undefined') {
+      Chart.register(ChartDataLabels);
+    }
+
     let rawDetalleData = [];
     let rawTdpData = [];
     let filteredDetalle = [];
@@ -590,16 +597,16 @@
     
     // Configuración de Paginación
     let currentPagePage2 = 1;
-    const pageSizePage2 = 50; // Cambiado a 50 por requerimiento
+    const pageSizePage2 = 50;
 
     let currentPagePage3 = 1;
-    const pageSizePage3 = 50; // Paginación de 50 en 50 para Página 3
+    const pageSizePage3 = 50;
     
     let sortOrderFecha = 'desc';
     let sortOrderHistoricoProm = 'desc';
     let sortOrderDetalleFecha = null;
     let sortOrderDetalleNombre = null;
-    let sortOrderMatrizNombre = 'asc'; // Orden para la tabla matriz
+    let sortOrderMatrizNombre = 'asc';
 
     let chartModalidadObj = null;
     let chartSexoObj = null;
@@ -949,7 +956,7 @@
       document.getElementById('cumpIdaVueltaBarPct').textContent = `${pctIdaBar.toFixed(1)}% Ponderado`;
       document.getElementById('cumpIdaVueltaBar').style.width = `${pctIdaBar}%`;
 
-      // 1. MODALIDAD: Leyenda arriba y total resaltado
+      // 1. MODALIDAD: Leyenda, Etiquetas Internas con Porcentajes y Tooltips con Cantidades
       const modGroup = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || r.modalidad || 'SIN REGISTRO';
@@ -979,15 +986,36 @@
             legend: { 
               position: 'top', 
               labels: { font: { size: 11, weight: '600' }, color: '#334155' } 
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${val} (${pct}%)`;
+                }
+              }
+            },
+            datalabels: {
+              color: '#FFFFFF',
+              font: { weight: 'bold', size: 10 },
+              formatter: (value, ctx) => {
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                if (total === 0 || value === 0) return '';
+                const pct = ((value / total) * 100).toFixed(1);
+                return `${value}\n(${pct}%)`;
+              },
+              textAlign: 'center'
             }
           }
         }
       });
 
-      // 1. SEXO: Leyenda arriba y total resaltado
+      // 1. SEXO: Leyenda, Etiquetas Internas con Porcentajes y Tooltips con Cantidades
       const sexoGroup = {};
       filteredDetalle.forEach(r => {
-        const s = r.SEXO || r.sexo || 'SIN ESPECIFICAR';
+        const s = r.SEXO || r.sexo || 'SIN REGISTRO';
         const dni = r.DNI || r.dni;
         if (!sexoGroup[s]) sexoGroup[s] = new Set();
         if (dni) sexoGroup[s].add(dni);
@@ -1014,6 +1042,27 @@
             legend: { 
               position: 'top', 
               labels: { font: { size: 11, weight: '600' }, color: '#334155' } 
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${val} (${pct}%)`;
+                }
+              }
+            },
+            datalabels: {
+              color: '#FFFFFF',
+              font: { weight: 'bold', size: 10 },
+              formatter: (value, ctx) => {
+                const total = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                if (total === 0 || value === 0) return '';
+                const pct = ((value / total) * 100).toFixed(1);
+                return `${value}\n(${pct}%)`;
+              },
+              textAlign: 'center'
             }
           }
         }
@@ -1109,7 +1158,7 @@
       tbodyMod.innerHTML = '';
       tbodyMod.appendChild(fragMod);
 
-      // 2. TOP 10 MEJORES COSECHADORES con iconos de ranking
+      // TOP 10 MEJORES COSECHADORES
       const cosMap = {};
       filteredDetalle.forEach(r => {
         const key = r.DNI || r.dni;
@@ -1191,7 +1240,7 @@
       tbodyHist.appendChild(fragHist);
     }
 
-    /* RENDER PÁGINA 2: REPORTE DETALLADO (50 REGISTROS POR PÁGINA) */
+    /* RENDER PÁGINA 2: REPORTE DETALLADO */
     function renderPage2() {
       const totalItems = filteredDetalle.length;
       const totalPages = Math.ceil(totalItems / pageSizePage2) || 1;
@@ -1254,7 +1303,7 @@
       renderPage2();
     }
 
-    /* 4. RENDER PÁGINA 3: MATRIZ X FECHAS (DE 50 EN 50 Y ORDENABLE POR NOMBRE) */
+    /* RENDER PÁGINA 3: MATRIZ X FECHAS */
     function renderPage3() {
       const dataset = filteredTdp.length > 0 ? filteredTdp : filteredDetalle;
 
@@ -1306,14 +1355,12 @@
 
       let allRows = Object.values(rowsMap);
 
-      // 4.1. Ordenar por APELLIDOS Y NOMBRES (Ascendente / Descendente)
       allRows.sort((a, b) => {
         const nomA = String(a.nombre).toLowerCase();
         const nomB = String(b.nombre).toLowerCase();
         return sortOrderMatrizNombre === 'asc' ? nomA.localeCompare(nomB) : nomB.localeCompare(nomA);
       });
 
-      // Paginación 50 en 50
       const totalItems = allRows.length;
       const totalPages = Math.ceil(totalItems / pageSizePage3) || 1;
       if (currentPagePage3 > totalPages) currentPagePage3 = totalPages;
@@ -1405,7 +1452,6 @@
       tbody.innerHTML = '';
       tbody.appendChild(frag);
 
-      // Info Paginación
       const textInfo = totalItems > 0 ? `Mostrando ${startIndex + 1} - ${endIndex} de ${totalItems} (Pág. ${currentPagePage3}/${totalPages})` : 'Mostrando 0 - 0 de 0';
       document.getElementById('page3Info').textContent = textInfo;
       document.getElementById('page3InfoBottom').textContent = textInfo;
@@ -1494,7 +1540,10 @@
         },
         options: {
           responsive: true,
-          maintainAspectRatio: false
+          maintainAspectRatio: false,
+          plugins: {
+            datalabels: { display: false } // Desactivar datalabels en el gráfico de líneas
+          }
         }
       });
 
