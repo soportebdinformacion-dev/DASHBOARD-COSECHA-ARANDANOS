@@ -103,9 +103,9 @@
           <span id="syncText">Conectando...</span>
           <i id="syncIcon" class="fa-solid fa-spinner fa-spin ml-1"></i>
         </div>
-        <div class="text-xs font-bold text-slate-400 uppercase tracking-wider hidden lg:block">
-          MÓDULO DE GESTIÓN Y CONTROL
-        </div>
+        <button onclick="fetchData()" class="px-2 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg transition-all" title="Recargar datos">
+          <i class="fa-solid fa-rotate-right"></i>
+        </button>
       </div>
       
       <div class="flex items-center space-x-4 ml-auto">
@@ -602,7 +602,7 @@
   </div>
 
   <script>
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyc8T_f2K4Zz0Ww19EskW4zN81n_m_Z30d2W1e9bY_J2N2_1a2b3c4d/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzgBZ50mjaEowz7wqt9sn26v0097kfeVGHGgN5hS4UhAjNwhhR6r4GmR2qyDl3lUUOL/exec';
 
     if (typeof ChartDataLabels !== 'undefined') {
       Chart.register(ChartDataLabels);
@@ -634,6 +634,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initClock();
+      loadCacheData();
       fetchData();
     });
 
@@ -700,33 +701,79 @@
         icon.className = 'fa-solid fa-check ml-1 text-emerald-500';
       } else {
         dot.className = 'w-2 h-2 rounded-full bg-rose-500';
-        textElem.textContent = text || 'Error de conexión';
+        textElem.textContent = text || 'Sin Conexión';
         icon.className = 'fa-solid fa-triangle-exclamation ml-1 text-rose-500';
       }
     }
 
-    async function fetchData() {
-      setSyncStatus('loading', 'Consultando Google Sheets...');
+    function loadCacheData() {
       try {
-        const response = await fetch(APPS_SCRIPT_URL);
-        const data = await response.json();
-
-        if (data.status === 'success') {
-          rawDetalleData = data.detalle || [];
-          rawTdpData = data.tdp || [];
-
+        const cachedDetalle = localStorage.getItem('ah_detalle_data');
+        const cachedTdp = localStorage.getItem('ah_tdp_data');
+        if (cachedDetalle && cachedTdp) {
+          rawDetalleData = JSON.parse(cachedDetalle);
+          rawTdpData = JSON.parse(cachedTdp);
           populateFilters();
           applyFilters();
-          setSyncStatus('success', 'Datos actualizados');
-          showToast('Datos cargados correctamente', 'success');
-        } else {
-          throw new Error(data.message || 'Error en respuesta de servidor');
+          setSyncStatus('success', 'Datos en Caché');
         }
-      } catch (err) {
-        console.error(err);
-        setSyncStatus('error', 'Error al sincronizar');
-        showToast('No se pudieron obtener los datos. Usando modo de desarrollo.', 'error');
+      } catch (e) {
+        console.warn('Error al recuperar desde caché local', e);
       }
+    }
+
+    function saveCacheData(detalle, tdp) {
+      try {
+        localStorage.setItem('ah_detalle_data', JSON.stringify(detalle));
+        localStorage.setItem('ah_tdp_data', JSON.stringify(tdp));
+      } catch (e) {
+        console.warn('Error al guardar en caché local', e);
+      }
+    }
+
+    function handleScriptResponse(data) {
+      if (data && data.status === 'success') {
+        rawDetalleData = data.detalle || [];
+        rawTdpData = data.tdp || [];
+
+        saveCacheData(rawDetalleData, rawTdpData);
+        populateFilters();
+        applyFilters();
+        setSyncStatus('success', 'Datos Actualizados');
+        showToast('Conexión exitosa y datos sincronizados', 'success');
+      } else {
+        setSyncStatus('error', 'Error en Respuesta');
+        showToast('Error en la respuesta del servidor Google Sheets', 'error');
+      }
+    }
+
+    function fetchData() {
+      setSyncStatus('loading', 'Consultando Google Sheets...');
+      
+      const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+      window[callbackName] = function(data) {
+        delete window[callbackName];
+        const scriptElem = document.getElementById(callbackName);
+        if (scriptElem) scriptElem.remove();
+        handleScriptResponse(data);
+      };
+
+      const script = document.createElement('script');
+      script.id = callbackName;
+      script.src = `${APPS_SCRIPT_URL}?action=getData&callback=${callbackName}`;
+      script.onerror = function() {
+        delete window[callbackName];
+        script.remove();
+        if (rawDetalleData.length > 0) {
+          setSyncStatus('error', 'Modo Offline');
+          showToast('Sin conexión remota. Mostrando última copia local.', 'info');
+        } else {
+          setSyncStatus('error', 'Error de Conexión');
+          showToast('No se pudo establecer conexión con Google Sheets', 'error');
+        }
+      };
+
+      document.body.appendChild(script);
     }
 
     function populateFilters() {
@@ -836,13 +883,9 @@
 
       if (tabIndex === 2 || tabIndex === 3 || tabIndex === 4 || tabIndex === 5) {
         leyenda.classList.remove('hidden');
-      } else {
-        leyenda.classList.add('hidden');
-      }
-
-      if (tabIndex === 2 || tabIndex === 3 || tabIndex === 4 || tabIndex === 5) {
         searchBox.classList.remove('hidden');
       } else {
+        leyenda.classList.add('hidden');
         searchBox.classList.add('hidden');
       }
 
@@ -859,9 +902,7 @@
       else if (activeTab === 7) renderPage7();
     }
 
-    // =========================================================
     // PAGE 1: DASHBOARD
-    // =========================================================
     function renderPage1() {
       let totalKg = 0;
       let sumCump = 0;
@@ -884,7 +925,6 @@
       document.getElementById('kpiTotalCump').textContent = `${formatNumberDisplay(avgCump, 1)} %`;
       document.getElementById('kpiTotalCosechadores').textContent = cosechadoresUnicos.size;
 
-      // CUMP. % POR MODALIDAD
       let kgCamp = 0, metaCamp = 0, countCamp = 0;
       let kgIda = 0, metaIda = 0, countIda = 0;
       const unicosCamp = new Set();
@@ -921,20 +961,11 @@
       document.getElementById('cumpIdaVueltaBarPct').textContent = `${Math.min(Math.round(cumpIda), 100)}% Ponderado`;
       document.getElementById('cumpIdaVueltaBar').style.width = `${Math.min(cumpIda, 100)}%`;
 
-      // CHARTS
       renderChartModalidad(unicosCamp.size, unicosIda.size);
       renderChartSexo();
-
-      // RESUMEN COSECHA POR FECHA
       renderTblResumenFecha();
-
-      // RESUMEN POR MODALIDAD
       renderTblModalidadResumen();
-
-      // TOP 10
       renderTblTop10();
-
-      // HISTORICO
       renderTblHistoricoResumen();
     }
 
@@ -964,7 +995,7 @@
             datalabels: {
               color: '#fff',
               font: { weight: 'bold', size: 11 },
-              formatter: (val, ctx) => {
+              formatter: (val) => {
                 if (val === 0) return '';
                 const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
                 return `${val}\n(${pct}%)`;
@@ -1015,7 +1046,7 @@
             datalabels: {
               color: '#fff',
               font: { weight: 'bold', size: 11 },
-              formatter: (val, ctx) => {
+              formatter: (val) => {
                 if (val === 0) return '';
                 const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
                 return `${val}\n(${pct}%)`;
@@ -1188,9 +1219,7 @@
       `).join('');
     }
 
-    // =========================================================
     // PAGE 2: REPORTE DETALLADO
-    // =========================================================
     function renderPage2() {
       let list = [...filteredDetalle];
 
@@ -1250,11 +1279,8 @@
       renderPage2();
     }
 
-    // =========================================================
-    // PAGE 3: FECHA COLUMNA KG (Matriz de Cosecha KG por Fechas)
-    // =========================================================
+    // PAGE 3: FECHA COLUMNA KG
     function renderPage3() {
-      // Agrupar por Trabajador y por Fecha
       const fechasSet = new Set();
       const trabajadoresMap = new Map();
 
@@ -1277,8 +1303,6 @@
       });
 
       const fechasArr = Array.from(fechasSet).sort();
-
-      // Calcular los totales de KG por fecha
       const fechaTotalesKG = {};
       fechasArr.forEach(f => { fechaTotalesKG[f] = 0; });
 
@@ -1290,7 +1314,6 @@
         });
       });
 
-      // Render Headers (Se quita la columna TOTAL CUMP. %)
       const thead = document.getElementById('theadFechas');
       let headerHTML = `
         <tr>
@@ -1303,10 +1326,8 @@
         headerHTML += `<th class="p-2 border border-slate-200 text-center">${formatDateDisplay(f)}</th>`;
       });
 
-      headerHTML += `<th class="p-2 border border-slate-200 text-right bg-emerald-50 text-emerald-800">TOTAL KG</th>`;
-      headerHTML += `</tr>`;
+      headerHTML += `<th class="p-2 border border-slate-200 text-right bg-emerald-50 text-emerald-800">TOTAL KG</th></tr>`;
 
-      // Fila de TOTALES en Header con Iconos de Tendencia (Subir / Bajar)
       headerHTML += `
         <tr class="bg-emerald-100/60 font-bold text-slate-800">
           <td class="p-2 border border-slate-200" colspan="3">TOTAL KG POR FECHAS</td>
@@ -1318,9 +1339,9 @@
         if (idx > 0) {
           const prevVal = fechaTotalesKG[fechasArr[idx - 1]];
           if (val > prevVal) {
-            trendIcon = `<i class="fa-solid fa-arrow-trend-up text-emerald-600 mr-1" title="Subió respecto al día anterior"></i>`;
+            trendIcon = `<i class="fa-solid fa-arrow-trend-up text-emerald-600 mr-1"></i>`;
           } else if (val < prevVal) {
-            trendIcon = `<i class="fa-solid fa-arrow-trend-down text-rose-600 mr-1" title="Bajó respecto al día anterior"></i>`;
+            trendIcon = `<i class="fa-solid fa-arrow-trend-down text-rose-600 mr-1"></i>`;
           } else {
             trendIcon = `<i class="fa-solid fa-minus text-slate-400 mr-1"></i>`;
           }
@@ -1331,12 +1352,9 @@
       let grandTotalKg = 0;
       Object.values(fechaTotalesKG).forEach(v => grandTotalKg += v);
 
-      headerHTML += `<td class="p-2 border border-slate-200 text-right font-black text-emerald-900 bg-emerald-200/80">${formatNumberDisplay(grandTotalKg, 2)}</td>`;
-      headerHTML += `</tr>`;
-
+      headerHTML += `<td class="p-2 border border-slate-200 text-right font-black text-emerald-900 bg-emerald-200/80">${formatNumberDisplay(grandTotalKg, 2)}</td></tr>`;
       thead.innerHTML = headerHTML;
 
-      // Render Body con Paginación
       const list = Array.from(trabajadoresMap.values());
       const totalItems = list.length;
       const totalPages = Math.ceil(totalItems / pageSizePage3) || 1;
@@ -1382,9 +1400,7 @@
       renderPage3();
     }
 
-    // =========================================================
     // PAGE 4: FECHA COLUMNA CUMP. %
-    // =========================================================
     function renderPage4() {
       const fechasSet = new Set();
       const trabajadoresMap = new Map();
@@ -1399,7 +1415,6 @@
             dni: item.dni || '-',
             nombre: item.nombre || '-',
             modalidad: item.modalidad || '-',
-            fechasCump: {},
             fechasKg: {},
             fechasMeta: {}
           });
@@ -1414,7 +1429,6 @@
 
       const fechasArr = Array.from(fechasSet).sort();
 
-      // Calcular CUMP % general de cada fecha
       const fechaTotalesKg = {};
       const fechaTotalesMeta = {};
       fechasArr.forEach(f => {
@@ -1436,7 +1450,6 @@
         fechaTotalesCumpPct[f] = meta > 0 ? (kg / meta) * 100 : 0;
       });
 
-      // Render Headers (Se quita la columna TOTAL CUMP. %)
       const thead = document.getElementById('theadFechasCump');
       let headerHTML = `
         <tr>
@@ -1451,7 +1464,6 @@
 
       headerHTML += `</tr>`;
 
-      // Fila de TOTALES CUMP. % POR FECHAS con Iconos de Tendencia
       headerHTML += `
         <tr class="bg-indigo-100/60 font-bold text-slate-800">
           <td class="p-2 border border-slate-200" colspan="3">TOTAL CUMP. % POR FECHAS</td>
@@ -1463,9 +1475,9 @@
         if (idx > 0) {
           const prevVal = fechaTotalesCumpPct[fechasArr[idx - 1]];
           if (val > prevVal) {
-            trendIcon = `<i class="fa-solid fa-arrow-trend-up text-emerald-600 mr-1" title="Subió respecto al día anterior"></i>`;
+            trendIcon = `<i class="fa-solid fa-arrow-trend-up text-emerald-600 mr-1"></i>`;
           } else if (val < prevVal) {
-            trendIcon = `<i class="fa-solid fa-arrow-trend-down text-rose-600 mr-1" title="Bajó respecto al día anterior"></i>`;
+            trendIcon = `<i class="fa-solid fa-arrow-trend-down text-rose-600 mr-1"></i>`;
           } else {
             trendIcon = `<i class="fa-solid fa-minus text-slate-400 mr-1"></i>`;
           }
@@ -1476,7 +1488,6 @@
       headerHTML += `</tr>`;
       thead.innerHTML = headerHTML;
 
-      // Render Body con Paginación
       const list = Array.from(trabajadoresMap.values());
       const totalItems = list.length;
       const totalPages = Math.ceil(totalItems / pageSizePage4) || 1;
@@ -1522,9 +1533,7 @@
       renderPage4();
     }
 
-    // =========================================================
     // PAGE 5: REGISTROS ÚNICOS POR TRABAJADOR
-    // =========================================================
     function renderPage5() {
       const mapUnico = new Map();
 
@@ -1567,16 +1576,14 @@
       }).join('');
     }
 
-    // =========================================================
     // PAGE 6: COSECHA X TRANSPORTE
-    // =========================================================
     function renderPage6() {
       const mapUnidades = new Map();
       const fechasSet = new Set();
 
       filteredTdp.forEach(item => {
         if (item.fecha) fechasSet.add(item.fecha);
-        const unidad = item.unidad || 'SIN UNIDAD';
+        const unidad = item.unidad || item.placaVehiculo || 'SIN UNIDAD';
         if (!mapUnidades.has(unidad)) {
           mapUnidades.set(unidad, { fechasKg: {}, totalKg: 0, count: 0 });
         }
@@ -1589,10 +1596,8 @@
 
       const fechasArr = Array.from(fechasSet).sort();
 
-      // CHART LÍNEAS
       renderChartTransporteLines(mapUnidades, fechasArr);
 
-      // MATRIZ TRANSPORTE
       const thead = document.getElementById('theadTransporte');
       let headerHTML = `
         <tr>
@@ -1661,9 +1666,7 @@
       });
     }
 
-    // =========================================================
     // PAGE 7: RESUMEN FINAL
-    // =========================================================
     function renderPage7() {
       const mapRes1 = new Map();
 
@@ -1698,7 +1701,6 @@
         `;
       }).join('');
 
-      // SUBTABLAS
       const mapSub1 = new Map();
       const mapSub2 = new Map();
 
@@ -1739,9 +1741,7 @@
       `).join('');
     }
 
-    // =========================================================
     // UTILIDADES
-    // =========================================================
     function formatNumberDisplay(num, decimals = 2) {
       if (num === null || num === undefined || isNaN(num)) return '-';
       return num.toLocaleString('es-PE', {
