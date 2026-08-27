@@ -692,17 +692,54 @@
       });
     }
 
+    // Estrategia de Conexión Híbrida (Fetch + Fallback a JSONP)
+    function fetchJSONP(url) {
+      return new Promise((resolve, reject) => {
+        const callbackName = 'jsonp_cb_' + Math.round(100000 * Math.random());
+        window[callbackName] = function(data) {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          resolve(data);
+        };
+
+        const script = document.createElement('script');
+        script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName + '&action=getData';
+        script.onerror = function() {
+          delete window[callbackName];
+          document.body.removeChild(script);
+          reject(new Error("Error al cargar JSONP"));
+        };
+        document.body.appendChild(script);
+      });
+    }
+
     async function initApp() {
       const syncDot = document.getElementById('syncDot');
       const syncText = document.getElementById('syncText');
       const syncIcon = document.getElementById('syncIcon');
       const statusBox = document.getElementById('connectionStatus');
 
+      let data = null;
+
       try {
-        const res = await fetch(APPS_SCRIPT_URL);
-        if (!res.ok) throw new Error("Error HTTP " + res.status);
-        const data = await res.json();
-        
+        // Intento 1: Fetch Estándar
+        const res = await fetch(APPS_SCRIPT_URL + '?action=getData');
+        if (res.ok) {
+          data = await res.json();
+        } else {
+          throw new Error("Respuesta HTTP no válida: " + res.status);
+        }
+      } catch (err) {
+        console.warn("Intento fetch directo falló, intentando fallback JSONP...", err);
+        try {
+          // Intento 2: JSONP Fallback
+          data = await fetchJSONP(APPS_SCRIPT_URL);
+        } catch (jsonpErr) {
+          console.warn("JSONP también falló:", jsonpErr);
+        }
+      }
+
+      if (data && data.status === "success") {
         rawDetalleData = data.detalle || [];
         rawTdpData = data.tdp || [];
 
@@ -715,8 +752,8 @@
         statusBox.className = "flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100";
         
         showToast('success', 'Datos Actualizados', 'Sincronización con Google Sheets exitosa.');
-      } catch (err) {
-        console.warn("Google Sheets no disponible:", err);
+      } else {
+        // Modo Offline usando IndexedDB
         rawDetalleData = await getLocalData('detalle');
         rawTdpData = await getLocalData('tdp');
 
@@ -1178,17 +1215,14 @@
       renderPage2();
     }
 
-    // MODIFICACIÓN EN PÁGINA 3 (COSECHA MATRIZ X FECHAS): MUESTRA TOTAL KG Y TOTAL CUMP. % POR FECHA EN COLUMNAS
     function renderPage3() {
       const dataset = filteredTdp.length > 0 ? filteredTdp : filteredDetalle;
 
-      // 1. Obtener la lista dinámica de fechas de manera ordenada
       const fechas = [...new Set(dataset.map(r => {
         const f = r.FECHA || r.fecha;
         return f ? f.split('T')[0] : '';
       }).filter(Boolean))].sort();
 
-      // 2. Agrupar la información por cada cosecha/trabajador
       const rowsMap = {};
       dataset.forEach(r => {
         const key = r.DNI || r.dni || r['APELLIDOS Y NOMBRES'] || r.nombre;
@@ -1202,7 +1236,7 @@
             categ: r['CATEG. 2026'] || r.categoria2026 || '-',
             placa: r.PLACA || r.placaVehiculo || '-',
             origen: r.ORIGEN || r.origenDetalle || '-',
-            fechasData: {}, // Guardará { [fecha]: { kg: 0, cumpSum: 0, count: 0 } }
+            fechasData: {},
             totalKg: 0,
             cumpSum: 0,
             count: 0
@@ -1230,7 +1264,6 @@
         rowsMap[key].count++;
       });
 
-      // 3. Generar Encabezado de la Tabla (Doble Nivel de Cabecera para TOTAL KG y TOTAL CUMP. %)
       const thead = document.getElementById('theadFechas');
       let trHead1 = `
         <tr>
@@ -1260,7 +1293,6 @@
 
       thead.innerHTML = trHead1 + trHead2;
 
-      // 4. Construcción del Cuerpo de la Tabla (Filas con datos por fecha)
       const tbody = document.getElementById('tbodyFechas');
       const frag = document.createDocumentFragment();
 
@@ -1558,22 +1590,16 @@
       tbodySub2.appendChild(fragSub2);
     }
 
-    function getCumplimientoBadge(pct) {
-      if (pct < 86) {
-        return { text: 'MALO', cls: 'badge-malo' };
-      } else if (pct >= 86 && pct <= 99) {
-        return { text: 'REGULAR', cls: 'badge-regular' };
-      } else if (pct >= 100 && pct <= 104) {
-        return { text: 'BUENO', cls: 'badge-bueno' };
-      } else {
-        return { text: 'EXCELENTE', cls: 'badge-excelente' };
-      }
+    // Funciones Helper y de Ordenamiento Faltantes
+    function getCumplimientoBadge(val) {
+      if (val >= 105) return { text: 'EXCELENTE', cls: 'badge-excelente' };
+      if (val >= 100) return { text: 'BUENO', cls: 'badge-bueno' };
+      if (val >= 86) return { text: 'REGULAR', cls: 'badge-regular' };
+      return { text: 'MALO', cls: 'badge-malo' };
     }
 
     function formatNumber(num, decimals = 2) {
-      const n = parseFloat(num);
-      if (isNaN(n)) return '0.00';
-      return n.toLocaleString('es-PE', {
+      return (Number(num) || 0).toLocaleString('es-PE', {
         minimumFractionDigits: decimals,
         maximumFractionDigits: decimals
       });
@@ -1591,53 +1617,29 @@
     function toggleSortResumenFecha() {
       sortOrderFecha = sortOrderFecha === 'asc' ? 'desc' : 'asc';
       const icon = document.getElementById('sortIconFecha');
-      if (icon) {
-        icon.className = sortOrderFecha === 'asc' ? 'fa-solid fa-sort-up text-indigo-500' : 'fa-solid fa-sort-down text-indigo-500';
-      }
+      if (icon) icon.className = sortOrderFecha === 'asc' ? 'fa-solid fa-sort-up text-emerald-600' : 'fa-solid fa-sort-down text-emerald-600';
       renderPage1();
     }
 
     function toggleSortHistoricoPromedio() {
-      sortOrderHistoricoProm = sortOrderHistoricoProm === 'desc' ? 'asc' : 'desc';
+      sortOrderHistoricoProm = sortOrderHistoricoProm === 'asc' ? 'desc' : 'asc';
       const icon = document.getElementById('sortIconHistorico');
-      if (icon) {
-        icon.className = sortOrderHistoricoProm === 'asc' ? 'fa-solid fa-sort-up text-slate-600' : 'fa-solid fa-sort-down text-slate-600';
-      }
+      if (icon) icon.className = sortOrderHistoricoProm === 'asc' ? 'fa-solid fa-sort-up text-emerald-600' : 'fa-solid fa-sort-down text-emerald-600';
       renderPage1();
     }
 
     function toggleSortDetalleFecha() {
-      sortOrderDetalleFecha = sortOrderDetalleFecha === 'asc' ? 'desc' : 'asc';
+      if (sortOrderDetalleFecha === 'asc') sortOrderDetalleFecha = 'desc';
+      else sortOrderDetalleFecha = 'asc';
       sortOrderDetalleNombre = null;
-      const iconFecha = document.getElementById('sortIconDetalleFecha');
-      const iconNombre = document.getElementById('sortIconDetalleNombre');
-      if (iconFecha) iconFecha.className = sortOrderDetalleFecha === 'asc' ? 'fa-solid fa-sort-up text-emerald-600' : 'fa-solid fa-sort-down text-emerald-600';
-      if (iconNombre) iconNombre.className = 'fa-solid fa-sort text-slate-400';
-      
-      filteredDetalle.sort((a, b) => {
-        const fa = String(a.FECHA || a.fecha || '');
-        const fb = String(b.FECHA || b.fecha || '');
-        return sortOrderDetalleFecha === 'asc' ? fa.localeCompare(fb) : fb.localeCompare(fa);
-      });
-      currentPagePage2 = 1;
-      renderPage2();
+      applyFilters();
     }
 
     function toggleSortDetalleNombre() {
-      sortOrderDetalleNombre = sortOrderDetalleNombre === 'asc' ? 'desc' : 'asc';
+      if (sortOrderDetalleNombre === 'asc') sortOrderDetalleNombre = 'desc';
+      else sortOrderDetalleNombre = 'asc';
       sortOrderDetalleFecha = null;
-      const iconFecha = document.getElementById('sortIconDetalleFecha');
-      const iconNombre = document.getElementById('sortIconDetalleNombre');
-      if (iconNombre) iconNombre.className = sortOrderDetalleNombre === 'asc' ? 'fa-solid fa-sort-up text-emerald-600' : 'fa-solid fa-sort-down text-emerald-600';
-      if (iconFecha) iconFecha.className = 'fa-solid fa-sort text-slate-400';
-
-      filteredDetalle.sort((a, b) => {
-        const na = String(a['APELLIDOS Y NOMBRES'] || a.nombre || '').toLowerCase();
-        const nb = String(b['APELLIDOS Y NOMBRES'] || b.nombre || '').toLowerCase();
-        return sortOrderDetalleNombre === 'asc' ? na.localeCompare(nb) : nb.localeCompare(na);
-      });
-      currentPagePage2 = 1;
-      renderPage2();
+      applyFilters();
     }
   </script>
 </body>
