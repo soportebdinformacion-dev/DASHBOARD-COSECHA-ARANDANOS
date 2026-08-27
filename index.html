@@ -78,7 +78,7 @@
           <span>🫐</span> <span>Reporte Detallado</span>
         </button>
         <button onclick="switchTab(3)" id="tab-3" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-slate-600 flex items-center space-x-2.5 whitespace-nowrap">
-          <span>🫐</span> <span>Cosecha x Fechas</span>
+          <span>🫐</span> <span>Fecha Columnas KG</span>
         </button>
         <button onclick="switchTab(4)" id="tab-4" class="nav-btn-vert w-full px-3 py-2.5 rounded-lg text-xs sm:text-sm text-left text-slate-600 flex items-center space-x-2.5 whitespace-nowrap">
           <span>🫐</span> <span>Reg. Únicos</span>
@@ -447,11 +447,11 @@
         </div>
       </div>
 
-      <!-- PAGINA 3: MATRIZ X FECHAS -->
+      <!-- PAGINA 3: FECHA COLUMNAS KG -->
       <div id="page-3" class="page-content hidden space-y-4">
         <div class="bg-white p-4 rounded-xl shadow-xs border border-slate-200">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <h3 class="text-xs font-bold text-slate-700"><i class="fa-solid fa-calendar-days text-emerald-600"></i> COSECHA MATRIZ X FECHAS</h3>
+            <h3 class="text-xs font-bold text-slate-700"><i class="fa-solid fa-calendar-days text-emerald-600"></i> COSECHA MATRIZ FECHA COLUMNAS KG</h3>
             <div class="flex items-center space-x-2 text-xs">
               <span id="page3Info" class="text-slate-500 font-medium">Mostrando 0 - 0 de 0</span>
               <button id="btnPage3Prev" onclick="changePage3(-1)" class="px-2.5 py-1 bg-slate-100 text-slate-600 rounded hover:bg-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold">Anterior</button>
@@ -607,6 +607,8 @@
     let sortOrderDetalleFecha = null;
     let sortOrderDetalleNombre = null;
     let sortOrderMatrizNombre = 'asc';
+    let sortMatrizColumn = null; // 'total' o fecha específica (e.g. '2026-08-20')
+    let sortMatrizDir = 'desc';  // 'asc' o 'desc'
 
     let chartModalidadObj = null;
     let chartSexoObj = null;
@@ -956,7 +958,6 @@
       document.getElementById('cumpIdaVueltaBarPct').textContent = `${pctIdaBar.toFixed(1)}% Ponderado`;
       document.getElementById('cumpIdaVueltaBar').style.width = `${pctIdaBar}%`;
 
-      // 1. MODALIDAD: Leyenda, Etiquetas Internas con Porcentajes y Tooltips con Cantidades
       const modGroup = {};
       filteredDetalle.forEach(r => {
         const m = r.MODALIDAD || r.modalidad || 'SIN REGISTRO';
@@ -1012,7 +1013,6 @@
         }
       });
 
-      // 1. SEXO: Leyenda, Etiquetas Internas con Porcentajes y Tooltips con Cantidades
       const sexoGroup = {};
       filteredDetalle.forEach(r => {
         const s = r.SEXO || r.sexo || 'SIN REGISTRO';
@@ -1158,7 +1158,6 @@
       tbodyMod.innerHTML = '';
       tbodyMod.appendChild(fragMod);
 
-      // TOP 10 MEJORES COSECHADORES
       const cosMap = {};
       filteredDetalle.forEach(r => {
         const key = r.DNI || r.dni;
@@ -1303,7 +1302,7 @@
       renderPage2();
     }
 
-    /* RENDER PÁGINA 3: MATRIZ X FECHAS */
+    /* RENDER PÁGINA 3: FECHA COLUMNAS KG */
     function renderPage3() {
       const dataset = filteredTdp.length > 0 ? filteredTdp : filteredDetalle;
 
@@ -1355,11 +1354,21 @@
 
       let allRows = Object.values(rowsMap);
 
-      allRows.sort((a, b) => {
-        const nomA = String(a.nombre).toLowerCase();
-        const nomB = String(b.nombre).toLowerCase();
-        return sortOrderMatrizNombre === 'asc' ? nomA.localeCompare(nomB) : nomB.localeCompare(nomA);
-      });
+      if (sortMatrizColumn === 'total') {
+        allRows.sort((a, b) => sortMatrizDir === 'asc' ? a.totalKg - b.totalKg : b.totalKg - a.totalKg);
+      } else if (sortMatrizColumn && fechas.includes(sortMatrizColumn)) {
+        allRows.sort((a, b) => {
+          const kgA = a.fechasData[sortMatrizColumn] ? a.fechasData[sortMatrizColumn].kg : 0;
+          const kgB = b.fechasData[sortMatrizColumn] ? b.fechasData[sortMatrizColumn].kg : 0;
+          return sortMatrizDir === 'asc' ? kgA - kgB : kgB - kgA;
+        });
+      } else {
+        allRows.sort((a, b) => {
+          const nomA = String(a.nombre).toLowerCase();
+          const nomB = String(b.nombre).toLowerCase();
+          return sortOrderMatrizNombre === 'asc' ? nomA.localeCompare(nomB) : nomB.localeCompare(nomA);
+        });
+      }
 
       const totalItems = allRows.length;
       const totalPages = Math.ceil(totalItems / pageSizePage3) || 1;
@@ -1375,44 +1384,57 @@
       const thead = document.getElementById('theadFechas');
       let trHead1 = `
         <tr>
-          <th rowspan="2" class="p-2 border border-slate-200 bg-slate-100 text-slate-700">DNI</th>
-          <th rowspan="2" class="p-2 border border-slate-200 bg-slate-100 text-slate-700 cursor-pointer hover:bg-slate-200" onclick="toggleSortMatrizNombre()">
+          <th class="p-2 border border-slate-200 bg-slate-100 text-slate-700">DNI</th>
+          <th class="p-2 border border-slate-200 bg-slate-100 text-slate-700 cursor-pointer hover:bg-slate-200" onclick="toggleSortMatrizNombre()">
             <div class="flex items-center justify-between space-x-2">
               <span>APELLIDOS Y NOMBRES</span>
               <i class="fa-solid ${sortIconClass} text-emerald-600"></i>
             </div>
           </th>
-          <th rowspan="2" class="p-2 border border-slate-200 bg-slate-100 text-slate-700">MODALIDAD</th>
-          <th rowspan="2" class="p-2 border border-slate-200 bg-slate-100 text-slate-700">CATEG. 2026</th>
-          <th rowspan="2" class="p-2 border border-slate-200 bg-slate-100 text-slate-700">PLACA</th>
-          <th rowspan="2" class="p-2 border border-slate-200 bg-slate-100 text-slate-700">ORIGEN</th>`;
+          <th class="p-2 border border-slate-200 bg-slate-100 text-slate-700">MODALIDAD</th>
+          <th class="p-2 border border-slate-200 bg-slate-100 text-slate-700">CATEG. 2026</th>
+          <th class="p-2 border border-slate-200 bg-slate-100 text-slate-700">PLACA</th>
+          <th class="p-2 border border-slate-200 bg-slate-100 text-slate-700">ORIGEN</th>`;
 
       fechas.forEach(f => {
-        trHead1 += `<th colspan="2" class="p-2 border border-slate-200 text-center bg-emerald-100/70 text-emerald-900 font-bold">${formatDateDisplay(f)}</th>`;
+        const isCurrent = sortMatrizColumn === f;
+        const upClass = (isCurrent && sortMatrizDir === 'asc') ? 'text-emerald-700 font-bold' : 'text-slate-400 hover:text-slate-600';
+        const downClass = (isCurrent && sortMatrizDir === 'desc') ? 'text-emerald-700 font-bold' : 'text-slate-400 hover:text-slate-600';
+
+        trHead1 += `
+          <th class="p-2 border border-slate-200 text-center bg-emerald-100/70 text-emerald-900 font-bold">
+            <div class="flex flex-col items-center justify-center space-y-1">
+              <span>${formatDateDisplay(f)}</span>
+              <div class="flex items-center space-x-1">
+                <button onclick="setSortMatrizColumn('${f}', 'asc')" class="px-1 bg-white border border-slate-200 rounded text-[10px] ${upClass}" title="Ordenar Ascendente">▲</button>
+                <button onclick="setSortMatrizColumn('${f}', 'desc')" class="px-1 bg-white border border-slate-200 rounded text-[10px] ${downClass}" title="Ordenar Descendente">▼</button>
+              </div>
+            </div>
+          </th>`;
       });
+
+      const totalIsCurrent = sortMatrizColumn === 'total';
+      const totalUpClass = (totalIsCurrent && sortMatrizDir === 'asc') ? 'text-amber-800 font-bold' : 'text-slate-400 hover:text-slate-600';
+      const totalDownClass = (totalIsCurrent && sortMatrizDir === 'desc') ? 'text-amber-800 font-bold' : 'text-slate-400 hover:text-slate-600';
 
       trHead1 += `
-          <th rowspan="2" class="p-2 border border-slate-200 text-right bg-amber-50/80 text-amber-900 font-bold">TOTAL KG</th>
-          <th rowspan="2" class="p-2 border border-slate-200 text-right bg-sky-50/80 text-sky-900 font-bold">TOTAL CUMP. %</th>
+          <th class="p-2 border border-slate-200 text-right bg-amber-50/80 text-amber-900 font-bold">
+            <div class="flex flex-col items-end justify-center space-y-1">
+              <span>TOTAL KG</span>
+              <div class="flex items-center space-x-1">
+                <button onclick="setSortMatrizColumn('total', 'asc')" class="px-1 bg-white border border-slate-200 rounded text-[10px] ${totalUpClass}" title="Ordenar Ascendente">▲</button>
+                <button onclick="setSortMatrizColumn('total', 'desc')" class="px-1 bg-white border border-slate-200 rounded text-[10px] ${totalDownClass}" title="Ordenar Descendente">▼</button>
+              </div>
+            </div>
+          </th>
         </tr>`;
 
-      let trHead2 = `<tr>`;
-      fechas.forEach(() => {
-        trHead2 += `
-          <th class="p-1.5 border border-slate-200 text-right bg-emerald-50 text-emerald-800 font-bold text-[10px]">TOTAL KG</th>
-          <th class="p-1.5 border border-slate-200 text-right bg-sky-50 text-sky-800 font-bold text-[10px]">TOTAL CUMP. %</th>`;
-      });
-      trHead2 += `</tr>`;
-
-      thead.innerHTML = trHead1 + trHead2;
+      thead.innerHTML = trHead1;
 
       const tbody = document.getElementById('tbodyFechas');
       const frag = document.createDocumentFragment();
 
       pageRows.forEach(row => {
-        const avgCumpGen = row.count > 0 ? (row.cumpSum / row.count) : 0;
-        const badgeGen = getCumplimientoBadge(avgCumpGen);
-
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50 transition-colors';
 
@@ -1428,22 +1450,13 @@
           const fData = row.fechasData[f];
           if (fData && fData.count > 0) {
             const kgVal = fData.kg;
-            const cumpVal = fData.cumpSum / fData.count;
-            const badgeDia = getCumplimientoBadge(cumpVal);
-
-            trHTML += `
-              <td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(kgVal, 1)} kg</td>
-              <td class="p-2 border border-slate-200 text-right font-bold"><span class="px-1.5 py-0.5 rounded ${badgeDia.cls}">${cumpVal.toFixed(1)}%</span></td>`;
+            trHTML += `<td class="p-2 border border-slate-200 text-right font-semibold text-slate-700">${formatNumber(kgVal, 1)} kg</td>`;
           } else {
-            trHTML += `
-              <td class="p-2 border border-slate-200 text-right text-slate-400">-</td>
-              <td class="p-2 border border-slate-200 text-right text-slate-400">-</td>`;
+            trHTML += `<td class="p-2 border border-slate-200 text-right text-slate-400">-</td>`;
           }
         });
 
-        trHTML += `
-          <td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(row.totalKg)} kg</td>
-          <td class="p-2 border border-slate-200 text-right"><span class="px-2 py-0.5 rounded font-bold ${badgeGen.cls}">${avgCumpGen.toFixed(1)}%</span></td>`;
+        trHTML += `<td class="p-2 border border-slate-200 text-right font-bold text-emerald-600">${formatNumber(row.totalKg)} kg</td>`;
 
         tr.innerHTML = trHTML;
         frag.appendChild(tr);
@@ -1465,12 +1478,19 @@
       document.getElementById('btnPage3NextBottom').disabled = isLast;
     }
 
+    function setSortMatrizColumn(col, dir) {
+      sortMatrizColumn = col;
+      sortMatrizDir = dir;
+      renderPage3();
+    }
+
     function changePage3(delta) {
       currentPagePage3 += delta;
       renderPage3();
     }
 
     function toggleSortMatrizNombre() {
+      sortMatrizColumn = null;
       sortOrderMatrizNombre = sortOrderMatrizNombre === 'asc' ? 'desc' : 'asc';
       renderPage3();
     }
@@ -1542,7 +1562,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            datalabels: { display: false } // Desactivar datalabels en el gráfico de líneas
+            datalabels: { display: false }
           }
         }
       });
