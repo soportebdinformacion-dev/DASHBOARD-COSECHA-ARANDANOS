@@ -1,22 +1,15 @@
 {
-  "name": "Agrícola Huarmey - Cosecha Arándanos",
-  "short_name": "Huarmey Cosecha",
-  "description": "Aplicación PWA con menú lateral para gestión de cosecha de arándanos.",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#F4F6F8",
-  "theme_color": "#2D7A3A",
-  "orientation": "any",
+  "short_name": "AgriHuarmey",
+  "name": "Agrícola Huarmey - Cosecha",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/688/688824.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/688/688824.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
     }
-  ]
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "theme_color": "#E53935",
+  "display": "standalone"
 }
