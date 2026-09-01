@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-emerald-50/60">
+<html lang="es" class="h-full bg-red-50/70">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -60,7 +60,7 @@
         .badge-excelente { background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
     </style>
 </head>
-<body class="h-full flex flex-col bg-emerald-50/60 text-slate-800 antialiased selection:bg-huarmey-red selection:text-white">
+<body class="h-full flex flex-col bg-red-50/70 text-slate-800 antialiased selection:bg-huarmey-red selection:text-white">
 
     <!-- Top Bar -->
     <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-30">
@@ -682,7 +682,7 @@
 
     <script>
         // --- CONSTANTS & CONFIGURATION ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbxR9XIhfz4WODY5qhGB2EWPfMbY8va0RrShMBa-3jHvW1GG69DPtTH17GmIrbTkYWjh/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbwyK7XSEz_580Q94msklJ9x_a6GzshxqCiJ6mPIFhMAOEsnETJDTMGf0o_Krr5tBnss/exec";
         const DB_NAME = "HuarmeyCosechaPWA_DB";
         const DB_VERSION = 1;
         const PAGE_SIZE = 50;
@@ -755,11 +755,18 @@
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 12000); // 12s timeout
 
-                // Petición con redirección explícita para compatibilidad con Apps Script Web App
-                const res = await fetch(API_URL, { redirect: "follow", signal: controller.signal });
+                // Petición corregida con modo cors y seguimiento de redirecciones
+                const res = await fetch(API_URL, { 
+                    method: "GET",
+                    mode: "cors",
+                    redirect: "follow", 
+                    signal: controller.signal 
+                });
                 clearTimeout(timeoutId);
 
-                if (!res.ok) throw new Error("HTTP Status " + res.status);
+                if (!res.ok && res.type !== "opaque") {
+                    throw new Error("HTTP Status " + res.status);
+                }
                 
                 const json = await res.json();
                 
