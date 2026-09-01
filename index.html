@@ -272,8 +272,11 @@ table.data-table tbody td.num{font-variant-numeric:tabular-nums;text-align:right
     </div>
     <nav class="nav-list" id="navList"></nav>
     <div class="sidebar-foot">
-      <div class="sync-pill" id="syncPill"><span class="sync-dot"></span><span id="syncText">Sincronizando…</span></div>
+      <button class="sync-pill" id="syncPill" title="Tocar para reintentar la sincronización" style="cursor:pointer;border:none;width:100%;">
+        <span class="sync-dot"></span><span id="syncText">Sincronizando…</span>
+      </button>
       <div id="lastSync">—</div>
+      <div id="syncErrorHint" style="display:none;font-size:10.5px;color:#F3C9BC;margin-top:6px;line-height:1.4;"></div>
     </div>
   </aside>
 
@@ -312,7 +315,7 @@ table.data-table tbody td.num{font-variant-numeric:tabular-nums;text-align:right
    ========================================================= */
 
 /* ---------- Config ---------- */
-const GAS_URL = "https://script.google.com/macros/s/AKfycbxROrg-2ZXTi6EluEUWIO1cQfWu0Qovmj7LXO3kRXrTkuXN0FKJ3HbdnHP2hUnXdaqX/exec";
+const GAS_URL = "https://script.google.com/macros/s/AKfycbz0yrfg95nUDAXbJl0uMKsRRMDfIUp-FFb1VNrluyMGf9WudEmE6_qPlemEUBqKWPuU/exec";
 const SHEETS = { DETALLE:"DETALLE", TDP:"TDP", UNICOS:"UNICOS", REPORTE:"REPORTE" };
 const DB_NAME = "huarmey_cosecha_db";
 const DB_VERSION = 1;
@@ -498,16 +501,31 @@ async function idbGetMeta(key){
 }
 
 /* ---------- Fetch data (network-first, IndexedDB fallback) ---------- */
+let lastConnError = null; // guarda el último motivo de fallo para diagnóstico
+
 async function fetchSheet(sheetKey){
   const sheetName = SHEETS[sheetKey];
   try{
-    const res = await fetch(`${GAS_URL}?sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`, {method:"GET"});
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const json = await res.json();
+    const res = await fetch(`${GAS_URL}?sheet=${encodeURIComponent(sheetName)}&t=${Date.now()}`, {method:"GET", redirect:"follow"});
+    if(!res.ok) throw new Error("La API respondió HTTP "+res.status);
+    const text = await res.text();
+    let json;
+    try{ json = JSON.parse(text); }
+    catch(parseErr){
+      // Apps Script devolvió HTML en vez de JSON: casi siempre significa
+      // que el despliegue exige iniciar sesión (acceso restringido) o que
+      // la URL no corresponde a un Web App válido.
+      throw new Error("La API no devolvió JSON (posible falta de permisos en el despliegue). Respuesta: "+text.slice(0,120));
+    }
+    if(json.success===false){
+      throw new Error(json.error || "La API devolvió un error para la hoja "+sheetName);
+    }
     const rows = json.data || json.rows || (Array.isArray(json)?json:[]);
     await idbPutAll(sheetName, rows);
     return {rows, fromNetwork:true};
   }catch(err){
+    console.error(`[Huarmey] Falló la carga de la hoja "${sheetName}":`, err);
+    lastConnError = err.message || String(err);
     const rows = await idbGetAll(sheetName);
     return {rows, fromNetwork:false, error:err};
   }
@@ -515,6 +533,7 @@ async function fetchSheet(sheetKey){
 
 async function loadAllData(showToast){
   let anyNetwork = false, anyRows=false;
+  lastConnError = null;
   for(const key of Object.keys(SHEETS)){
     const {rows, fromNetwork} = await fetchSheet(key);
     state.data[key] = rows;
@@ -529,7 +548,10 @@ async function loadAllData(showToast){
   } else {
     const stored = await idbGetMeta("lastSync");
     state.lastSync = stored ? new Date(stored) : null;
-    if(showToast) toast(anyRows ? "Sin conexión — usando datos guardados" : "Sin conexión y sin datos guardados aún", "warn");
+    if(showToast){
+      const motivo = lastConnError ? ` (${lastConnError})` : "";
+      toast((anyRows ? "Sin conexión a Sheets — usando datos guardados" : "No se pudo conectar a Google Sheets"+motivo), "warn");
+    }
   }
   updateSyncPill();
 }
@@ -547,9 +569,16 @@ function updateSyncPill(){
   const pill = document.getElementById("syncPill");
   const text = document.getElementById("syncText");
   const last = document.getElementById("lastSync");
+  const hint = document.getElementById("syncErrorHint");
   pill.classList.toggle("offline", !state.online);
   text.textContent = state.online ? "Conectado a Sheets" : "Modo sin conexión";
   last.textContent = state.lastSync ? "Últ. sync: "+state.lastSync.toLocaleTimeString("es-PE",{hour:"2-digit",minute:"2-digit"}) : "Sin sincronizar";
+  if(!state.online && lastConnError){
+    hint.style.display = "block";
+    hint.textContent = "Motivo: " + lastConnError;
+  } else {
+    hint.style.display = "none";
+  }
 }
 </script>
 <script>
@@ -1339,6 +1368,11 @@ function tickClock(){
 async function init(){
   document.getElementById("hamburger").addEventListener("click", openSidebar);
   document.getElementById("overlay").addEventListener("click", closeSidebar);
+  document.getElementById("syncPill").addEventListener("click", async ()=>{
+    toast("Probando conexión con Google Sheets…");
+    await loadAllData(true);
+    renderApp();
+  });
   tickClock();
   setInterval(tickClock, 1000);
 
