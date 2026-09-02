@@ -994,40 +994,57 @@ function doGet(e) {
         // DATA FETCHING & SYNCHRONIZATION (OFFLINE-FIRST)
         // ===================================================================
         async function fetchSheetData() {
-            const syncSpinner = document.getElementById('syncSpinner');
-            if (syncSpinner) syncSpinner.classList.add('fa-spin');
+    const syncSpinner = document.getElementById('syncSpinner');
+    if (syncSpinner) syncSpinner.classList.add('fa-spin');
 
-            try {
-                // Attempt fetch to Google Apps Script
-                const response = await fetch(APPS_SCRIPT_URL, { method: 'GET', mode: 'cors' });
-                if (!response.ok) throw new Error("Respuesta no OK de Google Sheets API");
-                const json = await response.json();
-
-                if (json && json.data && json.data.length > 0) {
-                    rawData = processRawRecords(json.data);
-                    localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
-                    localStorage.setItem('agri_huarmey_sync_time', new Date().toISOString());
-                    updateConnectionStatus(true);
-                } else {
-                    throw new Error("Formato de datos devuelto vacío");
-                }
-            } catch (err) {
-                console.warn("Fallo integración directa GS, usando mock/cache local:", err);
-                const cached = localStorage.getItem('agri_huarmey_db');
-                if (cached) {
-                    rawData = JSON.parse(cached);
-                } else {
-                    rawData = generateRealisticMockData();
-                    localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
-                }
-                updateConnectionStatus(false);
-            } finally {
-                if (syncSpinner) syncSpinner.classList.remove('fa-spin');
-                populateFilterDropdowns();
-                applyFilters();
+    try {
+        // Petición HTTP GET optimizada para Google Apps Script Web App
+        const response = await fetch(APPS_SCRIPT_URL, { 
+            method: 'GET',
+            redirect: 'follow',
+            headers: {
+                'Accept': 'application/json'
             }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error de red HTTP ${response.status}`);
         }
 
+        const json = await response.json();
+
+        if (json && json.status === "error") {
+            throw new Error(json.message || "Error en el servidor Apps Script");
+        }
+
+        if (json && json.data && json.data.length > 0) {
+            rawData = processRawRecords(json.data);
+            localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
+            localStorage.setItem('agri_huarmey_sync_time', new Date().toISOString());
+            updateConnectionStatus(true);
+        } else if (json && Array.isArray(json.data)) {
+            // Caso respuesta exitosa pero sin registros en la hoja
+            rawData = [];
+            updateConnectionStatus(true);
+        } else {
+            throw new Error("Formato de datos no reconocido");
+        }
+    } catch (err) {
+        console.warn("Fallo en la conexión directa con Google Sheets, recurriendo a caché/mock local:", err);
+        const cached = localStorage.getItem('agri_huarmey_db');
+        if (cached) {
+            rawData = JSON.parse(cached);
+        } else {
+            rawData = generateRealisticMockData();
+            localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
+        }
+        updateConnectionStatus(false);
+    } finally {
+        if (syncSpinner) syncSpinner.classList.remove('fa-spin');
+        populateFilterDropdowns();
+        applyFilters();
+    }
+}
         function loadCachedDataOrFetch() {
             const cached = localStorage.getItem('agri_huarmey_db');
             if (cached) {
