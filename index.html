@@ -4,2293 +4,738 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Agrícola Huarmey - Gestión de Cosecha de Arándanos</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Chart.js for Donut and Trend Graphics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- SheetJS for Excel Export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
-    <!-- PWA Manifest link fallback -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#b91c1c">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        agri: {
-                            red: '#B91C1C',
-                            redDark: '#991B1B',
-                            redLight: '#FEF2F2',
-                            green: '#15803D',
-                            greenLight: '#F0FDF4',
-                            blueberry: '#2563EB',
-                            blueberryDark: '#1E40AF',
-                            bg: '#F8FAFC',
-                            card: '#FFFFFF'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8FAFC;
-            color: #1E293B;
-            -webkit-tap-highlight-color: transparent;
+            background-color: #f8fafc;
         }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
+        .tab-btn.active {
+            border-bottom-color: #b91c1c;
+            color: #b91c1c;
+            font-weight: 700;
+        }
+        /* Custom Scrollbar for Horizontal Data Tables */
+        .custom-scrollbar::-webkit-scrollbar {
             height: 6px;
+            width: 6px;
         }
-        ::-webkit-scrollbar-track {
-            background: #F1F5F9;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #CBD5E1;
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
             border-radius: 4px;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94A3B8;
-        }
-        /* Sticky header table helper */
-        .table-sticky-header th {
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        .skeleton-loader {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-        }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-red-500 selection:text-white">
+<body class="text-slate-800 bg-slate-50 min-h-screen flex flex-col justify-between selection:bg-red-100 selection:text-red-700">
 
-    <!-- Top Bar / Header -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16 sm:h-20">
-                
-                <!-- Logo & Title -->
-                <div class="flex items-center space-x-3">
-                    <button id="btnToggleSidebar" class="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none" aria-label="Abrir menú">
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
-                    
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-tr from-red-600 to-green-600 p-0.5 shadow-sm flex-shrink-0">
-                            <div class="w-full h-full bg-white rounded-[10px] flex items-center justify-center overflow-hidden p-1">
-                                <svg viewBox="0 0 100 100" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <circle cx="50" cy="50" r="45" fill="#FFFFFF"/>
-                                    <path d="M50 20 C30 20 20 40 20 55 C20 75 35 85 50 85 C65 85 80 75 80 55 C80 40 70 20 50 20 Z" fill="#B91C1C"/>
-                                    <path d="M35 15 C45 10 55 15 50 30 C40 25 30 20 35 15 Z" fill="#15803D"/>
-                                    <circle cx="42" cy="45" r="5" fill="#FFFFFF" opacity="0.3"/>
-                                    <circle cx="58" cy="58" r="7" fill="#FFFFFF" opacity="0.2"/>
-                                    <path d="M25 50 Q50 65 75 50" stroke="#15803D" stroke-width="4" fill="none"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs font-bold tracking-wider uppercase text-red-700 bg-red-50 px-2 py-0.5 rounded-full border border-red-200">
-                                    Agrícola Huarmey
-                                </span>
-                                <span class="hidden sm:inline-block text-xs text-slate-400">|</span>
-                                <span class="hidden sm:inline-flex items-center text-xs font-medium text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">
-                                    <i class="fa-solid fa-seedling mr-1 text-blue-500"></i> Cosecha Arándanos
-                                </span>
-                            </div>
-                            <h1 id="pageTitleHeader" class="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight leading-tight mt-0.5">
-                                Dashboard Cosecha
-                            </h1>
-                        </div>
-                    </div>
+    <header class="bg-red-700 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <img src="ICONO HUARMEY.png" alt="Logo" class="w-9 h-9 rounded-full bg-white p-0.5 shadow-sm object-cover">
+                <div>
+                    <h1 class="text-lg font-bold leading-tight">Agrícola Huarmey</h1>
+                    <p class="text-xs text-red-100 hidden sm:block">Gestión y Control de Cosecha de Arándanos</p>
                 </div>
-
-                <!-- Live Clock & Network Sync Status Badge -->
-                <div class="flex items-center space-x-2 sm:space-x-4">
-                    <div class="hidden md:flex flex-col items-end text-xs text-slate-500">
-                        <div class="font-semibold text-slate-700 flex items-center space-x-1">
-                            <i class="fa-regular fa-calendar-check text-red-600"></i>
-                            <span id="liveDateStr">--/--/----</span>
-                        </div>
-                        <div class="font-mono text-slate-500 text-[11px] flex items-center space-x-1 mt-0.5">
-                            <i class="fa-regular fa-clock"></i>
-                            <span id="liveTimeStr">--:--:--</span>
-                        </div>
-                    </div>
-
-                    <!-- Connection Status Pill -->
-                    <div id="connectionPill" class="flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm transition-all duration-300">
-                        <span id="connIndicatorDot" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse mr-2"></span>
-                        <span id="connStatusText" class="truncate max-w-[110px] sm:max-w-none">🟢 Conectado</span>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex items-center space-x-1 sm:space-x-2">
-                        <button id="btnSyncData" title="Sincronizar Datos desde Google Sheets" class="p-2 sm:px-3 sm:py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-medium transition flex items-center space-x-1.5 focus:ring-2 focus:ring-red-500">
-                            <i id="syncIcon" class="fa-solid fa-rotate text-slate-600"></i>
-                            <span class="hidden sm:inline">Sincronizar</span>
-                        </button>
-
-                        <button id="btnInstallPwa" title="Instalar Aplicación en el dispositivo" class="hidden p-2 sm:px-3 sm:py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-medium shadow-sm transition flex items-center space-x-1.5">
-                            <i class="fa-solid fa-download"></i>
-                            <span class="hidden sm:inline">Instalar App</span>
-                        </button>
-                    </div>
-
-                </div>
-
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button id="btnSyncData" title="Sincronizar Datos" class="p-2 rounded-lg bg-red-800 hover:bg-red-900 transition-colors text-white text-sm flex items-center space-x-1 shadow-sm">
+                    <i class="fa-solid fa-rotate" id="syncIcon"></i>
+                    <span class="hidden md:inline font-medium">Actualizar</span>
+                </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Application Wrapper -->
-    <div class="flex-1 max-w-7xl w-full mx-auto flex flex-col lg:flex-row px-2 sm:px-6 lg:px-8 py-4 gap-6">
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow">
 
-        <!-- Sidebar Navigation Drawer -->
-        <aside id="sidebarNav" class="fixed inset-y-0 left-0 z-50 w-72 bg-white border-r border-slate-200 transform -translate-x-full lg:translate-x-0 lg:static lg:w-64 lg:border-r-0 lg:bg-transparent transition-transform duration-300 ease-in-out flex flex-col justify-between shadow-xl lg:shadow-none">
-            <div class="p-4 lg:p-0">
-                <div class="flex items-center justify-between lg:hidden pb-4 mb-4 border-b border-slate-200">
-                    <div class="flex items-center space-x-2">
-                        <i class="fa-solid fa-basket-shopping text-red-600 text-lg"></i>
-                        <span class="font-bold text-slate-800">Menú Cosecha</span>
-                    </div>
-                    <button id="btnCloseSidebar" class="p-1 rounded-lg text-slate-400 hover:text-slate-600">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center space-x-4">
+                <div class="p-3 bg-red-100 text-red-600 rounded-lg">
+                    <i class="fa-solid fa-weight-hanging text-xl"></i>
                 </div>
-
-                <nav class="space-y-1">
-                    <a href="#dashboard" data-page="p1" class="nav-link active flex items-center px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-150 bg-red-600 text-white shadow-sm">
-                        <i class="fa-solid fa-chart-pie w-5 mr-3 text-base"></i>
-                        <span>Dashboard Cosecha</span>
-                    </a>
-
-                    <a href="#reporte-detallado" data-page="p2" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all duration-150">
-                        <i class="fa-solid fa-table-list w-5 mr-3 text-base text-slate-500"></i>
-                        <span>Reporte Detallado</span>
-                    </a>
-
-                    <a href="#reporte-fechas-kg" data-page="p3" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all duration-150">
-                        <i class="fa-solid fa-calendar-days w-5 mr-3 text-base text-slate-500"></i>
-                        <span>Reporte Fechas KG</span>
-                    </a>
-
-                    <a href="#reporte-fechas-cump" data-page="p4" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all duration-150">
-                        <i class="fa-solid fa-chart-line w-5 mr-3 text-base text-slate-500"></i>
-                        <span>Reporte Fechas CUMP %</span>
-                    </a>
-
-                    <a href="#reporte-unicos" data-page="p5" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all duration-150">
-                        <i class="fa-solid fa-users text-slate-500 w-5 mr-3 text-base"></i>
-                        <span>Reg. Únicos</span>
-                    </a>
-
-                    <a href="#reporte-placas" data-page="p6" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all duration-150">
-                        <i class="fa-solid fa-bus w-5 mr-3 text-base text-slate-500"></i>
-                        <span>Placas TDP</span>
-                    </a>
-
-                    <a href="#reporte-final" data-page="p7" class="nav-link flex items-center px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 rounded-xl transition-all duration-150">
-                        <i class="fa-solid fa-file-contract w-5 mr-3 text-base text-slate-500"></i>
-                        <span>Reporte Final</span>
-                    </a>
-                </nav>
-
-                <!-- Offline Cache & Sync Metadata Card -->
-                <div class="mt-8 p-3 bg-slate-100/80 rounded-2xl border border-slate-200/80 text-xs text-slate-600 space-y-2">
-                    <div class="flex items-center justify-between font-semibold text-slate-700 border-b border-slate-200/60 pb-1.5">
-                        <span class="flex items-center space-x-1.5">
-                            <i class="fa-solid fa-database text-slate-500"></i>
-                            <span>Estado IndexedDB</span>
-                        </span>
-                        <span id="dbRecordCount" class="bg-slate-200 text-slate-700 px-1.5 py-0.5 rounded text-[10px]">0 reg.</span>
-                    </div>
-                    <div class="text-[11px] text-slate-500 space-y-1">
-                        <div class="flex justify-between">
-                            <span>Última Sincronización:</span>
-                        </div>
-                        <div id="lastSyncTimestamp" class="font-mono text-slate-700 font-medium text-right text-[11px]">
-                            Nunca
-                        </div>
-                    </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium uppercase">Total KG Cosechados</p>
+                    <h3 id="kpiTotalKg" class="text-xl font-extrabold text-slate-800">0.00</h3>
                 </div>
             </div>
 
-            <div class="p-4 lg:p-0 mt-auto pt-4 border-t border-slate-200 lg:border-t-0 text-center text-[11px] text-slate-400">
-                Agrícola Huarmey S.A. © 2026<br>
-                Sistema de Gestión Offline-First
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center space-x-4">
+                <div class="p-3 bg-blue-100 text-blue-600 rounded-lg">
+                    <i class="fa-solid fa-users text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium uppercase">Cosechadores Activos</p>
+                    <h3 id="kpiTotalCosechadores" class="text-xl font-extrabold text-slate-800">0</h3>
+                </div>
             </div>
-        </aside>
 
-        <!-- Overlay backdrop for mobile drawer -->
-        <div id="sidebarBackdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden lg:hidden"></div>
-
-        <!-- Main Content View Area -->
-        <main class="flex-1 min-w-0 space-y-6">
-
-            <!-- Global Interactive Filter Bar -->
-            <section class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm transition-all duration-200">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
-                    <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
-                        <i class="fa-solid fa-filter text-red-600"></i>
-                        <span>Filtros Dinámicos de Campo</span>
-                    </div>
-                    <button id="btnClearFilters" class="self-end sm:self-auto text-xs text-red-600 hover:text-red-800 font-medium flex items-center space-x-1 bg-red-50 px-2.5 py-1 rounded-lg border border-red-100 transition">
-                        <i class="fa-solid fa-arrow-rotate-left"></i>
-                        <span>Limpiar Filtros</span>
-                    </button>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center space-x-4">
+                <div class="p-3 bg-emerald-100 text-emerald-600 rounded-lg">
+                    <i class="fa-solid fa-chart-line text-xl"></i>
                 </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium uppercase">Promedio KG/Día</p>
+                    <h3 id="kpiPromedioKgDia" class="text-xl font-extrabold text-slate-800">0.00</h3>
+                </div>
+            </div>
 
-                <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3 mt-3">
-                    <!-- Fecha -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex items-center space-x-4">
+                <div class="p-3 bg-amber-100 text-amber-600 rounded-lg">
+                    <i class="fa-solid fa-calendar-days text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-slate-500 font-medium uppercase">Días Cosechados</p>
+                    <h3 id="kpiDiasCosechados" class="text-xl font-extrabold text-slate-800">0</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-b border-slate-200 mb-6 bg-white rounded-t-xl px-2 pt-2 shadow-sm flex space-x-1 sm:space-x-4 overflow-x-auto custom-scrollbar">
+            <button class="tab-btn px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent hover:text-red-600 transition-all active" onclick="switchTab('tab1')">
+                <i class="fa-solid fa-list-check mr-1.5"></i> Resumen Final por Cosechador
+            </button>
+            <button class="tab-btn px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent hover:text-red-600 transition-all" onclick="switchTab('tab2')">
+                <i class="fa-solid fa-calendar-week mr-1.5"></i> Resumen por Fecha
+            </button>
+            <button class="tab-btn px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent hover:text-red-600 transition-all" onclick="switchTab('tab3')">
+                <i class="fa-solid fa-ranking-star mr-1.5"></i> Ranking Diario Cosecha
+            </button>
+            <button class="tab-btn px-4 py-3 text-sm font-semibold text-slate-600 border-b-2 border-transparent hover:text-red-600 transition-all" onclick="switchTab('tab4')">
+                <i class="fa-solid fa-id-card mr-1.5"></i> Detalle Cosechador
+            </button>
+        </div>
+
+        <div id="tab1" class="tab-content block space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                            <i class="fa-regular fa-calendar mr-1 text-slate-400"></i>Fecha
-                        </label>
-                        <select id="filterFecha" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 p-2">
-                            <option value="">Todas las fechas</option>
-                        </select>
+                        <h2 class="text-base font-bold text-slate-800">Tabla 1: Resumen Final por Cosechador</h2>
+                        <p class="text-xs text-slate-500">Métricas acumuladas de producción por trabajador</p>
                     </div>
 
-                    <!-- Semana -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                            <i class="fa-solid fa-calendar-week mr-1 text-slate-400"></i>Semana
-                        </label>
-                        <select id="filterSemana" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 p-2">
-                            <option value="">Todas las semanas</option>
-                        </select>
-                    </div>
-
-                    <!-- Categ 2026 -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                            <i class="fa-solid fa-layer-group mr-1 text-slate-400"></i>Categoría
-                        </label>
-                        <select id="filterCateg" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 p-2">
-                            <option value="">Todas las categ.</option>
-                        </select>
-                    </div>
-
-                    <!-- Modalidad -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                            <i class="fa-solid fa-bus-simple mr-1 text-slate-400"></i>Modalidad
-                        </label>
-                        <select id="filterModalidad" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 p-2">
-                            <option value="">Todas las modalidades</option>
-                        </select>
-                    </div>
-
-                    <!-- Rango % -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                            <i class="fa-solid fa-chart-simple mr-1 text-slate-400"></i>Rango %
-                        </label>
-                        <select id="filterRango" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 p-2">
-                            <option value="">Todos los rangos</option>
-                            <option value="MALO">🔴 MALO (0% - 85%)</option>
-                            <option value="REGULAR">🟠 REGULAR (86% - 99%)</option>
-                            <option value="BUENO">🟢 BUENO (100% - 104%)</option>
-                            <option value="EXCELENTE">🔵 EXCELENTE (≥105%)</option>
-                        </select>
-                    </div>
-
-                    <!-- Variedad / Search Optional -->
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
-                            <i class="fa-solid fa-apple-whole mr-1 text-slate-400"></i>Variedad
-                        </label>
-                        <select id="filterVariedad" class="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 p-2">
-                            <option value="">Todas las variedades</option>
-                        </select>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ======================================================== -->
-            <!-- PAGE 1: DASHBOARD COSECHA -->
-            <!-- ======================================================== -->
-            <section id="page-p1" class="page-view space-y-6">
-                <!-- KPI CARDS -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <!-- KPI 1: TOTAL KG -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden flex items-center justify-between hover:shadow-md transition">
-                        <div class="space-y-1">
-                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Total KG Cosechados</p>
-                            <h3 id="kpiTotalKg" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">0 KG</h3>
-                            <span class="inline-flex items-center text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md">
-                                <i class="fa-solid fa-weight-hanging mr-1"></i> Producción Total
-                            </span>
+                    <div class="flex items-center space-x-3">
+                        <div class="relative flex-grow md:w-64">
+                            <input type="text" id="p1SearchInput" placeholder="Buscar cosechador o DNI..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all">
+                            <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                         </div>
-                        <div class="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center text-2xl shadow-inner">
-                            <i class="fa-solid fa-basket-shopping"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-red-600"></div>
-                    </div>
-
-                    <!-- KPI 2: TOTAL CUMP. % -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden flex items-center justify-between hover:shadow-md transition">
-                        <div class="space-y-1">
-                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Cumplimiento General</p>
-                            <h3 id="kpiTotalCump" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">0.0 %</h3>
-                            <span id="kpiCumpBadge" class="inline-flex items-center text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md">
-                                <i class="fa-solid fa-chart-line mr-1"></i> Meta Cosecha
-                            </span>
-                        </div>
-                        <div class="w-14 h-14 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl shadow-inner">
-                            <i class="fa-solid fa-bullseye"></i>
-                        </div>
-                        <div id="kpiCumpBar" class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-600"></div>
-                    </div>
-
-                    <!-- KPI 3: TOTAL COSECHADORES -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm relative overflow-hidden flex items-center justify-between hover:shadow-md transition">
-                        <div class="space-y-1">
-                            <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Cosechadores Únicos</p>
-                            <h3 id="kpiTotalCosechadores" class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">0</h3>
-                            <span class="inline-flex items-center text-[11px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md">
-                                <i class="fa-solid fa-users mr-1"></i> Personal en Campo
-                            </span>
-                        </div>
-                        <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-2xl shadow-inner">
-                            <i class="fa-solid fa-user-check"></i>
-                        </div>
-                        <div class="absolute bottom-0 left-0 right-0 h-1 bg-blue-600"></div>
-                    </div>
-                </div>
-
-                <!-- CHARTS ROW (DONUT MODALIDAD & DONUT SEXO) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Donut Modalidad -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h4 class="font-bold text-slate-800 text-sm flex items-center">
-                                <i class="fa-solid fa-chart-pie mr-2 text-red-600"></i>
-                                Distribución por Modalidad
-                            </h4>
-                            <span class="text-xs text-slate-400">Cosechadores %</span>
-                        </div>
-                        <div class="relative h-60 flex items-center justify-center">
-                            <canvas id="chartModalidad"></canvas>
-                        </div>
-                        <div id="chartModalidadLegend" class="mt-4 grid grid-cols-2 gap-2 text-xs"></div>
-                    </div>
-
-                    <!-- Donut Sexo -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h4 class="font-bold text-slate-800 text-sm flex items-center">
-                                <i class="fa-solid fa-venus-mars mr-2 text-blue-600"></i>
-                                Distribución por Sexo
-                            </h4>
-                            <span class="text-xs text-slate-400">Cosechadores %</span>
-                        </div>
-                        <div class="relative h-60 flex items-center justify-center">
-                            <canvas id="chartSexo"></canvas>
-                        </div>
-                        <div id="chartSexoLegend" class="mt-4 grid grid-cols-2 gap-2 text-xs"></div>
-                    </div>
-                </div>
-
-                <!-- TABLES ROW (RESUMEN POR FECHA & TABLA MODALIDAD & TOP 10) -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    
-                    <!-- Resumen por Fecha (Col-span 2) -->
-                    <div class="lg:col-span-2 bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <h4 class="font-bold text-slate-800 text-sm flex items-center">
-                                    <i class="fa-solid fa-calendar-day mr-2 text-emerald-600"></i>
-                                    Resumen por Fecha
-                                </h4>
-                                <span class="text-xs text-slate-400">Cálculo: Promedio = Total KG / Cosechadores</span>
-                            </div>
-
-                            <div class="overflow-x-auto rounded-xl border border-slate-200">
-                                <table class="w-full text-xs text-left text-slate-600">
-                                    <thead class="text-[11px] text-slate-500 uppercase bg-slate-100/80 border-b border-slate-200">
-                                        <tr>
-                                            <th scope="col" class="px-4 py-3 cursor-pointer select-none" onclick="sortPage1Fecha('fecha')">
-                                                Fecha <i class="fa-solid fa-sort ml-1"></i>
-                                            </th>
-                                            <th scope="col" class="px-4 py-3 cursor-pointer select-none text-right" onclick="sortPage1Fecha('kg')">
-                                                Total KG <i class="fa-solid fa-sort ml-1"></i>
-                                            </th>
-                                            <th scope="col" class="px-4 py-3 cursor-pointer select-none text-right" onclick="sortPage1Fecha('cosechadores')">
-                                                Cosechadores <i class="fa-solid fa-sort ml-1"></i>
-                                            </th>
-                                            <th scope="col" class="px-4 py-3 text-right">
-                                                Total Promedio
-                                            </th>
-                                            <th scope="col" class="px-4 py-3 text-center">
-                                                Tendencia
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="p1ResumenFechaBody" class="divide-y divide-slate-100">
-                                        <!-- Dynamic JS -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        
-                        <!-- Simple Pagination -->
-                        <div class="mt-4 flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
-                            <span id="p1FechaPageInfo">Mostrando 0 de 0</span>
-                            <div class="flex space-x-1">
-                                <button id="p1FechaPrev" class="px-2.5 py-1 border rounded bg-slate-50 hover:bg-slate-100 text-slate-600 disabled:opacity-40">Anterior</button>
-                                <button id="p1FechaNext" class="px-2.5 py-1 border rounded bg-slate-50 hover:bg-slate-100 text-slate-600 disabled:opacity-40">Siguiente</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tabla Comparativa Modalidad (Campamento vs Ida y Vuelta) -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm flex flex-col justify-between">
-                        <div>
-                            <h4 class="font-bold text-slate-800 text-sm mb-4 flex items-center">
-                                <i class="fa-solid fa-campground mr-2 text-amber-600"></i>
-                                Comparativa por Modalidad
-                            </h4>
-
-                            <div class="overflow-x-auto rounded-xl border border-slate-200">
-                                <table class="w-full text-xs text-left text-slate-600">
-                                    <thead class="text-[11px] text-slate-500 uppercase bg-slate-100/80 border-b border-slate-200">
-                                        <tr>
-                                            <th class="px-3 py-2.5">Modalidad</th>
-                                            <th class="px-3 py-2.5 text-right">Cosech.</th>
-                                            <th class="px-3 py-2.5 text-right">Cump. %</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="p1ModalidadBody" class="divide-y divide-slate-100">
-                                        <!-- Dynamic JS -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <div class="mt-6 p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-[11px] text-slate-500">
-                            <i class="fa-solid fa-circle-info mr-1 text-slate-400"></i>
-                            Contrapone rendimiento de personal en <b>CAMPAMENTO</b> vs <b>IDA Y VUELTA</b>.
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- TOP 10 COSECHADORES RANKING -->
-                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm">
-                    <div class="flex items-center justify-between mb-4">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center">
-                            <i class="fa-solid fa-trophy mr-2 text-amber-500"></i>
-                            Ranking Top 10 Cosechadores de Arándanos
-                        </h4>
-                        <span class="text-xs text-slate-400">Basado en Rendimiento Acumulado</span>
-                    </div>
-
-                    <div class="overflow-x-auto rounded-xl border border-slate-200">
-                        <table class="w-full text-xs text-left text-slate-600">
-                            <thead class="text-[11px] text-slate-500 uppercase bg-slate-100/80 border-b border-slate-200">
-                                <tr>
-                                    <th class="px-4 py-3 text-center">Rank</th>
-                                    <th class="px-4 py-3">Apellidos y Nombres</th>
-                                    <th class="px-4 py-3">Modalidad</th>
-                                    <th class="px-4 py-3 text-right">Total Días</th>
-                                    <th class="px-4 py-3 text-right">Total KG</th>
-                                    <th class="px-4 py-3 text-right">Total Promedio (KG/Día)</th>
-                                </tr>
-                            </thead>
-                            <tbody id="p1Top10Body" class="divide-y divide-slate-100 font-medium">
-                                <!-- Dynamic JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </section>
-
-            <!-- ======================================================== -->
-            <!-- PAGE 2: REPORTE DETALLADO -->
-            <!-- ======================================================== -->
-            <section id="page-p2" class="page-view space-y-4 hidden">
-                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-                    
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-                        <!-- Search Box -->
-                        <div class="relative flex-1 max-w-md">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                            <input id="p2SearchInput" type="text" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                        </div>
-
-                        <!-- Export Button -->
-                        <div class="flex items-center space-x-3">
-                            <button onclick="exportToExcel('p2Table', 'Reporte_Detallado_Cosecha')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-1.5">
-                                <i class="fa-solid fa-file-excel"></i>
-                                <span>Exportar a Excel</span>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Compliance Range Legend -->
-                    <div class="flex flex-wrap items-center gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-600">
-                        <span class="font-bold text-slate-700">Leyenda Rango %:</span>
-                        <span class="px-2 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-200 font-medium">🔴 MALO (0% – 85%)</span>
-                        <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 font-medium">🟠 REGULAR (86% – 99%)</span>
-                        <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 font-medium">🟢 BUENO (100% – 104%)</span>
-                        <span class="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 border border-blue-200 font-medium">🔵 EXCELENTE (≥105%)</span>
-                    </div>
-
-                    <!-- Data Table -->
-                    <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-[600px] table-sticky-header">
-                        <table id="p2Table" class="w-full text-xs text-left text-slate-600">
-                            <thead class="text-[11px] text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
-                                <tr>
-                                    <th class="px-3 py-3">FECHA</th>
-                                    <th class="px-3 py-3">DNI</th>
-                                    <th class="px-3 py-3">APELLIDOS Y NOMBRES</th>
-                                    <th class="px-3 py-3">HISTORICO</th>
-                                    <th class="px-3 py-3">MODALIDAD</th>
-                                    <th class="px-3 py-3">VARIEDAD</th>
-                                    <th class="px-3 py-3">MODULO|TURNO</th>
-                                    <th class="px-3 py-3">LABOR</th>
-                                    <th class="px-3 py-3 text-right">TOTAL KG</th>
-                                    <th class="px-3 py-3 text-right">META</th>
-                                    <th class="px-3 py-3 text-right">CUMP. %</th>
-                                    <th class="px-3 py-3">CATEG. 2026</th>
-                                    <th class="px-3 py-3 text-center">RANGO %</th>
-                                </tr>
-                            </thead>
-                            <tbody id="p2TableBody" class="divide-y divide-slate-100">
-                                <!-- Dynamic JS -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs text-slate-500">
-                        <span id="p2PageInfo">Mostrando 0 a 0 de 0 registros</span>
-                        <div id="p2Pagination" class="flex items-center space-x-1"></div>
-                    </div>
-
-                </div>
-            </section>
-
-            <!-- ======================================================== -->
-            <!-- PAGE 3: REPORTE FECHAS KG -->
-            <!-- ======================================================== -->
-            <section id="page-p3" class="page-view space-y-4 hidden">
-                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <div class="relative flex-1 max-w-md w-full">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                            <input id="p3SearchInput" type="text" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                        </div>
-                        <button onclick="exportToExcel('p3Table', 'Reporte_Fechas_KG')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-1.5 self-end sm:self-auto">
-                            <i class="fa-solid fa-file-excel"></i>
-                            <span>Exportar Excel</span>
-                        </button>
-                    </div>
-
-                    <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-[600px] table-sticky-header">
-                        <table id="p3Table" class="w-full text-xs text-left text-slate-600">
-                            <thead id="p3Thead" class="text-[11px] text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
-                                <!-- Dynamic Pivot Columns -->
-                            </thead>
-                            <tbody id="p3Tbody" class="divide-y divide-slate-100">
-                                <!-- Dynamic Rows -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs text-slate-500">
-                        <span id="p3PageInfo">Mostrando 0 de 0 registros</span>
-                        <div id="p3Pagination" class="flex items-center space-x-1"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ======================================================== -->
-            <!-- PAGE 4: REPORTE FECHAS CUMP. % -->
-            <!-- ======================================================== -->
-            <section id="page-p4" class="page-view space-y-4 hidden">
-                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <div class="relative flex-1 max-w-md w-full">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                            <input id="p4SearchInput" type="text" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                        </div>
-                        <button onclick="exportToExcel('p4Table', 'Reporte_Fechas_Cumplimiento')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-1.5 self-end sm:self-auto">
-                            <i class="fa-solid fa-file-excel"></i>
-                            <span>Exportar Excel</span>
-                        </button>
-                    </div>
-
-                    <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-[600px] table-sticky-header">
-                        <table id="p4Table" class="w-full text-xs text-left text-slate-600">
-                            <thead id="p4Thead" class="text-[11px] text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
-                                <!-- Dynamic Pivot Header -->
-                            </thead>
-                            <tbody id="p4Tbody" class="divide-y divide-slate-100">
-                                <!-- Dynamic Pivot Body -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs text-slate-500">
-                        <span id="p4PageInfo">Mostrando 0 de 0 registros</span>
-                        <div id="p4Pagination" class="flex items-center space-x-1"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ======================================================== -->
-            <!-- PAGE 5: REPORTE REG. ÚNICOS -->
-            <!-- ======================================================== -->
-            <section id="page-p5" class="page-view space-y-4 hidden">
-                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <div class="relative flex-1 max-w-md w-full">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                            <input id="p5SearchInput" type="text" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                        </div>
-                        <button onclick="exportToExcel('p5Table', 'Reporte_Registros_Unicos')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-1.5 self-end sm:self-auto">
-                            <i class="fa-solid fa-file-excel"></i>
-                            <span>Exportar Excel</span>
-                        </button>
-                    </div>
-
-                    <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-[600px] table-sticky-header">
-                        <table id="p5Table" class="w-full text-xs text-left text-slate-600">
-                            <thead class="text-[11px] text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
-                                <tr>
-                                    <th class="px-3 py-3">FECHA</th>
-                                    <th class="px-3 py-3">DNI</th>
-                                    <th class="px-3 py-3">APELLIDOS Y NOMBRES</th>
-                                    <th class="px-3 py-3">ACTIVIDAD</th>
-                                    <th class="px-3 py-3 text-right">TOTAL HRS</th>
-                                    <th class="px-3 py-3 text-right">TOTAL KG</th>
-                                    <th class="px-3 py-3 text-right">META</th>
-                                    <th class="px-3 py-3 text-center">RANGO %</th>
-                                    <th class="px-3 py-3 text-right">CUMP. %</th>
-                                    <th class="px-3 py-3">SEMANA</th>
-                                    <th class="px-3 py-3">DIA</th>
-                                    <th class="px-3 py-3">HISTORICO</th>
-                                    <th class="px-3 py-3">MODALIDAD</th>
-                                    <th class="px-3 py-3">SEXO</th>
-                                    <th class="px-3 py-3">CATEG. 2026</th>
-                                </tr>
-                            </thead>
-                            <tbody id="p5Tbody" class="divide-y divide-slate-100">
-                                <!-- Dynamic JS -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs text-slate-500">
-                        <span id="p5PageInfo">Mostrando 0 de 0 registros</span>
-                        <div id="p5Pagination" class="flex items-center space-x-1"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ======================================================== -->
-            <!-- PAGE 6: REPORTE PLACAS TDP -->
-            <!-- ======================================================== -->
-            <section id="page-p6" class="page-view space-y-4 hidden">
-                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-                        <div class="relative flex-1 max-w-md w-full">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                            <input id="p6SearchInput" type="text" placeholder="Buscar por DNI o Apellidos..." class="w-full pl-9 pr-4 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                        </div>
-                        <button onclick="exportToExcel('p6Table', 'Reporte_Placas_TDP')" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow-sm transition flex items-center space-x-1.5 self-end sm:self-auto">
-                            <i class="fa-solid fa-file-excel"></i>
-                            <span>Exportar Excel</span>
-                        </button>
-                    </div>
-
-                    <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-[600px] table-sticky-header">
-                        <table id="p6Table" class="w-full text-xs text-left text-slate-600">
-                            <thead id="p6Thead" class="text-[11px] text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
-                                <!-- Dynamic Transport Headers -->
-                            </thead>
-                            <tbody id="p6Tbody" class="divide-y divide-slate-100">
-                                <!-- Dynamic Transport Rows -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 text-xs text-slate-500">
-                        <span id="p6PageInfo">Mostrando 0 de 0 registros</span>
-                        <div id="p6Pagination" class="flex items-center space-x-1"></div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ======================================================== -->
-            <!-- PAGE 7: REPORTE FINAL -->
-            <!-- ======================================================== -->
-            <section id="page-p7" class="page-view space-y-6 hidden">
-                <!-- Tabla 1: Resumen General por Cosechador -->
-                <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-                    <div class="flex items-center justify-between">
-                        <h4 class="font-bold text-slate-800 text-sm flex items-center">
-                            <i class="fa-solid fa-list-check mr-2 text-red-600"></i>
-                            Tabla 1: Resumen Final por Cosechador
-                        </h4>
-                        <button onclick="exportToExcel('p7Table1', 'Reporte_Final_Cosechadores')" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold shadow-sm transition flex items-center space-x-1">
+                        <button onclick="exportToExcel('table1Data', 'Resumen_Final_Cosechadores')" class="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-1 shadow-sm">
                             <i class="fa-solid fa-file-excel"></i>
                             <span>Excel</span>
                         </button>
                     </div>
+                </div>
 
-                    <div class="overflow-x-auto rounded-xl border border-slate-200">
-                        <table id="p7Table1" class="w-full text-xs text-left text-slate-600">
-                            <thead class="text-[11px] text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
-                                <tr>
-                                    <th class="px-3 py-2.5">DNI</th>
-                                    <th class="px-3 py-2.5">APELLIDOS Y NOMBRES</th>
-                                    <th class="px-3 py-2.5">MODALIDAD</th>
-                                    <th class="px-3 py-2.5">HISTORICO</th>
-                                    <th class="px-3 py-2.5 text-right">CUMP. %</th>
-                                    <th class="px-3 py-2.5 text-right">TOTAL DÍAS</th>
-                                    <th class="px-3 py-2.5">CATEG. 2026</th>
-                                </tr>
-                            </thead>
-                            <tbody id="p7Tbody1" class="divide-y divide-slate-100">
-                                <!-- Dynamic JS -->
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div class="flex items-center justify-between pt-1 text-xs text-slate-500">
-                        <span id="p7PageInfo1">Mostrando 0 de 0</span>
-                        <div id="p7Pagination1" class="flex items-center space-x-1"></div>
+                <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 mb-4 text-xs text-slate-600">
+                    <span id="p1PaginationInfo">Mostrando 0 a 0 de 0 registros</span>
+                    <div class="flex space-x-1">
+                        <button id="p1PrevBtn" class="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-50">Anterior</button>
+                        <button id="p1NextBtn" class="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-50">Siguiente</button>
                     </div>
                 </div>
 
-                <!-- Tabla 2 y Tabla 3 (Grid) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Tabla 2: Modalidad x Historico -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-slate-800 text-sm flex items-center">
-                                <i class="fa-solid fa-chart-column mr-2 text-blue-600"></i>
-                                Tabla 2: Modalidad x Histórico
-                            </h4>
-                            <button onclick="exportToExcel('p7Table2', 'Resumen_Modalidad_Historico')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium">
-                                Excel
-                            </button>
-                        </div>
-                        <div class="overflow-x-auto rounded-xl border border-slate-200">
-                            <table id="p7Table2" class="w-full text-xs text-left text-slate-600">
-                                <thead class="text-[11px] text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
-                                    <tr>
-                                        <th class="px-3 py-2.5">MODALIDAD</th>
-                                        <th class="px-3 py-2.5">HISTORICO</th>
-                                        <th class="px-3 py-2.5 text-right">TOTAL KG</th>
-                                        <th class="px-3 py-2.5 text-right">CUMP. %</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="p7Tbody2" class="divide-y divide-slate-100">
-                                    <!-- Dynamic JS -->
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table id="table1Data" class="w-full text-xs text-left text-slate-700">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 border-b border-slate-200">
+                            <tr>
+                                <th class="px-3 py-3 text-center">N°</th>
+                                <th class="px-3 py-3">DNI</th>
+                                <th class="px-3 py-3">Nombres y Apellidos</th>
+                                <th class="px-3 py-3 text-center">CATEG. 2026</th>
+                                <th class="px-3 py-3 text-right">TOTAL KG</th>
+                                <th class="px-3 py-3 text-center">DÍAS TRAB.</th>
+                                <th class="px-3 py-3 text-right">PROM. KG/DÍA</th>
+                            </tr>
+                        </thead>
+                        <tbody id="p1TableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="7" class="text-center py-6 text-slate-400">Cargando datos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab2" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">Tabla 2: Resumen por Fecha</h2>
+                        <p class="text-xs text-slate-500">Métricas agregadas por día de labores</p>
                     </div>
 
-                    <!-- Tabla 3: Modalidad x Categ 2026 -->
-                    <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-4">
-                        <div class="flex items-center justify-between">
-                            <h4 class="font-bold text-slate-800 text-sm flex items-center">
-                                <i class="fa-solid fa-pie-chart mr-2 text-emerald-600"></i>
-                                Tabla 3: Modalidad x Categ. 2026
-                            </h4>
-                            <button onclick="exportToExcel('p7Table3', 'Resumen_Modalidad_Categoria')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded text-xs font-medium">
-                                Excel
-                            </button>
+                    <div class="flex items-center space-x-3">
+                        <div class="relative flex-grow md:w-64">
+                            <input type="text" id="p2SearchInput" placeholder="Buscar fecha (AAAA-MM-DD)..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all">
+                            <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                         </div>
-                        <div class="overflow-x-auto rounded-xl border border-slate-200">
-                            <table id="p7Table3" class="w-full text-xs text-left text-slate-600">
-                                <thead class="text-[11px] text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
-                                    <tr>
-                                        <th class="px-3 py-2.5">MODALIDAD</th>
-                                        <th class="px-3 py-2.5">CATEG. 2026</th>
-                                        <th class="px-3 py-2.5 text-right">TOTAL KG</th>
-                                        <th class="px-3 py-2.5 text-right">CUMP. %</th>
-                                        <th class="px-3 py-2.5 text-right">% KG</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="p7Tbody3" class="divide-y divide-slate-100">
-                                    <!-- Dynamic JS -->
-                                </tbody>
-                            </table>
-                        </div>
+                        <button onclick="exportToExcel('table2Data', 'Resumen_Por_Fecha')" class="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-1 shadow-sm">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Excel</span>
+                        </button>
                     </div>
                 </div>
-            </section>
 
-        </main>
-    </div>
+                <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 mb-4 text-xs text-slate-600">
+                    <span id="p2PaginationInfo">Mostrando 0 a 0 de 0 registros</span>
+                    <div class="flex space-x-1">
+                        <button id="p2PrevBtn" class="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-50">Anterior</button>
+                        <button id="p2NextBtn" class="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-50">Siguiente</button>
+                    </div>
+                </div>
 
-    <!-- Custom Toast Notification Box (Replaces alert()) -->
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table id="table2Data" class="w-full text-xs text-left text-slate-700">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 border-b border-slate-200">
+                            <tr>
+                                <th class="px-3 py-3 text-center">N°</th>
+                                <th class="px-3 py-3">FECHA</th>
+                                <th class="px-3 py-3 text-center">TOTAL PERSONAS</th>
+                                <th class="px-3 py-3 text-right">TOTAL KG</th>
+                                <th class="px-3 py-3 text-right">TOTAL PROMEDIO</th>
+                            </tr>
+                        </thead>
+                        <tbody id="p2TableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="5" class="text-center py-6 text-slate-400">Cargando datos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab3" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">Tabla 3: Ranking Diario Cosecha</h2>
+                        <p class="text-xs text-slate-500">Rendimiento individual agrupado por fecha</p>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <div class="relative flex-grow md:w-64">
+                            <input type="text" id="p3SearchInput" placeholder="Buscar por fecha, cosechador o DNI..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all">
+                            <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        </div>
+                        <button onclick="exportToExcel('table3Data', 'Ranking_Diario_Cosecha')" class="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-1 shadow-sm">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 mb-4 text-xs text-slate-600">
+                    <span id="p3PaginationInfo">Mostrando 0 a 0 de 0 registros</span>
+                    <div class="flex space-x-1">
+                        <button id="p3PrevBtn" class="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-50">Anterior</button>
+                        <button id="p3NextBtn" class="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-50">Siguiente</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table id="table3Data" class="w-full text-xs text-left text-slate-700">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 border-b border-slate-200">
+                            <tr>
+                                <th class="px-3 py-3 text-center">POSICIÓN</th>
+                                <th class="px-3 py-3">FECHA</th>
+                                <th class="px-3 py-3">DNI</th>
+                                <th class="px-3 py-3">NOMBRES Y APELLIDOS</th>
+                                <th class="px-3 py-3 text-right">TOTAL KG</th>
+                            </tr>
+                        </thead>
+                        <tbody id="p3TableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="5" class="text-center py-6 text-slate-400">Cargando datos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab4" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <h2 class="text-base font-bold text-slate-800">Detalle Individual de Cosechador</h2>
+                        <p class="text-xs text-slate-500">Histórico completo de entregas y jornadas por trabajador</p>
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <div class="relative flex-grow md:w-64">
+                            <input type="text" id="p4SearchInput" placeholder="Buscar DNI o nombre..." class="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition-all">
+                            <i class="fa-solid fa-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        </div>
+                        <button onclick="exportToExcel('table4Data', 'Detalle_Cosechador')" class="px-3 py-1.5 text-xs bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-1 shadow-sm">
+                            <i class="fa-solid fa-file-excel"></i>
+                            <span>Excel</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 mb-4 text-xs text-slate-600">
+                    <span id="p4PaginationInfo">Mostrando 0 a 0 de 0 registros</span>
+                    <div class="flex space-x-1">
+                        <button id="p4PrevBtn" class="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-50">Anterior</button>
+                        <button id="p4NextBtn" class="px-2 py-1 bg-white border border-slate-300 rounded hover:bg-slate-100 disabled:opacity-50">Siguiente</button>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table id="table4Data" class="w-full text-xs text-left text-slate-700">
+                        <thead class="text-xs uppercase bg-slate-100 text-slate-600 border-b border-slate-200">
+                            <tr>
+                                <th class="px-3 py-3 text-center">N°</th>
+                                <th class="px-3 py-3">FECHA</th>
+                                <th class="px-3 py-3">DNI</th>
+                                <th class="px-3 py-3">NOMBRES Y APELLIDOS</th>
+                                <th class="px-3 py-3 text-right">TOTAL KG</th>
+                            </tr>
+                        </thead>
+                        <tbody id="p4TableBody" class="divide-y divide-slate-100">
+                            <tr><td colspan="5" class="text-center py-6 text-slate-400">Cargando datos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-4 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center text-xs text-slate-500">
+            <p>&copy; 2026 Agrícola Huarmey - Control y Cosecha de Arándanos. Todos los derechos reservados.</p>
+        </div>
+    </footer>
 
     <script>
-        /**
-         * PWA DASHBOARD DE GESTIÓN DE COSECHA DE ARÁNDANOS - AGRÍCOLA HUARMEY
-         * Architecture: Offline-First + IndexedDB Cache + Dynamic Filtering & Pivot Analytics
-         */
-
-        // API URL provided in specification
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxueJ5sGCIOHiYULj0328wZRjE5gvZFy9S-UkqR-ANlou2sk3sUtCX73qY7bnj3K-rq/exec";
-
-        // Global State Engine
+        // Global App State
         const AppState = {
-            rawDetalle: [],
-            rawTdp: [],
-            rawUnicos: [],
-            rawReporte: [],
-            filteredDetalle: [],
-            filteredTdp: [],
-            filteredUnicos: [],
-            activePage: 'p1',
-            lastSyncTimestamp: null,
-            isOnline: navigator.onLine,
+            rawRows: [],
+            pageSize: 15,
             currentPageState: {
-                p1FechaPage: 1,
+                p1Page: 1,
                 p2Page: 1,
                 p3Page: 1,
-                p4Page: 1,
-                p5Page: 1,
-                p6Page: 1,
-                p7Page1: 1
-            },
-            sortState: {
-                p1Fecha: { field: 'fecha', dir: 'desc' }
-            },
-            charts: {
-                modalidad: null,
-                sexo: null
+                p4Page: 1
             }
         };
 
-        // Utility: Safe value formatter according to Spec Rule 26 & 20
-        function formatSafeText(val, fallback = 'SIN DATOS') {
-            if (val === null || val === undefined || val === '' || String(val).trim() === '') {
-                return fallback;
-            }
-            return String(val).trim();
+        // Utility: Convert text value to clean Float Number
+        function cleanFloat(value) {
+            if (value === null || value === undefined) return 0;
+            if (typeof value === 'number') return isNaN(value) ? 0 : value;
+            let str = String(value).replace(',', '.').replace(/[^0-9.-]/g, '');
+            let parsed = parseFloat(str);
+            return isNaN(parsed) ? 0 : parsed;
         }
 
-        function formatNumber(num, decimals = 0) {
-            if (num === null || num === undefined || isNaN(num) || !isFinite(num)) return 'N/D';
-            return new Intl.NumberFormat('es-PE', {
-                minimumFractionDigits: decimals,
-                maximumFractionDigits: decimals
-            }).format(num);
-        }
-
-        function formatKg(num) {
-            if (num === null || num === undefined || isNaN(num) || !isFinite(num)) return 'N/D';
-            return `${formatNumber(num, 0)} KG`;
-        }
-
-        function formatPercent(num) {
-            if (num === null || num === undefined || isNaN(num) || !isFinite(num)) return 'N/D';
-            return `${formatNumber(num, 1)} %`;
-        }
-
-        function formatDate(dateStr) {
-            if (!dateStr || dateStr === 'SIN DATOS') return 'SIN DATOS';
-            try {
-                if (dateStr.includes('T')) {
-                    const d = new Date(dateStr);
-                    if (!isNaN(d.getTime())) {
-                        const day = String(d.getDate()).padStart(2, '0');
-                        const month = String(d.getMonth() + 1).padStart(2, '0');
-                        const year = d.getFullYear();
-                        return `${day}/${month}/${year}`;
-                    }
-                }
-                return dateStr;
-            } catch (e) {
-                return dateStr;
-            }
-        }
-
-        // Compliance Range Classification (Spec Section 4)
-        function getComplianceRange(cumpVal) {
-            if (cumpVal === null || cumpVal === undefined || isNaN(cumpVal)) return { label: 'SIN DATOS', colorClass: 'bg-slate-100 text-slate-700', icon: '⚪' };
-            const val = parseFloat(cumpVal);
-            if (val <= 85) {
-                return { label: 'MALO', colorClass: 'bg-red-100 text-red-800 border-red-200', badgeHtml: '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-red-100 text-red-800">🔴 MALO</span>' };
-            } else if (val <= 99) {
-                return { label: 'REGULAR', colorClass: 'bg-amber-100 text-amber-800 border-amber-200', badgeHtml: '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-100 text-amber-800">🟠 REGULAR</span>' };
-            } else if (val <= 104) {
-                return { label: 'BUENO', colorClass: 'bg-emerald-100 text-emerald-800 border-emerald-200', badgeHtml: '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-800">🟢 BUENO</span>' };
-            } else {
-                return { label: 'EXCELENTE', colorClass: 'bg-blue-100 text-blue-800 border-blue-200', badgeHtml: '<span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-blue-100 text-blue-800">🔵 EXCELENTE</span>' };
-            }
-        }
-
-        // Toast notification system
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg border text-xs font-semibold flex items-center space-x-2 transition-all duration-300 transform translate-y-2 opacity-0 ${
-                type === 'success' ? 'bg-emerald-800 text-white border-emerald-700' :
-                type === 'error' ? 'bg-red-800 text-white border-red-700' :
-                type === 'warning' ? 'bg-amber-700 text-white border-amber-600' :
-                'bg-slate-800 text-white border-slate-700'
-            }`;
-
-            const icon = type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-exclamation' : type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-info';
-            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i><span>${message}</span>`;
+        // Tab Navigation Switcher
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             
-            container.appendChild(toast);
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-2', 'opacity-0');
-            });
-
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
+            document.getElementById(tabId).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
         }
 
-        /* IndexedDB Storage Engine for Offline-First Architecture */
-        const DB_NAME = 'AgricolaHuarmeyCosechaDB';
-        const DB_VERSION = 1;
-        let dbInstance = null;
-
+        // IndexedDB Local Database Layer
         function initIndexedDB() {
             return new Promise((resolve, reject) => {
-                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                const request = indexedDB.open('HuarmeyCosechaDB', 1);
                 request.onupgradeneeded = (e) => {
                     const db = e.target.result;
-                    if (!db.objectStoreNames.contains('sheets_cache')) {
-                        db.createObjectStore('sheets_cache', { keyPath: 'key' });
-                    }
-                    if (!db.objectStoreNames.contains('app_meta')) {
-                        db.createObjectStore('app_meta', { keyPath: 'key' });
+                    if (!db.objectStoreNames.contains('cosecha_records')) {
+                        db.createObjectStore('cosecha_records', { keyPath: 'id', autoIncrement: true });
                     }
                 };
-                request.onsuccess = (e) => {
-                    dbInstance = e.target.result;
-                    resolve(dbInstance);
-                };
-                request.onerror = (e) => {
-                    console.error('IndexedDB Error:', e);
-                    reject(e);
-                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e);
             });
         }
 
-        async function saveToIndexedDB(key, data) {
-            if (!dbInstance) await initIndexedDB();
-            return new Promise((resolve, reject) => {
-                const tx = dbInstance.transaction('sheets_cache', 'readwrite');
-                const store = tx.objectStore('sheets_cache');
-                store.put({ key, data, timestamp: new Date().toISOString() });
-                tx.oncomplete = () => resolve(true);
-                tx.onerror = () => reject(tx.error);
-            });
+        async function saveToLocalDB(records) {
+            const db = await initIndexedDB();
+            const tx = db.transaction('cosecha_records', 'readwrite');
+            const store = tx.objectStore('cosecha_records');
+            await store.clear();
+            records.forEach(r => store.add(r));
+            return tx.complete;
         }
 
-        async function getFromIndexedDB(key) {
-            if (!dbInstance) await initIndexedDB();
+        async function getFromLocalDB() {
+            const db = await initIndexedDB();
             return new Promise((resolve) => {
-                const tx = dbInstance.transaction('sheets_cache', 'readonly');
-                const store = tx.objectStore('sheets_cache');
-                const req = store.get(key);
-                req.onsuccess = () => resolve(req.result ? req.result.data : null);
-                req.onerror = () => resolve(null);
+                const tx = db.transaction('cosecha_records', 'readonly');
+                const store = tx.objectStore('cosecha_records');
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result || []);
+                request.onerror = () => resolve([]);
             });
         }
 
-        /* Mock Generator fallback for testing if API fails or offline without initial cache */
-        function generateFallbackDataset() {
-            const fechas = ['01/08/2026', '02/08/2026', '03/08/2026', '04/08/2026', '05/08/2026'];
-            const modalidades = ['CAMPAMENTO', 'IDA Y VUELTA'];
-            const sexos = ['M', 'F'];
-            const variedades = ['VENTURA', 'BILOXI', 'EMERALD'];
-            const categorias = ['CATEGORIA A', 'CATEGORIA B', 'PREMIUM'];
-            const placas = ['ABC-123', 'XYZ-987', 'TDP-456'];
-
-            const cosechadores = [
-                { dni: '72345678', nombre: 'GARCIA LOPEZ JUAN CARLOS' },
-                { dni: '45678912', nombre: 'MENDOZA PALACIOS MARIA ROSA' },
-                { dni: '71234567', nombre: 'RAMIREZ SILVA JOSE MANUEL' },
-                { dni: '74561238', nombre: 'TORRES TORRES ANA ISABEL' },
-                { dni: '48912345', nombre: 'HUAMAN VALENZUELA CARLOS' },
-                { dni: '73456789', nombre: 'SANTOS CHAVEZ LUIS FERNANDO' },
-                { dni: '41234567', nombre: 'PAREDES DIAZ SOFIA ELENA' },
-                { dni: '76543210', nombre: 'FLORES CASTRO JORGE ROBERTO' },
-                { dni: '49876543', nombre: 'VARGAS ESPINOZA ELENA LUZ' },
-                { dni: '75432109', nombre: 'QUISPE MENDOZA DANIEL HUGO' },
-                { dni: '78901234', nombre: 'MORALES AGUILAR PATRICIA' },
-                { dni: '43210987', nombre: 'GUTIERREZ ROJAS PEDRO PABLO' }
-            ];
-
-            const detalle = [];
-            const tdp = [];
-            const unicos = [];
-
-            fechas.forEach((f, idxF) => {
-                cosechadores.forEach((c, idxC) => {
-                    const mod = modalidades[(idxC + idxF) % 2];
-                    const sex = sexos[idxC % 2];
-                    const varName = variedades[(idxC + idxF) % 3];
-                    const cat = categorias[idxC % 3];
-                    const placa = placas[idxC % 3];
-
-                    const hrs = 8;
-                    const kg = Math.round(80 + Math.random() * 65); // 80 - 145 kg
-                    const meta = 110;
-                    const cump = Math.round((kg / meta) * 100);
-                    let rango = 'REGULAR';
-                    if (cump <= 85) rango = 'MALO';
-                    else if (cump <= 99) rango = 'REGULAR';
-                    else if (cump <= 104) rango = 'BUENO';
-                    else rango = 'EXCELENTE';
-
-                    const rowDet = {
-                        'DNI': c.dni,
-                        'FECHA': f,
-                        'SUPERVISOR': 'SUPERVISOR ' + ((idxC % 3) + 1),
-                        'MODULO|TURNO': 'MODULO ' + ((idxC % 2) + 1),
-                        'ACTIVIDAD': 'COSECHA',
-                        'LABOR': 'COSECHA DE ARÁNDANO',
-                        'TOTAL HRS': hrs,
-                        'TOTAL KG': kg,
-                        'AVANCE': kg,
-                        'ID META': 'M-101',
-                        'META (PROD.)': meta,
-                        'META': meta,
-                        'VARIEDAD': varName,
-                        'CUMP. %': cump,
-                        'CATEG. 2026': cat,
-                        'RANGO %': rango,
-                        'APELLIDOS Y NOMBRES': c.nombre,
-                        'MODALIDAD': mod,
-                        'HISTORICO': idxC % 2 === 0 ? 'RECURRENTE' : 'NUEVO',
-                        'SEXO': sex,
-                        'SEMANA': 'SEM 32',
-                        'DIA': 'DÍAS ' + (idxF + 1)
-                    };
-                    detalle.push(rowDet);
-
-                    const rowTdp = {
-                        ...rowDet,
-                        'PLACA': placa,
-                        'TIPO UNIDAD': 'BUS 50 PAS',
-                        'RUTA': 'HUARMEY - CAMPO 01',
-                        'TRANSPORTISTA': 'TRANSP. EL SOL',
-                        'MES': 'AGOSTO',
-                        'ID FECHA + DNI': `${f}_${c.dni}`
-                    };
-                    tdp.push(rowTdp);
-
-                    unicos.push({
-                        'FECHA': f,
-                        'DNI': c.dni,
-                        'APELLIDOS Y NOMBRES': c.nombre,
-                        'ACTIVIDAD': 'COSECHA',
-                        'TOTAL HRS': hrs,
-                        'TOTAL KG.': kg,
-                        'META': meta,
-                        'RANGO %': rango,
-                        'CUMP. %': cump,
-                        'SEMANA': 'SEM 32',
-                        'DIA': 'DÍA ' + (idxF + 1),
-                        'HISTORICO': rowDet['HISTORICO'],
-                        'MODALIDAD': mod,
-                        'SEXO': sex,
-                        'ID FECHA + DNI': `${f}_${c.dni}`,
-                        'CATEG. 2026': cat
-                    });
-                });
-            });
-
-            return { DETALLE: detalle, TDP: tdp, UNICOS: unicos, REPORTE: [] };
-        }
-
-        // Fetch Data Function with Offline Fallback
+        // Fetch sheet data or fallback to IndexedDB
         async function loadSheetData(forceRefresh = false) {
-            updateConnStatus('sync');
-            showToast('Sincronizando datos con Google Sheets...', 'info');
+            try {
+                // Modificar esta URL con la correspondiente URL publicada como web app o JSON
+                const url = 'https://script.google.com/macros/s/AKfycbwYOUR_SCRIPT_ID/exec'; 
+                
+                let data = [];
+                if (!forceRefresh) {
+                    data = await getFromLocalDB();
+                }
 
-            let dataset = null;
-
-            if (navigator.onLine) {
-                try {
-                    const response = await fetch(GAS_API_URL, { cache: 'no-store' });
-                    if (response.ok) {
-                        const json = await response.json();
-                        if (json && json.status === 'success' && json.data) {
-                            dataset = json.data;
-                            // Save to IndexedDB
-                            await saveToIndexedDB('latest_dataset', dataset);
-                            AppState.lastSyncTimestamp = new Date().toLocaleString('es-PE');
-                            await saveToIndexedDB('sync_timestamp', AppState.lastSyncTimestamp);
-                            updateConnStatus('online');
-                            showToast('Datos actualizados correctamente.', 'success');
-                        }
+                if (!data || data.length === 0 || forceRefresh) {
+                    const resp = await fetch(url);
+                    if (resp.ok) {
+                        data = await resp.json();
+                        await saveToLocalDB(data);
                     }
-                } catch (err) {
-                    console.warn('Error fetching Apps Script API:', err);
                 }
-            }
 
-            // Fallback to IndexedDB if API failed or offline
-            if (!dataset) {
-                dataset = await getFromIndexedDB('latest_dataset');
-                const cachedTime = await getFromIndexedDB('sync_timestamp');
-                if (dataset) {
-                    AppState.lastSyncTimestamp = cachedTime || 'Guardado local';
-                    updateConnStatus('local');
-                    showToast('Modo offline — mostrando datos de la última sincronización.', 'warning');
-                } else {
-                    // Generar mock si no existe ningún caché
-                    console.info('Generando base de datos inicial para demostración...');
-                    dataset = generateFallbackDataset();
-                    await saveToIndexedDB('latest_dataset', dataset);
-                    AppState.lastSyncTimestamp = new Date().toLocaleString('es-PE') + ' (Demo Local)';
-                    updateConnStatus('offline');
-                    showToast('Cargada información offline predeterminada.', 'info');
+                AppState.rawRows = data || [];
+                renderDashboard();
+            } catch (err) {
+                console.warn('Error al conectar remote data, intentando IndexedDB local:', err);
+                AppState.rawRows = await getFromLocalDB();
+                renderDashboard();
+            }
+        }
+
+        // Core Dashboard Render Execution
+        function renderDashboard() {
+            calculateKPIs();
+            renderPage1();
+            renderPage2();
+            renderPage3();
+            renderPage4();
+        }
+
+        // KPI Calculation Block
+        function calculateKPIs() {
+            let totalKg = 0;
+            let uniqueCosechadores = new Set();
+            let uniqueFechas = new Set();
+
+            AppState.rawRows.forEach(row => {
+                // Lee campos posibles para Total KG de la fila
+                let kgVal = cleanFloat(row.KG || row.PESO || row.Total_KG || row.TOTAL_KG || row.Kg || 0);
+                totalKg += kgVal;
+
+                if (row.DNI || row.dni || row.COSECHADOR || row.Cosechador) {
+                    uniqueCosechadores.add(row.DNI || row.dni || row.COSECHADOR || row.Cosechador);
                 }
-            }
 
-            // Bind dataset to state
-            AppState.rawDetalle = dataset.DETALLE || [];
-            AppState.rawTdp = dataset.TDP || [];
-            AppState.rawUnicos = dataset.UNICOS || [];
-            AppState.rawReporte = dataset.REPORTE || [];
-
-            document.getElementById('lastSyncTimestamp').innerText = AppState.lastSyncTimestamp || 'N/A';
-            document.getElementById('dbRecordCount').innerText = `${AppState.rawDetalle.length} reg.`;
-
-            // Populate Filter dropdowns dynamically
-            populateFilterDropdowns();
-
-            // Apply Filters and Re-render views
-            applyGlobalFilters();
-        }
-
-        function updateConnStatus(status) {
-            const pill = document.getElementById('connectionPill');
-            const dot = document.getElementById('connIndicatorDot');
-            const text = document.getElementById('connStatusText');
-
-            if (status === 'online') {
-                pill.className = 'flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm';
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse mr-2';
-                text.innerText = '🟢 Conectado';
-            } else if (status === 'sync') {
-                pill.className = 'flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm';
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 animate-spin mr-2';
-                text.innerText = '🟠 Sincronizando';
-            } else if (status === 'local') {
-                pill.className = 'flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm';
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-blue-500 mr-2';
-                text.innerText = '🔵 Datos Locales';
-            } else {
-                pill.className = 'flex items-center px-2.5 py-1.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200 shadow-sm';
-                dot.className = 'w-2.5 h-2.5 rounded-full bg-red-500 mr-2';
-                text.innerText = '🔴 Sin conexión';
-            }
-        }
-
-        function populateFilterDropdowns() {
-            const getUniqueValues = (list, key) => [...new Set(list.map(item => formatSafeText(item[key])).filter(val => val !== 'SIN DATOS'))].sort();
-
-            const dates = getUniqueValues(AppState.rawDetalle, 'FECHA');
-            const semanas = getUniqueValues(AppState.rawDetalle, 'SEMANA');
-            const categs = getUniqueValues(AppState.rawDetalle, 'CATEG. 2026');
-            const modalidades = getUniqueValues(AppState.rawDetalle, 'MODALIDAD');
-            const variedades = getUniqueValues(AppState.rawDetalle, 'VARIEDAD');
-
-            fillSelect('filterFecha', dates, 'Todas las fechas');
-            fillSelect('filterSemana', semanas, 'Todas las semanas');
-            fillSelect('filterCateg', categs, 'Todas las categ.');
-            fillSelect('filterModalidad', modalidades, 'Todas las modalidades');
-            fillSelect('filterVariedad', variedades, 'Todas las variedades');
-        }
-
-        function fillSelect(elemId, options, defaultLabel) {
-            const select = document.getElementById(elemId);
-            const currentVal = select.value;
-            select.innerHTML = `<option value="">${defaultLabel}</option>`;
-            options.forEach(opt => {
-                const optionEl = document.createElement('option');
-                optionEl.value = opt;
-                optionEl.textContent = opt;
-                select.appendChild(optionEl);
+                if (row.FECHA || row.Fecha || row.fecha) {
+                    uniqueFechas.add(row.FECHA || row.Fecha || row.fecha);
+                }
             });
-            select.value = currentVal;
+
+            const diasCount = uniqueFechas.size || 1;
+            const promKgDia = totalKg / diasCount;
+
+            document.getElementById('kpiTotalKg').innerText = totalKg.toFixed(2);
+            document.getElementById('kpiTotalCosechadores').innerText = uniqueCosechadores.size;
+            document.getElementById('kpiPromedioKgDia').innerText = promKgDia.toFixed(2);
+            document.getElementById('kpiDiasCosechados').innerText = uniqueFechas.size;
         }
 
-        function applyGlobalFilters() {
-            const filterFecha = document.getElementById('filterFecha').value;
-            const filterSemana = document.getElementById('filterSemana').value;
-            const filterCateg = document.getElementById('filterCateg').value;
-            const filterModalidad = document.getElementById('filterModalidad').value;
-            const filterRango = document.getElementById('filterRango').value;
-            const filterVariedad = document.getElementById('filterVariedad').value;
-
-            const filterFn = (item) => {
-                if (filterFecha && formatSafeText(item['FECHA']) !== filterFecha) return false;
-                if (filterSemana && formatSafeText(item['SEMANA']) !== filterSemana) return false;
-                if (filterCateg && formatSafeText(item['CATEG. 2026']) !== filterCateg) return false;
-                if (filterModalidad && formatSafeText(item['MODALIDAD']) !== filterModalidad) return false;
-                if (filterRango && formatSafeText(item['RANGO %']) !== filterRango) return false;
-                if (filterVariedad && item['VARIEDAD'] && formatSafeText(item['VARIEDAD']) !== filterVariedad) return false;
-                return true;
-            };
-
-            AppState.filteredDetalle = AppState.rawDetalle.filter(filterFn);
-            AppState.filteredTdp = AppState.rawTdp.filter(filterFn);
-            AppState.filteredUnicos = AppState.rawUnicos.filter(filterFn);
-
-            // Re-render active view
-            renderCurrentPage();
-        }
-
-        /* PAGE 1 RENDERING LOGIC */
+        // Render Tabla 1: Resumen Final por Cosechador
         function renderPage1() {
-            const data = AppState.filteredDetalle;
+            const query = (document.getElementById('p1SearchInput').value || '').toLowerCase();
+            
+            // Agrupar por cosechador
+            const cosechadorMap = {};
 
-            // 1. Calculate KPIs
-            const totalKg = data.reduce((sum, item) => sum + (parseFloat(item['TOTAL KG']) || 0), 0);
-            const uniqueDni = new Set(data.map(item => item['DNI']).filter(Boolean));
-            const totalCosechadores = uniqueDni.size;
+            AppState.rawRows.forEach(row => {
+                const dni = String(row.DNI || row.dni || 'S/D');
+                const nombre = String(row.NOMBRES || row.NOMBRE || row.Cosechador || row.COSECHADOR || 'Desconocido');
+                const key = dni + '-' + nombre;
+                
+                // Categoría 2026
+                const categ = row.CATEG_2026 || row.CATEGORIA || row.CATEG || row.Categ || 'CAT-2026';
+                const kg = cleanFloat(row.KG || row.PESO || row.Total_KG || row.TOTAL_KG || row.Kg || 0);
+                const fecha = row.FECHA || row.Fecha || row.fecha;
 
-            // Calculate overall cumplimiento %
-            let cumpSum = 0;
-            let cumpCount = 0;
-            data.forEach(item => {
-                if (item['CUMP. %'] !== undefined && item['CUMP. %'] !== null) {
-                    cumpSum += parseFloat(item['CUMP. %']) || 0;
-                    cumpCount++;
+                if (!cosechadorMap[key]) {
+                    cosechadorMap[key] = {
+                        dni: dni,
+                        nombre: nombre,
+                        categoria: categ,
+                        totalKg: 0,
+                        fechas: new Set()
+                    };
                 }
-            });
-            const avgCump = cumpCount > 0 ? (cumpSum / cumpCount) : 0;
 
-            document.getElementById('kpiTotalKg').innerText = formatKg(totalKg);
-            document.getElementById('kpiTotalCump').innerText = formatPercent(avgCump);
-            document.getElementById('kpiTotalCosechadores').innerText = formatNumber(totalCosechadores);
-
-            // 2. Render Donut Charts
-            renderDonutModalidad(data);
-            renderDonutSexo(data);
-
-            // 3. Render Resumen Por Fecha Table
-            renderP1ResumenFechaTable();
-
-            // 4. Render Modalidad Comparison Table
-            renderP1ModalidadTable();
-
-            // 5. Render Top 10 Ranking
-            renderP1Top10();
-        }
-
-        function renderDonutModalidad(data) {
-            const counts = {};
-            data.forEach(item => {
-                const mod = formatSafeText(item['MODALIDAD']);
-                const dni = item['DNI'];
-                if (!counts[mod]) counts[mod] = new Set();
-                if (dni) counts[mod].add(dni);
+                cosechadorMap[key].totalKg += kg;
+                if (fecha) cosechadorMap[key].fechas.add(fecha);
             });
 
-            const labels = Object.keys(counts);
-            const values = labels.map(l => counts[l].size);
-            const total = values.reduce((a, b) => a + b, 0);
+            let list = Object.values(cosechadorMap);
 
-            const colors = ['#B91C1C', '#15803D', '#2563EB', '#D97706', '#9333EA'];
-
-            const ctx = document.getElementById('chartModalidad').getContext('2d');
-            if (AppState.charts.modalidad) AppState.charts.modalidad.destroy();
-
-            AppState.charts.modalidad = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors.slice(0, labels.length)
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    cutout: '70%'
-                }
-            });
-
-            // Custom Legend
-            const legendEl = document.getElementById('chartModalidadLegend');
-            legendEl.innerHTML = labels.map((l, idx) => {
-                const count = counts[l].size;
-                const pct = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
-                return `
-                    <div class="flex items-center justify-between p-1.5 bg-slate-50 rounded-lg">
-                        <span class="flex items-center truncate">
-                            <span class="w-2.5 h-2.5 rounded-full mr-2" style="background-color: ${colors[idx % colors.length]}"></span>
-                            <span class="font-medium text-slate-700">${l}</span>
-                        </span>
-                        <span class="font-bold text-slate-900">${count} (${pct}%)</span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderDonutSexo(data) {
-            const counts = {};
-            data.forEach(item => {
-                const sex = formatSafeText(item['SEXO']);
-                const dni = item['DNI'];
-                if (!counts[sex]) counts[sex] = new Set();
-                if (dni) counts[sex].add(dni);
-            });
-
-            const labels = Object.keys(counts);
-            const values = labels.map(l => counts[l].size);
-            const total = values.reduce((a, b) => a + b, 0);
-
-            const colors = ['#2563EB', '#EC4899', '#64748B'];
-
-            const ctx = document.getElementById('chartSexo').getContext('2d');
-            if (AppState.charts.sexo) AppState.charts.sexo.destroy();
-
-            AppState.charts.sexo = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: colors.slice(0, labels.length)
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    cutout: '70%'
-                }
-            });
-
-            // Custom Legend
-            const legendEl = document.getElementById('chartSexoLegend');
-            legendEl.innerHTML = labels.map((l, idx) => {
-                const count = counts[l].size;
-                const pct = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
-                return `
-                    <div class="flex items-center justify-between p-1.5 bg-slate-50 rounded-lg">
-                        <span class="flex items-center">
-                            <span class="w-2.5 h-2.5 rounded-full mr-2" style="background-color: ${colors[idx % colors.length]}"></span>
-                            <span class="font-medium text-slate-700">${l === 'M' ? 'Masculino' : l === 'F' ? 'Femenino' : l}</span>
-                        </span>
-                        <span class="font-bold text-slate-900">${count} (${pct}%)</span>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function renderP1ResumenFechaTable() {
-            const grouped = {};
-            AppState.filteredDetalle.forEach(item => {
-                const fecha = formatSafeText(item['FECHA']);
-                const kg = parseFloat(item['TOTAL KG']) || 0;
-                const dni = item['DNI'];
-
-                if (!grouped[fecha]) {
-                    grouped[fecha] = { fecha, totalKg: 0, dnis: new Set() };
-                }
-                grouped[fecha].totalKg += kg;
-                if (dni) grouped[fecha].dnis.add(dni);
-            });
-
-            let list = Object.values(grouped).map(g => ({
-                fecha: g.fecha,
-                totalKg: g.totalKg,
-                cosechadores: g.dnis.size,
-                promedio: g.dnis.size > 0 ? g.totalKg / g.dnis.size : 0
-            }));
-
-            // Sort
-            const { field, dir } = AppState.sortState.p1Fecha;
-            list.sort((a, b) => {
-                let vA = a[field];
-                let vB = b[field];
-                return dir === 'asc' ? (vA > vB ? 1 : -1) : (vA < vB ? 1 : -1);
-            });
-
-            const tbody = document.getElementById('p1ResumenFechaBody');
-            if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="px-4 py-8 text-center text-slate-400">No hay datos disponibles para los filtros aplicados.</td></tr>`;
-                return;
+            // Filtrar
+            if (query) {
+                list = list.filter(item => 
+                    item.dni.toLowerCase().includes(query) || 
+                    item.nombre.toLowerCase().includes(query)
+                );
             }
 
-            tbody.innerHTML = list.map((row, idx) => {
-                // Tendency comparing against previous
-                let trendIcon = '<span class="text-slate-400">→</span>';
-                if (idx < list.length - 1) {
-                    const prevKg = list[idx + 1].totalKg;
-                    if (row.totalKg > prevKg) trendIcon = '<span class="text-emerald-600 font-bold">↑</span>';
-                    else if (row.totalKg < prevKg) trendIcon = '<span class="text-red-600 font-bold">↓</span>';
-                }
+            // Paginación
+            const total = list.length;
+            const pageSize = AppState.pageSize;
+            const page = AppState.currentPageState.p1Page;
+            const start = (page - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = list.slice(start, end);
 
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="px-4 py-2.5 font-medium text-slate-800">${formatDate(row.fecha)}</td>
-                        <td class="px-4 py-2.5 text-right font-bold text-slate-900">${formatKg(row.totalKg)}</td>
-                        <td class="px-4 py-2.5 text-right font-medium text-slate-700">${formatNumber(row.cosechadores)}</td>
-                        <td class="px-4 py-2.5 text-right font-semibold text-emerald-700">${formatNumber(row.promedio, 1)} KG/cos</td>
-                        <td class="px-4 py-2.5 text-center text-sm">${trendIcon}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            document.getElementById('p1FechaPageInfo').innerText = `Total fechas: ${list.length}`;
-        }
-
-        function sortPage1Fecha(field) {
-            if (AppState.sortState.p1Fecha.field === field) {
-                AppState.sortState.p1Fecha.dir = AppState.sortState.p1Fecha.dir === 'asc' ? 'desc' : 'asc';
+            const tbody = document.getElementById('p1TableBody');
+            if (pageData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">No se encontraron registros.</td></tr>`;
             } else {
-                AppState.sortState.p1Fecha.field = field;
-                AppState.sortState.p1Fecha.dir = 'desc';
-            }
-            renderP1ResumenFechaTable();
-        }
-
-        function renderP1ModalidadTable() {
-            const grouped = {};
-            AppState.filteredDetalle.forEach(item => {
-                const mod = formatSafeText(item['MODALIDAD']);
-                const dni = item['DNI'];
-                const cump = parseFloat(item['CUMP. %']) || 0;
-
-                if (!grouped[mod]) {
-                    grouped[mod] = { mod, dnis: new Set(), cumpSum: 0, cumpCount: 0 };
-                }
-                if (dni) grouped[mod].dnis.add(dni);
-                grouped[mod].cumpSum += cump;
-                grouped[mod].cumpCount++;
-            });
-
-            const tbody = document.getElementById('p1ModalidadBody');
-            const keys = Object.keys(grouped);
-
-            if (keys.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" class="px-3 py-6 text-center text-slate-400">Sin datos</td></tr>`;
-                return;
+                tbody.innerHTML = pageData.map((item, idx) => {
+                    const diasTrab = item.fechas.size || 1;
+                    const prom = item.totalKg / diasTrab;
+                    return `
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-3 py-2.5 text-center font-medium text-slate-400">${start + idx + 1}</td>
+                            <td class="px-3 py-2.5 font-mono text-slate-600">${item.dni}</td>
+                            <td class="px-3 py-2.5 font-semibold text-slate-800">${item.nombre}</td>
+                            <td class="px-3 py-2.5 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">${item.categoria}</span></td>
+                            <td class="px-3 py-2.5 text-right font-bold text-red-700">${item.totalKg.toFixed(2)}</td>
+                            <td class="px-3 py-2.5 text-center font-medium">${diasTrab}</td>
+                            <td class="px-3 py-2.5 text-right font-semibold text-slate-700">${prom.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
             }
 
-            tbody.innerHTML = keys.map(k => {
-                const g = grouped[k];
-                const avgCump = g.cumpCount > 0 ? g.cumpSum / g.cumpCount : 0;
-                return `
-                    <tr class="hover:bg-slate-50 font-medium">
-                        <td class="px-3 py-2.5 text-slate-800">${g.mod}</td>
-                        <td class="px-3 py-2.5 text-right font-bold text-slate-900">${formatNumber(g.dnis.size)}</td>
-                        <td class="px-3 py-2.5 text-right font-semibold text-blue-700">${formatPercent(avgCump)}</td>
-                    </tr>
-                `;
-            }).join('');
+            document.getElementById('p1PaginationInfo').innerText = `Mostrando ${total === 0 ? 0 : start + 1} a ${end} de ${total} registros`;
+            document.getElementById('p1PrevBtn').disabled = page <= 1;
+            document.getElementById('p1NextBtn').disabled = end >= total;
         }
 
-        function renderP1Top10() {
-            const cosechadoresMap = {};
+        // Render Tabla 2: Resumen por Fecha
+        function renderPage2() {
+            const query = (document.getElementById('p2SearchInput').value || '').toLowerCase();
+            const fechaMap = {};
 
-            AppState.filteredDetalle.forEach(item => {
-                const dni = item['DNI'];
-                if (!dni) return;
+            AppState.rawRows.forEach(row => {
+                const fecha = String(row.FECHA || row.Fecha || row.fecha || 'Sin Fecha');
+                const kg = cleanFloat(row.KG || row.PESO || row.Total_KG || row.TOTAL_KG || row.Kg || 0);
+                const cosechador = row.DNI || row.dni || row.COSECHADOR || row.Cosechador;
 
-                const nombre = formatSafeText(item['APELLIDOS Y NOMBRES']);
-                const modalidad = formatSafeText(item['MODALIDAD']);
-                const fecha = formatSafeText(item['FECHA']);
-                const kg = parseFloat(item['TOTAL KG']) || 0;
-
-                if (!cosechadoresMap[dni]) {
-                    cosechadoresMap[dni] = {
-                        dni,
-                        nombre,
-                        modalidad,
-                        fechas: new Set(),
+                if (!fechaMap[fecha]) {
+                    fechaMap[fecha] = {
+                        fecha: fecha,
+                        personas: new Set(),
                         totalKg: 0
                     };
                 }
-                cosechadoresMap[dni].fechas.add(fecha);
-                cosechadoresMap[dni].totalKg += kg;
+
+                fechaMap[fecha].totalKg += kg;
+                if (cosechador) fechaMap[fecha].personas.add(cosechador);
             });
 
-            let topList = Object.values(cosechadoresMap).map(c => ({
-                ...c,
-                totalDias: c.fechas.size,
-                promedioDia: c.fechas.size > 0 ? c.totalKg / c.fechas.size : 0
-            }));
+            let list = Object.values(fechaMap);
 
-            // Sort by Total KG Descending
-            topList.sort((a, b) => b.totalKg - a.totalKg);
-            topList = topList.slice(0, 10);
-
-            const tbody = document.getElementById('p1Top10Body');
-            if (topList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="px-4 py-8 text-center text-slate-400">No hay datos para clasificar el Top 10.</td></tr>`;
-                return;
+            if (query) {
+                list = list.filter(item => item.fecha.toLowerCase().includes(query));
             }
 
-            tbody.innerHTML = topList.map((c, index) => {
-                let rankBadge = `${index + 1}º`;
-                if (index === 0) rankBadge = '<span class="text-xl">🥇 1º</span>';
-                else if (index === 1) rankBadge = '<span class="text-xl">🥈 2º</span>';
-                else if (index === 2) rankBadge = '<span class="text-xl">🥉 3º</span>';
-
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="px-4 py-3 text-center font-bold text-slate-700">${rankBadge}</td>
-                        <td class="px-4 py-3 text-slate-900 font-semibold">${c.nombre} <span class="text-[10px] text-slate-400">(${c.dni})</span></td>
-                        <td class="px-4 py-3 text-slate-600">${c.modalidad}</td>
-                        <td class="px-4 py-3 text-right text-slate-700">${c.totalDias}</td>
-                        <td class="px-4 py-3 text-right font-bold text-red-700 text-sm">${formatKg(c.totalKg)}</td>
-                        <td class="px-4 py-3 text-right font-bold text-emerald-700">${formatNumber(c.promedioDia, 1)} KG/día</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        /* PAGE 2 RENDERING LOGIC (REPORTE DETALLADO) */
-        function renderPage2() {
-            const search = document.getElementById('p2SearchInput').value.toLowerCase().trim();
-            
-            let list = AppState.filteredDetalle.filter(item => {
-                if (!search) return true;
-                const dni = String(item['DNI'] || '').toLowerCase();
-                const nombre = String(item['APELLIDOS Y NOMBRES'] || '').toLowerCase();
-                return dni.includes(search) || nombre.includes(search);
-            });
-
-            const pageSize = 50;
+            const total = list.length;
+            const pageSize = AppState.pageSize;
             const page = AppState.currentPageState.p2Page;
-            const totalPages = Math.ceil(list.length / pageSize) || 1;
-            const startIndex = (page - 1) * pageSize;
-            const pagedList = list.slice(startIndex, startIndex + pageSize);
+            const start = (page - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = list.slice(start, end);
 
             const tbody = document.getElementById('p2TableBody');
-            if (pagedList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="13" class="px-4 py-8 text-center text-slate-400">No se encontraron registros.</td></tr>`;
+            if (pageData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">No se encontraron registros.</td></tr>`;
             } else {
-                tbody.innerHTML = pagedList.map(item => {
-                    const cump = parseFloat(item['CUMP. %']) || 0;
-                    const rangeInfo = getComplianceRange(cump);
+                tbody.innerHTML = pageData.map((item, idx) => {
+                    const countPersonas = item.personas.size || 1;
+                    const promKg = item.totalKg / countPersonas;
                     return `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                            <td class="px-3 py-2.5 font-medium">${formatDate(formatSafeText(item['FECHA']))}</td>
-                            <td class="px-3 py-2.5 font-mono text-slate-600">${formatSafeText(item['DNI'])}</td>
-                            <td class="px-3 py-2.5 font-semibold text-slate-900">${formatSafeText(item['APELLIDOS Y NOMBRES'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['HISTORICO'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['MODALIDAD'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['VARIEDAD'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['MODULO|TURNO'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['LABOR'])}</td>
-                            <td class="px-3 py-2.5 text-right font-bold text-slate-900">${formatKg(parseFloat(item['TOTAL KG']))}</td>
-                            <td class="px-3 py-2.5 text-right text-slate-600">${formatKg(parseFloat(item['META']))}</td>
-                            <td class="px-3 py-2.5 text-right font-bold text-blue-700">${formatPercent(cump)}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['CATEG. 2026'])}</td>
-                            <td class="px-3 py-2.5 text-center">${rangeInfo.badgeHtml}</td>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-3 py-2.5 text-center font-medium text-slate-400">${start + idx + 1}</td>
+                            <td class="px-3 py-2.5 font-semibold text-slate-800">${item.fecha}</td>
+                            <td class="px-3 py-2.5 text-center font-medium">${countPersonas}</td>
+                            <td class="px-3 py-2.5 text-right font-bold text-red-700">${item.totalKg.toFixed(2)}</td>
+                            <td class="px-3 py-2.5 text-right font-semibold text-slate-700">${promKg.toFixed(2)}</td>
                         </tr>
                     `;
                 }).join('');
             }
 
-            document.getElementById('p2PageInfo').innerText = `Mostrando ${list.length > 0 ? startIndex + 1 : 0} a ${Math.min(startIndex + pageSize, list.length)} de ${list.length} registros`;
-
-            renderPaginationControls('p2Pagination', totalPages, page, (newPage) => {
-                AppState.currentPageState.p2Page = newPage;
-                renderPage2();
-            });
+            document.getElementById('p2PaginationInfo').innerText = `Mostrando ${total === 0 ? 0 : start + 1} a ${end} de ${total} registros`;
+            document.getElementById('p2PrevBtn').disabled = page <= 1;
+            document.getElementById('p2NextBtn').disabled = end >= total;
         }
 
-        /* PAGE 3 RENDERING LOGIC (REPORTE FECHAS KG PIVOT) */
+        // Render Tabla 3: Ranking Diario Cosecha
         function renderPage3() {
-            const search = document.getElementById('p3SearchInput').value.toLowerCase().trim();
-            const data = AppState.filteredTdp.length > 0 ? AppState.filteredTdp : AppState.filteredDetalle;
+            const query = (document.getElementById('p3SearchInput').value || '').toLowerCase();
+            const dailyMap = {};
 
-            // Extract unique dates dynamically
-            const dates = [...new Set(data.map(i => formatSafeText(i['FECHA'])).filter(d => d !== 'SIN DATOS'))].sort();
+            AppState.rawRows.forEach(row => {
+                const fecha = String(row.FECHA || row.Fecha || row.fecha || 'Sin Fecha');
+                const dni = String(row.DNI || row.dni || 'S/D');
+                const nombre = String(row.NOMBRES || row.NOMBRE || row.Cosechador || row.COSECHADOR || 'Desconocido');
+                const kg = cleanFloat(row.KG || row.PESO || row.Total_KG || row.TOTAL_KG || row.Kg || 0);
 
-            // Group by DNI
-            const grouped = {};
-            data.forEach(item => {
-                const dni = item['DNI'];
-                if (!dni) return;
-                const nombre = formatSafeText(item['APELLIDOS Y NOMBRES']);
-                if (search && !dni.toLowerCase().includes(search) && !nombre.toLowerCase().includes(search)) return;
+                const key = fecha + '|' + dni + '|' + nombre;
 
-                if (!grouped[dni]) {
-                    grouped[dni] = {
-                        dni,
-                        nombre,
-                        modalidad: formatSafeText(item['MODALIDAD']),
-                        categ: formatSafeText(item['CATEG. 2026']),
-                        placa: formatSafeText(item['PLACA']),
-                        origen: formatSafeText(item['RUTA'] || item['HISTORICO']),
-                        dateKgMap: {},
+                if (!dailyMap[key]) {
+                    dailyMap[key] = {
+                        fecha: fecha,
+                        dni: dni,
+                        nombre: nombre,
                         totalKg: 0
                     };
                 }
 
-                const fecha = formatSafeText(item['FECHA']);
-                const kg = parseFloat(item['TOTAL KG']) || 0;
-                grouped[dni].dateKgMap[fecha] = (grouped[dni].dateKgMap[fecha] || 0) + kg;
-                grouped[dni].totalKg += kg;
+                dailyMap[key].totalKg += kg;
             });
 
-            const list = Object.values(grouped);
-            const pageSize = 50;
+            let list = Object.values(dailyMap);
+
+            // Ordenar descendentemente por KG para formar el ranking
+            list.sort((a, b) => b.totalKg - a.totalKg);
+
+            if (query) {
+                list = list.filter(item => 
+                    item.fecha.toLowerCase().includes(query) ||
+                    item.dni.toLowerCase().includes(query) ||
+                    item.nombre.toLowerCase().includes(query)
+                );
+            }
+
+            const total = list.length;
+            const pageSize = AppState.pageSize;
             const page = AppState.currentPageState.p3Page;
-            const totalPages = Math.ceil(list.length / pageSize) || 1;
-            const pagedList = list.slice((page - 1) * pageSize, page * pageSize);
+            const start = (page - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = list.slice(start, end);
 
-            // Render Header
-            const thead = document.getElementById('p3Thead');
-            thead.innerHTML = `
-                <tr>
-                    <th class="px-3 py-3">DNI</th>
-                    <th class="px-3 py-3">APELLIDOS Y NOMBRES</th>
-                    <th class="px-3 py-3">MODALIDAD</th>
-                    <th class="px-3 py-3">CATEG. 2026</th>
-                    <th class="px-3 py-3">PLACA</th>
-                    <th class="px-3 py-3">ORIGEN</th>
-                    ${dates.map(d => `<th class="px-3 py-3 text-right min-w-[90px]">${formatDate(d)}</th>`).join('')}
-                    <th class="px-3 py-3 text-right font-bold text-red-700 bg-red-50">TOTAL KG</th>
-                </tr>
-            `;
-
-            // Render Body
-            const tbody = document.getElementById('p3Tbody');
-            if (pagedList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${7 + dates.length}" class="px-4 py-8 text-center text-slate-400">Sin datos de fechas.</td></tr>`;
+            const tbody = document.getElementById('p3TableBody');
+            if (pageData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">No se encontraron registros.</td></tr>`;
             } else {
-                tbody.innerHTML = pagedList.map(row => {
-                    let prevVal = null;
-                    const dateColsHtml = dates.map(d => {
-                        const val = row.dateKgMap[d];
-                        let trend = '';
-                        if (val !== undefined && prevVal !== null) {
-                            if (val > prevVal) trend = '<span class="text-emerald-600 font-bold ml-1">↑</span>';
-                            else if (val < prevVal) trend = '<span class="text-red-600 font-bold ml-1">↓</span>';
-                            else trend = '<span class="text-slate-400 ml-1">→</span>';
-                        }
-                        if (val !== undefined) prevVal = val;
-                        return `<td class="px-3 py-2.5 text-right font-medium">${val !== undefined ? `${formatNumber(val)} ${trend}` : '-'}</td>`;
-                    }).join('');
+                tbody.innerHTML = pageData.map((item, idx) => {
+                    const pos = start + idx + 1;
+                    let posBadge = `<span class="font-medium text-slate-500">${pos}</span>`;
+                    if (pos === 1) posBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-100 text-amber-700"><i class="fa-solid fa-trophy mr-1"></i>1°</span>`;
+                    if (pos === 2) posBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-slate-200 text-slate-700"><i class="fa-solid fa-medal mr-1"></i>2°</span>`;
+                    if (pos === 3) posBadge = `<span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-700/10 text-amber-800"><i class="fa-solid fa-award mr-1"></i>3°</span>`;
 
                     return `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                            <td class="px-3 py-2.5 font-mono">${row.dni}</td>
-                            <td class="px-3 py-2.5 font-semibold text-slate-900">${row.nombre}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.modalidad}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.categ}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.placa}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.origen}</td>
-                            ${dateColsHtml}
-                            <td class="px-3 py-2.5 text-right font-bold text-red-700 bg-red-50/50">${formatKg(row.totalKg)}</td>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-3 py-2.5 text-center">${posBadge}</td>
+                            <td class="px-3 py-2.5 font-medium text-slate-600">${item.fecha}</td>
+                            <td class="px-3 py-2.5 font-mono text-slate-600">${item.dni}</td>
+                            <td class="px-3 py-2.5 font-semibold text-slate-800">${item.nombre}</td>
+                            <td class="px-3 py-2.5 text-right font-bold text-red-700">${item.totalKg.toFixed(2)}</td>
                         </tr>
                     `;
                 }).join('');
             }
 
-            document.getElementById('p3PageInfo').innerText = `Mostrando ${list.length} registros`;
-            renderPaginationControls('p3Pagination', totalPages, page, (p) => {
-                AppState.currentPageState.p3Page = p;
-                renderPage3();
-            });
+            document.getElementById('p3PaginationInfo').innerText = `Mostrando ${total === 0 ? 0 : start + 1} a ${end} de ${total} registros`;
+            document.getElementById('p3PrevBtn').disabled = page <= 1;
+            document.getElementById('p3NextBtn').disabled = end >= total;
         }
 
-        /* PAGE 4 RENDERING LOGIC (REPORTE FECHAS CUMP % PIVOT) */
+        // Render Detalle Cosechador
         function renderPage4() {
-            const search = document.getElementById('p4SearchInput').value.toLowerCase().trim();
-            const data = AppState.filteredTdp.length > 0 ? AppState.filteredTdp : AppState.filteredDetalle;
-
-            const dates = [...new Set(data.map(i => formatSafeText(i['FECHA'])).filter(d => d !== 'SIN DATOS'))].sort();
-
-            const grouped = {};
-            data.forEach(item => {
-                const dni = item['DNI'];
-                if (!dni) return;
-                const nombre = formatSafeText(item['APELLIDOS Y NOMBRES']);
-                if (search && !dni.toLowerCase().includes(search) && !nombre.toLowerCase().includes(search)) return;
-
-                if (!grouped[dni]) {
-                    grouped[dni] = {
-                        dni,
-                        nombre,
-                        modalidad: formatSafeText(item['MODALIDAD']),
-                        categ: formatSafeText(item['CATEG. 2026']),
-                        placa: formatSafeText(item['PLACA']),
-                        origen: formatSafeText(item['RUTA'] || item['HISTORICO']),
-                        dateCumpMap: {},
-                        cumpSum: 0,
-                        cumpCount: 0
-                    };
-                }
-
-                const fecha = formatSafeText(item['FECHA']);
-                const cump = parseFloat(item['CUMP. %']) || 0;
-                grouped[dni].dateCumpMap[fecha] = cump;
-                grouped[dni].cumpSum += cump;
-                grouped[dni].cumpCount++;
+            const query = (document.getElementById('p4SearchInput').value || '').toLowerCase();
+            let list = AppState.rawRows.map(row => {
+                return {
+                    fecha: String(row.FECHA || row.Fecha || row.fecha || 'Sin Fecha'),
+                    dni: String(row.DNI || row.dni || 'S/D'),
+                    nombre: String(row.NOMBRES || row.NOMBRE || row.Cosechador || row.COSECHADOR || 'Desconocido'),
+                    totalKg: cleanFloat(row.KG || row.PESO || row.Total_KG || row.TOTAL_KG || row.Kg || 0)
+                };
             });
 
-            const list = Object.values(grouped);
-            const pageSize = 50;
+            if (query) {
+                list = list.filter(item => 
+                    item.dni.toLowerCase().includes(query) ||
+                    item.nombre.toLowerCase().includes(query)
+                );
+            }
+
+            const total = list.length;
+            const pageSize = AppState.pageSize;
             const page = AppState.currentPageState.p4Page;
-            const totalPages = Math.ceil(list.length / pageSize) || 1;
-            const pagedList = list.slice((page - 1) * pageSize, page * pageSize);
+            const start = (page - 1) * pageSize;
+            const end = Math.min(start + pageSize, total);
+            const pageData = list.slice(start, end);
 
-            const thead = document.getElementById('p4Thead');
-            thead.innerHTML = `
-                <tr>
-                    <th class="px-3 py-3">DNI</th>
-                    <th class="px-3 py-3">APELLIDOS Y NOMBRES</th>
-                    <th class="px-3 py-3">MODALIDAD</th>
-                    <th class="px-3 py-3">CATEG. 2026</th>
-                    <th class="px-3 py-3">PLACA</th>
-                    <th class="px-3 py-3">ORIGEN</th>
-                    ${dates.map(d => `<th class="px-3 py-3 text-right min-w-[90px]">${formatDate(d)}</th>`).join('')}
-                    <th class="px-3 py-3 text-right font-bold text-blue-700 bg-blue-50">TOTAL CUMP %</th>
-                </tr>
-            `;
-
-            const tbody = document.getElementById('p4Tbody');
-            if (pagedList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${7 + dates.length}" class="px-4 py-8 text-center text-slate-400">Sin datos de cumplimiento por fecha.</td></tr>`;
+            const tbody = document.getElementById('p4TableBody');
+            if (pageData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400">No se encontraron registros.</td></tr>`;
             } else {
-                tbody.innerHTML = pagedList.map(row => {
-                    const avgCump = row.cumpCount > 0 ? row.cumpSum / row.cumpCount : 0;
-                    let prevVal = null;
-
-                    const dateColsHtml = dates.map(d => {
-                        const val = row.dateCumpMap[d];
-                        if (val === undefined) return '<td class="px-3 py-2.5 text-right text-slate-300">-</td>';
-
-                        const rangeInfo = getComplianceRange(val);
-                        let trend = '';
-                        if (prevVal !== null) {
-                            if (val > prevVal) trend = '↑';
-                            else if (val < prevVal) trend = '↓';
-                            else trend = '→';
-                        }
-                        prevVal = val;
-
-                        return `
-                            <td class="px-3 py-2.5 text-right">
-                                <span class="px-1.5 py-0.5 rounded text-[11px] font-bold ${rangeInfo.colorClass}">
-                                    ${formatNumber(val, 0)}% ${trend}
-                                </span>
-                            </td>
-                        `;
-                    }).join('');
-
+                tbody.innerHTML = pageData.map((item, idx) => {
                     return `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                            <td class="px-3 py-2.5 font-mono">${row.dni}</td>
-                            <td class="px-3 py-2.5 font-semibold text-slate-900">${row.nombre}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.modalidad}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.categ}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.placa}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.origen}</td>
-                            ${dateColsHtml}
-                            <td class="px-3 py-2.5 text-right font-bold text-blue-800 bg-blue-50/50">${formatPercent(avgCump)}</td>
+                        <tr class="hover:bg-slate-50 transition-colors">
+                            <td class="px-3 py-2.5 text-center font-medium text-slate-400">${start + idx + 1}</td>
+                            <td class="px-3 py-2.5 font-medium text-slate-600">${item.fecha}</td>
+                            <td class="px-3 py-2.5 font-mono text-slate-600">${item.dni}</td>
+                            <td class="px-3 py-2.5 font-semibold text-slate-800">${item.nombre}</td>
+                            <td class="px-3 py-2.5 text-right font-bold text-red-700">${item.totalKg.toFixed(2)}</td>
                         </tr>
                     `;
                 }).join('');
             }
 
-            document.getElementById('p4PageInfo').innerText = `Mostrando ${list.length} registros`;
-            renderPaginationControls('p4Pagination', totalPages, page, (p) => {
-                AppState.currentPageState.p4Page = p;
-                renderPage4();
-            });
+            document.getElementById('p4PaginationInfo').innerText = `Mostrando ${total === 0 ? 0 : start + 1} a ${end} de ${total} registros`;
+            document.getElementById('p4PrevBtn').disabled = page <= 1;
+            document.getElementById('p4NextBtn').disabled = end >= total;
         }
 
-        /* PAGE 5 RENDERING LOGIC (REGISTROS UNICOS) */
-        function renderPage5() {
-            const search = document.getElementById('p5SearchInput').value.toLowerCase().trim();
-            const source = AppState.filteredUnicos.length > 0 ? AppState.filteredUnicos : AppState.filteredDetalle;
-
-            let list = source.filter(item => {
-                if (!search) return true;
-                const dni = String(item['DNI'] || '').toLowerCase();
-                const nombre = String(item['APELLIDOS Y NOMBRES'] || '').toLowerCase();
-                return dni.includes(search) || nombre.includes(search);
-            });
-
-            // Deduplicate by ID FECHA + DNI
-            const dedupMap = new Map();
-            list.forEach(item => {
-                const idKey = item['ID FECHA + DNI'] || `${item['FECHA']}_${item['DNI']}`;
-                if (!dedupMap.has(idKey)) dedupMap.set(idKey, item);
-            });
-            const dedupList = Array.from(dedupMap.values());
-
-            const pageSize = 50;
-            const page = AppState.currentPageState.p5Page;
-            const totalPages = Math.ceil(dedupList.length / pageSize) || 1;
-            const pagedList = dedupList.slice((page - 1) * pageSize, page * pageSize);
-
-            const tbody = document.getElementById('p5Tbody');
-            if (pagedList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="15" class="px-4 py-8 text-center text-slate-400">Sin registros únicos.</td></tr>`;
-            } else {
-                tbody.innerHTML = pagedList.map(item => {
-                    const cump = parseFloat(item['CUMP. %']) || 0;
-                    const rangeInfo = getComplianceRange(cump);
-                    return `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                            <td class="px-3 py-2.5 font-medium">${formatDate(formatSafeText(item['FECHA']))}</td>
-                            <td class="px-3 py-2.5 font-mono text-slate-600">${formatSafeText(item['DNI'])}</td>
-                            <td class="px-3 py-2.5 font-semibold text-slate-900">${formatSafeText(item['APELLIDOS Y NOMBRES'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['ACTIVIDAD'])}</td>
-                            <td class="px-3 py-2.5 text-right font-medium">${formatNumber(parseFloat(item['TOTAL HRS']))}</td>
-                            <td class="px-3 py-2.5 text-right font-bold text-slate-900">${formatKg(parseFloat(item['TOTAL KG.'] || item['TOTAL KG']))}</td>
-                            <td class="px-3 py-2.5 text-right text-slate-600">${formatKg(parseFloat(item['META']))}</td>
-                            <td class="px-3 py-2.5 text-center">${rangeInfo.badgeHtml}</td>
-                            <td class="px-3 py-2.5 text-right font-bold text-blue-700">${formatPercent(cump)}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['SEMANA'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['DIA'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['HISTORICO'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['MODALIDAD'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['SEXO'])}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${formatSafeText(item['CATEG. 2026'])}</td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            document.getElementById('p5PageInfo').innerText = `Mostrando ${dedupList.length} registros únicos`;
-            renderPaginationControls('p5Pagination', totalPages, page, (p) => {
-                AppState.currentPageState.p5Page = p;
-                renderPage5();
-            });
-        }
-
-        /* PAGE 6 RENDERING LOGIC (REPORTE PLACAS TDP) */
-        function renderPage6() {
-            const search = document.getElementById('p6SearchInput').value.toLowerCase().trim();
-            const data = AppState.filteredTdp;
-
-            const dates = [...new Set(data.map(i => formatSafeText(i['FECHA'])).filter(d => d !== 'SIN DATOS'))].sort();
-
-            const grouped = {};
-            data.forEach(item => {
-                const placa = formatSafeText(item['PLACA']);
-                if (placa === 'SIN DATOS') return;
-
-                if (search) {
-                    const dni = String(item['DNI'] || '').toLowerCase();
-                    const nombre = String(item['APELLIDOS Y NOMBRES'] || '').toLowerCase();
-                    if (!dni.includes(search) && !nombre.includes(search)) return;
-                }
-
-                if (!grouped[placa]) {
-                    grouped[placa] = {
-                        placa,
-                        ruta: formatSafeText(item['RUTA']),
-                        modalidad: formatSafeText(item['MODALIDAD']),
-                        historico: formatSafeText(item['HISTORICO']),
-                        categ: formatSafeText(item['CATEG. 2026']),
-                        transportista: formatSafeText(item['TRANSPORTISTA']),
-                        dateKgSum: {},
-                        dateCount: {}
-                    };
-                }
-
-                const fecha = formatSafeText(item['FECHA']);
-                const kg = parseFloat(item['TOTAL KG.'] || item['TOTAL KG']) || 0;
-                grouped[placa].dateKgSum[fecha] = (grouped[placa].dateKgSum[fecha] || 0) + kg;
-                grouped[placa].dateCount[fecha] = (grouped[placa].dateCount[fecha] || 0) + 1;
-            });
-
-            const list = Object.values(grouped).sort((a, b) => a.placa.localeCompare(b.placa));
-            const pageSize = 50;
-            const page = AppState.currentPageState.p6Page;
-            const totalPages = Math.ceil(list.length / pageSize) || 1;
-            const pagedList = list.slice((page - 1) * pageSize, page * pageSize);
-
-            const thead = document.getElementById('p6Thead');
-            thead.innerHTML = `
-                <tr>
-                    <th class="px-3 py-3">PLACA</th>
-                    <th class="px-3 py-3">RUTA</th>
-                    <th class="px-3 py-3">MODALIDAD</th>
-                    <th class="px-3 py-3">HISTORICO</th>
-                    <th class="px-3 py-3">CATEG. 2026</th>
-                    <th class="px-3 py-3">TRANSPORTISTA</th>
-                    ${dates.map(d => `<th class="px-3 py-3 text-right min-w-[90px]">${formatDate(d)}</th>`).join('')}
-                </tr>
-            `;
-
-            const tbody = document.getElementById('p6Tbody');
-            if (pagedList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="${6 + dates.length}" class="px-4 py-8 text-center text-slate-400">Sin datos de placas.</td></tr>`;
-            } else {
-                tbody.innerHTML = pagedList.map(row => {
-                    let prevProm = null;
-                    const dateColsHtml = dates.map(d => {
-                        const sumKg = row.dateKgSum[d];
-                        const count = row.dateCount[d];
-                        if (!sumKg || !count) return '<td class="px-3 py-2.5 text-right text-slate-300">-</td>';
-
-                        const prom = sumKg / count;
-                        let trend = '';
-                        if (prevProm !== null) {
-                            if (prom > prevProm) trend = '<span class="text-emerald-600 font-bold ml-1">↑</span>';
-                            else if (prom < prevProm) trend = '<span class="text-red-600 font-bold ml-1">↓</span>';
-                            else trend = '<span class="text-slate-400 ml-1">→</span>';
-                        }
-                        prevProm = prom;
-
-                        return `<td class="px-3 py-2.5 text-right font-medium">${formatNumber(prom, 1)} ${trend}</td>`;
-                    }).join('');
-
-                    return `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                            <td class="px-3 py-2.5 font-bold text-slate-900">${row.placa}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.ruta}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.modalidad}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.historico}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.categ}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${row.transportista}</td>
-                            ${dateColsHtml}
-                        </tr>
-                    `;
-                }).join('');
-            }
-
-            document.getElementById('p6PageInfo').innerText = `Mostrando ${list.length} unidades TDP`;
-            renderPaginationControls('p6Pagination', totalPages, page, (p) => {
-                AppState.currentPageState.p6Page = p;
-                renderPage6();
-            });
-        }
-
-        /* PAGE 7 RENDERING LOGIC (REPORTE FINAL) */
-        function renderPage7() {
-            // Tabla 1: Resumen Cosechador
-            const cosechadoresMap = {};
-            AppState.filteredDetalle.forEach(item => {
-                const dni = item['DNI'];
-                if (!dni) return;
-
-                if (!cosechadoresMap[dni]) {
-                    cosechadoresMap[dni] = {
-                        dni,
-                        nombre: formatSafeText(item['APELLIDOS Y NOMBRES']),
-                        modalidad: formatSafeText(item['MODALIDAD']),
-                        historico: formatSafeText(item['HISTORICO']),
-                        categ: formatSafeText(item['CATEG. 2026']),
-                        fechas: new Set(),
-                        cumpSum: 0,
-                        cumpCount: 0
-                    };
-                }
-
-                const fecha = formatSafeText(item['FECHA']);
-                const cump = parseFloat(item['CUMP. %']) || 0;
-                cosechadoresMap[dni].fechas.add(fecha);
-                cosechadoresMap[dni].cumpSum += cump;
-                cosechadoresMap[dni].cumpCount++;
-            });
-
-            const list1 = Object.values(cosechadoresMap);
-            const pageSize = 50;
-            const page1 = AppState.currentPageState.p7Page1;
-            const totalPages1 = Math.ceil(list1.length / pageSize) || 1;
-            const pagedList1 = list1.slice((page1 - 1) * pageSize, page1 * pageSize);
-
-            const tbody1 = document.getElementById('p7Tbody1');
-            if (pagedList1.length === 0) {
-                tbody1.innerHTML = `<tr><td colspan="7" class="px-4 py-8 text-center text-slate-400">Sin datos para el Reporte Final.</td></tr>`;
-            } else {
-                tbody1.innerHTML = pagedList1.map(item => {
-                    const avgCump = item.cumpCount > 0 ? item.cumpSum / item.cumpCount : 0;
-                    return `
-                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-                            <td class="px-3 py-2.5 font-mono">${item.dni}</td>
-                            <td class="px-3 py-2.5 font-semibold text-slate-900">${item.nombre}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${item.modalidad}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${item.historico}</td>
-                            <td class="px-3 py-2.5 text-right font-bold text-blue-700">${formatPercent(avgCump)}</td>
-                            <td class="px-3 py-2.5 text-right font-medium">${item.fechas.size}</td>
-                            <td class="px-3 py-2.5 text-slate-600">${item.categ}</td>
-                        </tr>
-                    `;
-                }).join('');
-            }
-            document.getElementById('p7PageInfo1').innerText = `Mostrando ${list1.length} cosechadores`;
-            renderPaginationControls('p7Pagination1', totalPages1, page1, (p) => {
-                AppState.currentPageState.p7Page1 = p;
-                renderPage7();
-            });
-
-            // Tabla 2: Modalidad x Historico
-            const t2Group = {};
-            AppState.filteredDetalle.forEach(item => {
-                const key = `${formatSafeText(item['MODALIDAD'])}_${formatSafeText(item['HISTORICO'])}`;
-                if (!t2Group[key]) {
-                    t2Group[key] = {
-                        modalidad: formatSafeText(item['MODALIDAD']),
-                        historico: formatSafeText(item['HISTORICO']),
-                        totalKg: 0,
-                        cumpSum: 0,
-                        cumpCount: 0
-                    };
-                }
-                t2Group[key].totalKg += (parseFloat(item['TOTAL KG']) || 0);
-                t2Group[key].cumpSum += (parseFloat(item['CUMP. %']) || 0);
-                t2Group[key].cumpCount++;
-            });
-
-            const tbody2 = document.getElementById('p7Tbody2');
-            tbody2.innerHTML = Object.values(t2Group).map(row => {
-                const avgCump = row.cumpCount > 0 ? row.cumpSum / row.cumpCount : 0;
-                return `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100 font-medium">
-                        <td class="px-3 py-2.5 text-slate-900">${row.modalidad}</td>
-                        <td class="px-3 py-2.5 text-slate-600">${row.historico}</td>
-                        <td class="px-3 py-2.5 text-right font-bold text-red-700">${formatKg(row.totalKg)}</td>
-                        <td class="px-3 py-2.5 text-right font-bold text-blue-700">${formatPercent(avgCump)}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            // Tabla 3: Modalidad x Categ 2026
-            const t3Group = {};
-            let grandTotalKg = 0;
-            AppState.filteredDetalle.forEach(item => {
-                const kg = parseFloat(item['TOTAL KG']) || 0;
-                grandTotalKg += kg;
-
-                const key = `${formatSafeText(item['MODALIDAD'])}_${formatSafeText(item['CATEG. 2026'])}`;
-                if (!t3Group[key]) {
-                    t3Group[key] = {
-                        modalidad: formatSafeText(item['MODALIDAD']),
-                        categ: formatSafeText(item['CATEG. 2026']),
-                        totalKg: 0,
-                        cumpSum: 0,
-                        cumpCount: 0
-                    };
-                }
-                t3Group[key].totalKg += kg;
-                t3Group[key].cumpSum += (parseFloat(item['CUMP. %']) || 0);
-                t3Group[key].cumpCount++;
-            });
-
-            const tbody3 = document.getElementById('p7Tbody3');
-            tbody3.innerHTML = Object.values(t3Group).map(row => {
-                const avgCump = row.cumpCount > 0 ? row.cumpSum / row.cumpCount : 0;
-                const pctKg = grandTotalKg > 0 ? (row.totalKg / grandTotalKg) * 100 : 0;
-                return `
-                    <tr class="hover:bg-slate-50 border-b border-slate-100 font-medium">
-                        <td class="px-3 py-2.5 text-slate-900">${row.modalidad}</td>
-                        <td class="px-3 py-2.5 text-slate-600">${row.categ}</td>
-                        <td class="px-3 py-2.5 text-right font-bold text-red-700">${formatKg(row.totalKg)}</td>
-                        <td class="px-3 py-2.5 text-right font-bold text-blue-700">${formatPercent(avgCump)}</td>
-                        <td class="px-3 py-2.5 text-right font-bold text-emerald-700">${formatPercent(pctKg)}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Generic Pagination UI Component
-        function renderPaginationControls(containerId, totalPages, currentPage, onPageChange) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-
-            let html = '';
-            html += `
-                <button ${currentPage === 1 ? 'disabled' : ''} onclick="window.${containerId}_go(${currentPage - 1})" class="px-2.5 py-1 text-xs border rounded-lg bg-slate-50 hover:bg-slate-100 disabled:opacity-40">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </button>
-            `;
-
-            for (let i = 1; i <= Math.min(totalPages, 5); i++) {
-                html += `
-                    <button onclick="window.${containerId}_go(${i})" class="px-2.5 py-1 text-xs font-semibold rounded-lg ${i === currentPage ? 'bg-red-600 text-white' : 'bg-slate-50 hover:bg-slate-100 text-slate-700'}">
-                        ${i}
-                    </button>
-                `;
-            }
-
-            html += `
-                <button ${currentPage === totalPages ? 'disabled' : ''} onclick="window.${containerId}_go(${currentPage + 1})" class="px-2.5 py-1 text-xs border rounded-lg bg-slate-50 hover:bg-slate-100 disabled:opacity-40">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </button>
-            `;
-
-            container.innerHTML = html;
-            window[`${containerId}_go`] = onPageChange;
-        }
-
-        function renderCurrentPage() {
-            // Hide all pages
-            document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
-
-            // Show active
-            const pageEl = document.getElementById(`page-${AppState.activePage}`);
-            if (pageEl) pageEl.classList.remove('hidden');
-
-            // Set Header Title
-            const titles = {
-                p1: 'Dashboard Cosecha',
-                p2: 'Reporte Detallado',
-                p3: 'Reporte Fechas KG',
-                p4: 'Reporte Fechas CUMP %',
-                p5: 'Reporte Registros Únicos',
-                p6: 'Reporte Placas TDP',
-                p7: 'Reporte Final'
-            };
-            document.getElementById('pageTitleHeader').innerText = titles[AppState.activePage] || 'Dashboard Cosecha';
-
-            // Render Page Specific Logic
-            switch (AppState.activePage) {
-                case 'p1': renderPage1(); break;
-                case 'p2': renderPage2(); break;
-                case 'p3': renderPage3(); break;
-                case 'p4': renderPage4(); break;
-                case 'p5': renderPage5(); break;
-                case 'p6': renderPage6(); break;
-                case 'p7': renderPage7(); break;
-            }
-        }
-
-        // Excel Exporting Utility using SheetJS
-        function exportToExcel(tableId, filename) {
+        // Export data table to Excel File
+        function exportToExcel(tableId, fileName) {
             const table = document.getElementById(tableId);
-            if (!table) {
-                showToast('No se encontró la tabla para exportar', 'error');
-                return;
-            }
-            try {
-                const wb = XLSX.utils.table_to_book(table, { sheet: "Reporte Cosecha" });
-                XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`);
-                showToast('Archivo Excel generado exitosamente.', 'success');
-            } catch (err) {
-                console.error(err);
-                showToast('Error al exportar archivo Excel.', 'error');
-            }
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Datos" });
+            XLSX.writeFile(wb, `${fileName}_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
-        // Event Listener Bindings
+        // Initialize App Event Listeners & Bootstrapping
         document.addEventListener('DOMContentLoaded', async () => {
-            // Live clock ticker
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('liveDateStr').innerText = now.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                document.getElementById('liveTimeStr').innerText = now.toLocaleTimeString('es-PE');
-            }, 1000);
+            // Setup Pagination Controllers
+            document.getElementById('p1PrevBtn').addEventListener('click', () => { if (AppState.currentPageState.p1Page > 1) { AppState.currentPageState.p1Page--; renderPage1(); } });
+            document.getElementById('p1NextBtn').addEventListener('click', () => { AppState.currentPageState.p1Page++; renderPage1(); });
 
-            // Connection Network listeners
-            window.addEventListener('online', () => {
-                AppState.isOnline = true;
-                updateConnStatus('online');
-                showToast('Conexión reestablecida. Sincronizando...', 'info');
-                loadSheetData();
-            });
-            window.addEventListener('offline', () => {
-                AppState.isOnline = false;
-                updateConnStatus('offline');
-                showToast('Sin conexión a Internet. Operando en Modo Local IndexedDB.', 'warning');
-            });
+            document.getElementById('p2PrevBtn').addEventListener('click', () => { if (AppState.currentPageState.p2Page > 1) { AppState.currentPageState.p2Page--; renderPage2(); } });
+            document.getElementById('p2NextBtn').addEventListener('click', () => { AppState.currentPageState.p2Page++; renderPage2(); });
 
-            // Navigation Clicks
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    document.querySelectorAll('.nav-link').forEach(l => {
-                        l.classList.remove('active', 'bg-red-600', 'text-white', 'shadow-sm');
-                        l.classList.add('text-slate-600', 'hover:bg-slate-100');
-                    });
-                    link.classList.add('active', 'bg-red-600', 'text-white', 'shadow-sm');
-                    link.classList.remove('text-slate-600', 'hover:bg-slate-100');
+            document.getElementById('p3PrevBtn').addEventListener('click', () => { if (AppState.currentPageState.p3Page > 1) { AppState.currentPageState.p3Page--; renderPage3(); } });
+            document.getElementById('p3NextBtn').addEventListener('click', () => { AppState.currentPageState.p3Page++; renderPage3(); });
 
-                    AppState.activePage = link.getAttribute('data-page');
-                    renderCurrentPage();
+            document.getElementById('p4PrevBtn').addEventListener('click', () => { if (AppState.currentPageState.p4Page > 1) { AppState.currentPageState.p4Page--; renderPage4(); } });
+            document.getElementById('p4NextBtn').addEventListener('click', () => { AppState.currentPageState.p4Page++; renderPage4(); });
 
-                    // Close mobile drawer
-                    document.getElementById('sidebarNav').classList.add('-translate-x-full');
-                    document.getElementById('sidebarBackdrop').classList.add('hidden');
-                });
-            });
-
-            // Sidebar Drawer Toggle for Mobile
-            const btnToggleSidebar = document.getElementById('btnToggleSidebar');
-            const btnCloseSidebar = document.getElementById('btnCloseSidebar');
-            const sidebarNav = document.getElementById('sidebarNav');
-            const sidebarBackdrop = document.getElementById('sidebarBackdrop');
-
-            btnToggleSidebar.addEventListener('click', () => {
-                sidebarNav.classList.remove('-translate-x-full');
-                sidebarBackdrop.classList.remove('hidden');
-            });
-            btnCloseSidebar.addEventListener('click', () => {
-                sidebarNav.classList.add('-translate-x-full');
-                sidebarBackdrop.classList.add('hidden');
-            });
-            sidebarBackdrop.addEventListener('click', () => {
-                sidebarNav.classList.add('-translate-x-full');
-                sidebarBackdrop.classList.add('hidden');
-            });
-
-            // Filter Change Listeners
-            ['filterFecha', 'filterSemana', 'filterCateg', 'filterModalidad', 'filterRango', 'filterVariedad'].forEach(id => {
-                document.getElementById(id).addEventListener('change', applyGlobalFilters);
-            });
-
-            document.getElementById('btnClearFilters').addEventListener('click', () => {
-                ['filterFecha', 'filterSemana', 'filterCateg', 'filterModalidad', 'filterRango', 'filterVariedad'].forEach(id => {
-                    document.getElementById(id).value = '';
-                });
-                applyGlobalFilters();
-                showToast('Filtros restablecidos', 'info');
-            });
-
-            // Live Search Inputs
+            // Setup Search Inputs
+            document.getElementById('p1SearchInput').addEventListener('input', () => { AppState.currentPageState.p1Page = 1; renderPage1(); });
             document.getElementById('p2SearchInput').addEventListener('input', () => { AppState.currentPageState.p2Page = 1; renderPage2(); });
             document.getElementById('p3SearchInput').addEventListener('input', () => { AppState.currentPageState.p3Page = 1; renderPage3(); });
             document.getElementById('p4SearchInput').addEventListener('input', () => { AppState.currentPageState.p4Page = 1; renderPage4(); });
-            document.getElementById('p5SearchInput').addEventListener('input', () => { AppState.currentPageState.p5Page = 1; renderPage5(); });
-            document.getElementById('p6SearchInput').addEventListener('input', () => { AppState.currentPageState.p6Page = 1; renderPage6(); });
 
-            // Sync Button
+            // Sync Button Event
             document.getElementById('btnSyncData').addEventListener('click', () => {
                 const icon = document.getElementById('syncIcon');
                 icon.classList.add('fa-spin');
@@ -2299,12 +744,12 @@
                 });
             });
 
-            // Initialize IndexedDB & Initial Data Load
+            // Initialize Local Store & Load Data
             await initIndexedDB();
             await loadSheetData();
         });
 
-        // Service Worker inline Blob registration for full PWA compliance
+        // Register Service Worker for PWA compliance
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').then(reg => {
