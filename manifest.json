@@ -1,18 +1,22 @@
 {
-"short_name": "Huarmey Cosecha",
-"name": "Agrícola Huarmey - Gestión de Cosecha de Arándanos",
-"description": "PWA Offline-First para monitoreo, análisis y gestión de la cosecha de arándanos en Agrícola Huarmey.",
+"name": "Agrícola Huarmey - Cosecha Arándanos",
+"short_name": "Cosecha Huarmey",
+"start_url": "./index.html",
+"display": "standalone",
+"background_color": "#F8FAFC",
+"theme_color": "#B91C1C",
+"description": "Sistema de Monitoreo y Gestión de Cosecha de Arándanos para Agrícola Huarmey.",
+"orientation": "any",
 "icons": [
 {
-"src": "data:image/svg+xml;utf8,",
-"sizes": "192x192 512x512",
-"type": "image/svg+xml",
-"purpose": "any maskable"
+"src": "https://placehold.co/192x192/B91C1C/FFFFFF?text=Huarmey",
+"sizes": "192x192",
+"type": "image/png"
+},
+{
+"src": "https://placehold.co/512x512/B91C1C/FFFFFF?text=Huarmey",
+"sizes": "512x512",
+"type": "image/png"
 }
-],
-"start_url": "./index.html",
-"background_color": "#ffffff",
-"theme_color": "#d92525",
-"display": "standalone",
-"orientation": "any"
+]
 }
