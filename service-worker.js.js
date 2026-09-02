@@ -1,27 +1,39 @@
-const CACHE_NAME = 'huarmey-pwa-v1';
-const STATIC_ASSETS = [
+// ==========================================
+// SERVICE WORKER (service-worker.js)
+// Agrícola Huarmey - PWA Cache & Offline Engine
+// ==========================================
+
+const CACHE_NAME = 'agri-huarmey-v1';
+const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
-  './logo.png',
-  'https://cdn.jsdelivr.net/npm/chart.js'
+  'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
+  'https://cdn.tailwindcss.com',
+  'https://cdn.jsdelivr.net/npm/chart.js',
+  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(
+// Instalación e instanciado del Caché
+self.addEventListener('install', (event) => {
+  event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      console.log('[Service Worker] Caching app shell & assets');
+      return cache.addAll(ASSETS_TO_CACHE);
     }).then(() => self.skipWaiting())
   );
 });
 
-self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => {
+// Activación y limpieza de cachés antiguas
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
       return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log('[Service Worker] Removing old cache:', cache);
+            return caches.delete(cache);
           }
         })
       );
@@ -29,28 +41,25 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-self.addEventListener('fetch', (e) => {
-  if (e.request.url.includes('script.google.com')) {
-    return;
-  }
-  e.respondWith(
-    caches.match(e.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-      return fetch(e.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
+// Estrategia Stale-While-Revalidate para navegación y recursos
+self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+
+  event.respondWith(
+    caches.match(event.request).then((cachedResponse) => {
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(e.request, responseToCache);
+            cache.put(event.request, responseToCache);
           });
         }
         return networkResponse;
+      }).catch(() => {
+        // En caso de fallo de red, se usará la respuesta en caché
       });
-    }).catch(() => {
-      if (e.request.mode === 'navigate') {
-        return caches.match('./index.html');
-      }
+
+      return cachedResponse || fetchPromise;
     })
   );
 });
