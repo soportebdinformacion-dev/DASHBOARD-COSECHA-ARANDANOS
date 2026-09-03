@@ -1,582 +1,532 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full bg-slate-50">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Agrícola Huarmey - Cosecha de Arándanos PWA</title>
-
-    <!-- PWA Meta Tags -->
-    <meta name="theme-color" content="#d32f2f">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="description" content="Sistema de Gestión de Cosecha de Arándanos para Agrícola Huarmey">
-    <link rel="manifest" href="manifest.json">
-
-    <!-- Fonts & Icons -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        agri: {
-                            red: '#d32f2f',
-                            redlight: '#ffebee',
-                            redhover: '#b71c1c',
-                            green: '#2e7d32',
-                            greenlight: '#e8f5e9',
-                            greenhover: '#1b5e20',
-                            accent: '#43a047',
-                            bg: '#f8fafc',
-                            card: '#ffffff'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif']
-                    }
-                }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agrícola Huarmey - Cosecha de Arándanos</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#C83232">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              red: '#C83232',
+              redLight: '#FDF2F2',
+              green: '#2E7D32',
+              greenLight: '#E8F5E9',
+              dark: '#2D3748',
+              bg: '#F8FAF8'
             }
+          },
+          fontFamily: { sans: ['Inter', 'sans-serif'] }
         }
-    </script>
-
-    <!-- Chart.js CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <!-- SheetJS (XLSX Export) -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
-    <style>
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        .compliance-malo { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
-        .compliance-regular { background-color: #ffedd5; color: #9a3412; border: 1px solid #fdba74; }
-        .compliance-bueno { background-color: #dcfce7; color: #166534; border: 1px solid #86efac; }
-        .compliance-excelente { background-color: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
-
-        .tab-btn.active {
-            color: #d32f2f;
-            border-bottom: 3px solid #d32f2f;
-            background-color: rgba(211, 47, 47, 0.04);
-            font-weight: 700;
-        }
-
-        .glass-header {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-        }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #F8FAF8; }
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+    .badge-malo { background-color: #FEE2E2; color: #991B1B; }
+    .badge-regular { background-color: #FFEDD5; color: #9A3412; }
+    .badge-bueno { background-color: #DCFCE7; color: #166534; }
+    .badge-excelente { background-color: #DBEAFE; color: #1E40AF; }
+  </style>
 </head>
-<body class="h-full bg-slate-50 text-slate-800 antialiased flex flex-col font-sans selection:bg-red-100 selection:text-red-700">
+<body class="flex flex-col min-h-screen text-gray-800">
 
-    <!-- Top Navigation Header -->
-    <header class="glass-header sticky top-0 z-40 border-b border-slate-200 shadow-sm">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-green-600 p-0.5 shadow-md flex items-center justify-center">
-                        <div class="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                            <svg class="w-7 h-7" viewBox="0 0 100 100" fill="none">
-                                <circle cx="50" cy="55" r="30" fill="#2e7d32" opacity="0.1"/>
-                                <path d="M50 20 C65 20 80 35 80 55 C80 70 65 85 50 85 C35 85 20 70 20 55 C20 35 35 20 50 20 Z" fill="#d32f2f" />
-                                <path d="M45 15 C55 10 65 15 60 28 C50 30 40 22 45 15 Z" fill="#2e7d32" />
-                                <path d="M25 50 Q50 35 75 50 M22 62 Q50 48 78 62 M28 72 Q50 60 72 72" stroke="#2e7d32" stroke-width="4" stroke-linecap="round" />
-                            </svg>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="flex items-center space-x-1.5">
-                            <h1 class="text-lg font-bold tracking-tight text-slate-900 leading-none">Agrícola Huarmey</h1>
-                            <span class="bg-red-100 text-red-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded uppercase">2026</span>
-                        </div>
-                        <p class="text-xs text-slate-500 font-medium">Gestión de Cosecha de Arándanos 🫐</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center space-x-3 sm:space-x-6">
-                    <div id="statusBadge" class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm transition-all">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span id="statusText">Conectado a Google Sheets</span>
-                    </div>
-
-                    <button onclick="fetchSheetData()" class="p-2 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded-lg transition" title="Sincronizar Datos">
-                        <i id="syncSpinner" class="fas fa-sync-alt"></i>
-                    </button>
-
-                    <button onclick="openAppsScriptModal()" class="hidden md:flex items-center space-x-1.5 text-xs font-semibold px-2.5 py-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg transition">
-                        <i class="fas fa-code text-slate-500"></i>
-                        <span>Apps Script API</span>
-                    </button>
-
-                    <div class="text-right border-l border-slate-200 pl-3 sm:pl-4">
-                        <div id="liveClock" class="text-xs sm:text-sm font-extrabold text-slate-800 tracking-wider">--:--:--</div>
-                        <div id="liveDate" class="text-[10px] sm:text-xs text-slate-500 font-medium">DD/MM/YYYY</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Page Tabs Bar -->
-            <nav class="flex space-x-1 overflow-x-auto no-scrollbar border-t border-slate-100 py-1" id="mainTabsNav">
-                <button onclick="switchTab(1)" id="tab-1" class="tab-btn active px-3 py-2 text-xs font-medium whitespace-nowrap rounded-t-lg transition flex items-center space-x-2">
-                    <span>🫐</span>
-                    <span>Dashboard Cosecha</span>
-                </button>
-                <button onclick="switchTab(2)" id="tab-2" class="tab-btn px-3 py-2 text-xs font-medium whitespace-nowrap rounded-t-lg transition flex items-center space-x-2">
-                    <i class="fas fa-clipboard-list text-slate-400"></i>
-                    <span>Reporte Detallado</span>
-                </button>
-                <button onclick="switchTab(3)" id="tab-3" class="tab-btn px-3 py-2 text-xs font-medium whitespace-nowrap rounded-t-lg transition flex items-center space-x-2">
-                    <i class="fas fa-chart-line text-slate-400"></i>
-                    <span>Reporte Fechas KG</span>
-                </button>
-                <button onclick="switchTab(4)" id="tab-4" class="tab-btn px-3 py-2 text-xs font-medium whitespace-nowrap rounded-t-lg transition flex items-center space-x-2">
-                    <i class="fas fa-bullseye text-slate-400"></i>
-                    <span>Reporte Fechas CUMP. %</span>
-                </button>
-                <button onclick="switchTab(5)" id="tab-5" class="tab-btn px-3 py-2 text-xs font-medium whitespace-nowrap rounded-t-lg transition flex items-center space-x-2">
-                    <i class="fas fa-users text-slate-400"></i>
-                    <span>Reporte Reg. Únicos</span>
-                </button>
-                <button onclick="switchTab(6)" id="tab-6" class="tab-btn px-3 py-2 text-xs font-medium whitespace-nowrap rounded-t-lg transition flex items-center space-x-2">
-                    <i class="fas fa-truck text-slate-400"></i>
-                    <span>Reporte Placas TDP</span>
-                </button>
-                <button onclick="switchTab(7)" id="tab-7" class="tab-btn px-3 py-2 text-xs font-medium whitespace-nowrap rounded-t-lg transition flex items-center space-x-2">
-                    <i class="fas fa-flag-checkered text-slate-400"></i>
-                    <span>Reporte Final</span>
-                </button>
-            </nav>
+  <!-- ENCABEZADO Y BARRA SUPERIOR -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-full bg-brand-redLight flex items-center justify-center p-1 border border-brand-red/20">
+          <i class="fa-solid fa-seedling text-brand-red text-xl"></i>
         </div>
-    </header>
-
-    <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 space-y-4 overflow-x-hidden">
-
-        <div id="offlineNotification" class="hidden bg-amber-50 border border-amber-200 text-amber-800 text-xs px-4 py-2.5 rounded-xl flex items-center justify-between shadow-sm">
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-wifi text-amber-600"></i>
-                <span><strong>Modo Offline Activo:</strong> Trabajando con datos en caché local.</span>
-            </div>
-            <button onclick="fetchSheetData()" class="underline text-amber-900 font-bold hover:text-amber-700">Reintentar</button>
+        <div>
+          <h1 class="text-lg font-bold text-gray-900 leading-tight">Agrícola Huarmey</h1>
+          <p class="text-xs text-gray-500 font-medium">Gestión de Cosecha de Arándanos</p>
         </div>
+      </div>
 
-        <div id="complianceLegend" class="hidden bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
-            <div class="flex items-center space-x-2 font-bold text-slate-700">
-                <i class="fas fa-info-circle text-agri-red"></i>
-                <span>Leyenda de Cumplimiento (%):</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-2">
-                <span class="compliance-malo font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1">
-                    <span class="w-2 h-2 rounded-full bg-red-600"></span>
-                    <span>MALO: 0 - 85%</span>
-                </span>
-                <span class="compliance-regular font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1">
-                    <span class="w-2 h-2 rounded-full bg-amber-600"></span>
-                    <span>REGULAR: 86 - 99%</span>
-                </span>
-                <span class="compliance-bueno font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1">
-                    <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                    <span>BUENO: 100 - 104%</span>
-                </span>
-                <span class="compliance-excelente font-semibold px-2.5 py-1 rounded-lg flex items-center space-x-1">
-                    <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                    <span>EXCELENTE: 105%+</span>
-                </span>
-            </div>
+      <div class="flex items-center space-x-4">
+        <!-- Notificación de estado de conexión GS -->
+        <div id="connectionStatus" class="flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300">
+          <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
+          <span id="statusText">Conectando...</span>
         </div>
-
-        <!-- Filter Controls Container -->
-        <div id="globalFiltersCard" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-2 text-slate-800 font-bold text-sm">
-                    <i class="fas fa-filter text-agri-red"></i>
-                    <span>Filtros de Búsqueda y Selección</span>
-                </div>
-                <button onclick="resetFilters()" class="text-xs text-red-600 hover:text-red-800 font-semibold flex items-center space-x-1">
-                    <i class="fas fa-undo"></i>
-                    <span>Restablecer Filtros</span>
-                </button>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 text-xs">
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">FECHA</label>
-                    <select id="filterFecha" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
-                        <option value="">Todas</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">SEMANA</label>
-                    <select id="filterSemana" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
-                        <option value="">Todas</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">CATEG. 2026</label>
-                    <select id="filterCateg" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
-                        <option value="">Todas</option>
-                    </select>
-                </div>
-                <div id="filterVariedadBox" class="hidden">
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">VARIEDAD</label>
-                    <select id="filterVariedad" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
-                        <option value="">Todas</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">MODALIDAD</label>
-                    <select id="filterModalidad" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
-                        <option value="">Todas</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">RANGO %</label>
-                    <select id="filterRango" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
-                        <option value="">Todos</option>
-                    </select>
-                </div>
-                <div id="filterPlacaBox" class="hidden">
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">PLACA</label>
-                    <select id="filterPlaca" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
-                        <option value="">Todas</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="globalSearchBox" class="hidden pt-2 border-t border-slate-100 flex items-center space-x-2">
-                <div class="relative flex-1">
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none">
-                </div>
-            </div>
+        <!-- Fecha y hora dinámicas -->
+        <div class="hidden md:flex flex-col items-end text-xs text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+          <div id="liveClock" class="font-bold text-brand-dark">00:00:00 AM</div>
+          <div id="liveDate" class="text-gray-500">00/00/0000</div>
         </div>
+      </div>
+    </div>
 
-        <!-- PAGE 1: DASHBOARD COSECHA -->
-        <div id="page-1" class="page-content space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl font-bold">
-                        <i class="fas fa-weight-hanging"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase">TOTAL KG.</p>
-                        <h3 id="p1_kpi_total_kg" class="text-2xl font-extrabold text-slate-900">0</h3>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-bold">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase">TOTAL CUMP. %</p>
-                        <h3 id="p1_kpi_total_cump" class="text-2xl font-extrabold text-slate-900">0%</h3>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">
-                        <i class="fas fa-users-viewfinder"></i>
-                    </div>
-                    <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase">TOTAL COSECHADORES</p>
-                        <h3 id="p1_kpi_total_cosechadores" class="text-2xl font-extrabold text-slate-900">0</h3>
-                    </div>
-                </div>
-            </div>
+    <!-- Menú de navegación de 7 Páginas -->
+    <nav class="bg-white border-t border-gray-100 px-4 overflow-x-auto custom-scrollbar">
+      <div class="max-w-7xl mx-auto flex space-x-1 py-1 text-xs font-medium whitespace-nowrap">
+        <button onclick="switchTab('p1')" id="tab-p1" class="px-3 py-2 rounded-lg flex items-center space-x-1.5 transition-colors bg-brand-red text-white">
+          <i class="fa-solid fa-file-contract text-blue-500"></i><span>Dashboard Cosecha</span>
+        </button>
+        <button onclick="switchTab('p2')" id="tab-p2" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
+          <i class="fa-solid fa-list-check text-green-600"></i><span>Reporte Detallado</span>
+        </button>
+        <button onclick="switchTab('p3')" id="tab-p3" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
+          <i class="fa-solid fa-weight-hanging text-purple-600"></i><span>Reporte Fechas KG</span>
+        </button>
+        <button onclick="switchTab('p4')" id="tab-p4" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
+          <i class="fa-solid fa-chart-line text-emerald-600"></i><span>Reporte Fechas CUMP. %</span>
+        </button>
+        <button onclick="switchTab('p5')" id="tab-p5" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
+          <i class="fa-solid fa-users text-indigo-600"></i><span>Reporte Reg. Únicos</span>
+        </button>
+        <button onclick="switchTab('p6')" id="tab-p6" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
+          <i class="fa-solid fa-truck-front text-amber-600"></i><span>Reporte Placas TDP</span>
+        </button>
+        <button onclick="switchTab('p7')" id="tab-p7" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
+          <i class="fa-solid fa-flag-checkered text-rose-600"></i><span>Reporte Final</span>
+        </button>
+      </div>
+    </nav>
+  </header>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase">Cosechadores por Modalidad</h4>
-                    <div class="h-64 relative flex items-center justify-center">
-                        <canvas id="chartModalidad"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase">Cosechadores por Sexo</h4>
-                    <div class="h-64 relative flex items-center justify-center">
-                        <canvas id="chartSexo"></canvas>
-                    </div>
-                </div>
-            </div>
+  <!-- CONTENIDO PRINCIPAL -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 space-y-4">
 
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <h4 class="text-xs font-bold text-slate-800 uppercase">Resumen Diario de Cosecha</h4>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold">
-                                <th class="p-2.5">FECHA</th>
-                                <th class="p-2.5 text-right">TOTAL KG.</th>
-                                <th class="p-2.5 text-right">TOTAL COSECHADORES</th>
-                                <th class="p-2.5 text-right">PROMEDIO KG/COSECHADOR</th>
-                            </tr>
-                        </thead>
-                        <tbody id="p1_t1_body" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
+    <!-- LEYENDA DE CUMPLIMIENTO GLOBAL -->
+    <div id="legendContainer" class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
+      <span class="font-bold text-gray-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-brand-red"></i> Leyenda CUMP. %:</span>
+      <div class="flex flex-wrap gap-2">
+        <span class="badge-malo px-2.5 py-1 rounded-full font-semibold border border-red-200">MALO (0 - 85%)</span>
+        <span class="badge-regular px-2.5 py-1 rounded-full font-semibold border border-orange-200">REGULAR (86 - 99%)</span>
+        <span class="badge-bueno px-2.5 py-1 rounded-full font-semibold border border-green-200">BUENO (100 - 104%)</span>
+        <span class="badge-excelente px-2.5 py-1 rounded-full font-semibold border border-blue-200">EXCELENTE (105%+ )</span>
+      </div>
+    </div>
+
+    <!-- PÁGINA 1: DASHBOARD COSECHA -->
+    <section id="page-p1" class="space-y-4">
+      <!-- Filtros P1 -->
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
+        <div>
+          <label class="block font-semibold text-gray-600 mb-1"><i class="fa-regular fa-calendar text-brand-red mr-1"></i> FECHA</label>
+          <input type="date" id="filter-p1-fecha" onchange="renderP1()" class="w-full border border-gray-300 rounded-lg p-2 focus:ring-1 focus:ring-brand-red outline-none">
         </div>
-
-        <!-- PAGE 2: REPORTE DETALLADO -->
-        <div id="page-2" class="page-content hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <h4 class="text-xs font-bold text-slate-800 uppercase">Detalle Registro a Registro (Hoja DETALLE)</h4>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold">
-                                <th class="p-2.5">FECHA</th>
-                                <th class="p-2.5">DNI</th>
-                                <th class="p-2.5">APELLIDOS Y NOMBRES</th>
-                                <th class="p-2.5">HISTORICO</th>
-                                <th class="p-2.5">MODALIDAD</th>
-                                <th class="p-2.5">VARIEDAD</th>
-                                <th class="p-2.5">MODULO|TURNO</th>
-                                <th class="p-2.5">LABOR</th>
-                                <th class="p-2.5 text-right">TOTAL KG</th>
-                                <th class="p-2.5 text-right">META</th>
-                                <th class="p-2.5 text-center">CUMP. %</th>
-                                <th class="p-2.5">CATEG. 2026</th>
-                                <th class="p-2.5">RANGO %</th>
-                            </tr>
-                        </thead>
-                        <tbody id="p2_body" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
+        <div>
+          <label class="block font-semibold text-gray-600 mb-1"><i class="fa-solid fa-calendar-week text-brand-green mr-1"></i> SEMANA</label>
+          <select id="filter-p1-semana" onchange="renderP1()" class="w-full border border-gray-300 rounded-lg p-2 outline-none"><option value="">Todas</option></select>
         </div>
-    </main>
+        <div>
+          <label class="block font-semibold text-gray-600 mb-1"><i class="fa-solid fa-tags text-blue-500 mr-1"></i> CATEG. 2026</label>
+          <select id="filter-p1-categ" onchange="renderP1()" class="w-full border border-gray-300 rounded-lg p-2 outline-none"><option value="">Todas</option></select>
+        </div>
+        <div>
+          <label class="block font-semibold text-gray-600 mb-1"><i class="fa-solid fa-bus text-amber-500 mr-1"></i> MODALIDAD</label>
+          <select id="filter-p1-modalidad" onchange="renderP1()" class="w-full border border-gray-300 rounded-lg p-2 outline-none"><option value="">Todas</option></select>
+        </div>
+        <div>
+          <label class="block font-semibold text-gray-600 mb-1"><i class="fa-solid fa-chart-pie text-purple-500 mr-1"></i> RANGO %</label>
+          <select id="filter-p1-rango" onchange="renderP1()" class="w-full border border-gray-300 rounded-lg p-2 outline-none"><option value="">Todos</option></select>
+        </div>
+      </div>
 
-    <script>
-        // URL Oficial de Google Apps Script Web App
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwmsqbdGuBqCEfatW8Sae-Jc9QdTtfQBvEnr2PJZz1jsOhHDM1Gu4_d9yQ7WnvPx0AU/exec";
+      <!-- Tarjetas KPIs -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-gray-500">TOTAL KG.</p>
+            <h3 id="kpi-total-kg" class="text-2xl font-bold text-brand-dark">0</h3>
+          </div>
+          <div class="w-12 h-12 bg-red-50 text-brand-red rounded-full flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-weight-hanging"></i></div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-gray-500">TOTAL CUMP. %</p>
+            <h3 id="kpi-total-cump" class="text-2xl font-bold text-brand-dark">0%</h3>
+          </div>
+          <div class="w-12 h-12 bg-green-50 text-brand-green rounded-full flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-bullseye"></i></div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p class="text-xs font-medium text-gray-500">TOTAL COSECHADORES</p>
+            <h3 id="kpi-total-cosechadores" class="text-2xl font-bold text-brand-dark">0</h3>
+          </div>
+          <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-xl font-bold"><i class="fa-solid fa-users"></i></div>
+        </div>
+      </div>
 
-        let rawData = [];
-        let filteredData = [];
-        let currentTab = 1;
-        let chartModalidadObj = null;
-        let chartSexoObj = null;
+      <!-- Gráficos de Dona -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+          <h4 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-brand-red"></i> Distribución por Modalidad</h4>
+          <div class="relative h-48"><canvas id="chartModalidad"></canvas></div>
+        </div>
+        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+          <h4 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-venus-mars text-brand-green"></i> Distribución por Sexo</h4>
+          <div class="relative h-48"><canvas id="chartSexo"></canvas></div>
+        </div>
+      </div>
 
-        window.addEventListener('DOMContentLoaded', () => {
-            initLiveClock();
-            registerServiceWorker();
-            loadCachedDataOrFetch();
+      <!-- Tabla Ranking Top 10 -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-x-auto">
+        <h4 class="text-xs font-bold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-trophy text-amber-500"></i> Top 10 Cosechadores</h4>
+        <table class="w-full text-left text-xs border-collapse">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold">
+              <th class="p-2">#</th>
+              <th class="p-2">APELLIDOS Y NOMBRES</th>
+              <th class="p-2">MODALIDAD</th>
+              <th class="p-2">TOTAL DÍAS</th>
+              <th class="p-2">TOTAL KG.</th>
+              <th class="p-2">TOTAL PROMEDIO</th>
+            </tr>
+          </thead>
+          <tbody id="p1-top10-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TABLA PAGINADA GENÉRICA PARA P2-P7 -->
+    <section id="page-generic" class="hidden space-y-4">
+      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex items-center space-x-2 flex-grow max-w-md">
+          <i class="fa-solid fa-magnifying-glass text-gray-400"></i>
+          <input type="text" id="genericSearch" oninput="renderGenericTable()" placeholder="Buscar por DNI o Apellidos..." class="w-full border border-gray-300 rounded-lg p-2 outline-none">
+        </div>
+        <div class="flex items-center space-x-2">
+          <button onclick="sortGenericTable()" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg font-medium border border-gray-300 flex items-center gap-1">
+            <i class="fa-solid fa-sort"></i> Ordenar
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
+        <table class="w-full text-left text-xs border-collapse whitespace-nowrap">
+          <thead id="genericTableHeader" class="bg-gray-50 border-b border-gray-200 text-gray-600 font-semibold"></thead>
+          <tbody id="genericTableBody" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
+
+      <!-- Paginador 50 registros -->
+      <div class="flex items-center justify-between text-xs bg-white p-3 rounded-xl border border-gray-200">
+        <span id="pageInfo" class="text-gray-500">Página 1 de 1</span>
+        <div class="flex space-x-1">
+          <button onclick="prevPage()" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded font-semibold text-gray-700">Anterior</button>
+          <button onclick="nextPage()" class="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded font-semibold text-gray-700">Siguiente</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // URL Backend Google Apps Script
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbz0yrfg95nUDAXbJl0uMKsRRMDfIUp-FFb1VNrluyMGf9WudEmE6_qPlemEUBqKWPuU/exec';
+
+    // Estado global de la aplicación
+    let appData = { DETALLE: [], TDP: [], UNICOS: [], REPORTE: [] };
+    let currentTab = 'p1';
+    let currentPage = 1;
+    const pageSize = 50;
+    let sortAsc = true;
+
+    // Inicialización de gráficos
+    let chartMod, chartSex;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initClock();
+      initDB();
+      registerSW();
+      fetchData();
+    });
+
+    // Reloj dinámico
+    function initClock() {
+      setInterval(() => {
+        const now = new Date();
+        document.getElementById('liveClock').innerText = now.toLocaleTimeString();
+        document.getElementById('liveDate').innerText = now.toLocaleDateString('es-PE');
+      }, 1000);
+    }
+
+    // Registro del Service Worker
+    function registerSW() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js')
+          .then(() => console.log('Service Worker Registrado'))
+          .catch(err => console.error('Error SW:', err));
+      }
+    }
+
+    // Base de datos local IndexedDB
+    let db;
+    function initDB() {
+      const request = indexedDB.open('AgrícolaHuarmeyDB', 1);
+      request.onupgradeneeded = (e) => {
+        db = e.target.result;
+        ['DETALLE', 'TDP', 'UNICOS', 'REPORTE'].forEach(sheet => {
+          if (!db.objectStoreNames.contains(sheet)) {
+            db.createObjectStore(sheet, { autoIncrement: true });
+          }
         });
+      };
+      request.onsuccess = (e) => { db = e.target.result; loadFromIndexedDB(); };
+    }
 
-        function initLiveClock() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('liveClock').innerText = now.toLocaleTimeString('es-PE');
-                document.getElementById('liveDate').innerText = now.toLocaleDateString('es-PE');
-            }, 1000);
+    function saveToIndexedDB(data) {
+      if (!db) return;
+      Object.keys(data).forEach(sheet => {
+        const tx = db.transaction(sheet, 'readwrite');
+        const store = tx.objectStore(sheet);
+        store.clear();
+        data[sheet].forEach(item => store.add(item));
+      });
+    }
+
+    function loadFromIndexedDB() {
+      if (!db) return;
+      Object.keys(appData).forEach(sheet => {
+        const tx = db.transaction(sheet, 'readonly');
+        const store = tx.objectStore(sheet);
+        const req = store.getAll();
+        req.onsuccess = () => {
+          if (req.result && req.result.length > 0) {
+            appData[sheet] = req.result;
+            if (currentTab === 'p1') renderP1();
+          }
+        };
+      });
+    }
+
+    // Conexión y sincronización con Apps Script
+    async function fetchData() {
+      const statusEl = document.getElementById('connectionStatus');
+      const statusText = document.getElementById('statusText');
+      try {
+        const res = await fetch(GAS_URL + '?action=getAllData');
+        const json = await res.json();
+        if (json.status === 'success') {
+          appData = json.data;
+          saveToIndexedDB(appData);
+          statusEl.className = "flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-300";
+          statusText.innerText = "Conectado a Google Sheets";
+          populateFilters();
+          renderP1();
         }
+      } catch (err) {
+        statusEl.className = "flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-300";
+        statusText.innerText = "Modo Offline (Cache)";
+      }
+    }
 
-        function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('./service-worker.js').catch(console.error);
-            }
+    // Navegación por pestañas
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.className = "px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5";
+      });
+      document.getElementById(`tab-${tabId}`).className = "px-3 py-2 rounded-lg flex items-center space-x-1.5 transition-colors bg-brand-red text-white";
+
+      if (tabId === 'p1') {
+        document.getElementById('page-p1').classList.remove('hidden');
+        document.getElementById('page-generic').classList.add('hidden');
+        renderP1();
+      } else {
+        document.getElementById('page-p1').classList.add('hidden');
+        document.getElementById('page-generic').classList.remove('hidden');
+        currentPage = 1;
+        renderGenericTable();
+      }
+    }
+
+    // Filtros dinámicos P1
+    function populateFilters() {
+      const detalle = appData.DETALLE || [];
+      const semanas = [...new Set(detalle.map(i => i.SEMANA).filter(Boolean))];
+      const categs = [...new Set(detalle.map(i => i['CATEG. 2026']).filter(Boolean))];
+      const mods = [...new Set(detalle.map(i => i.MODALIDAD).filter(Boolean))];
+      const rangos = [...new Set(detalle.map(i => i['RANGO %']).filter(Boolean))];
+
+      fillSelect('filter-p1-semana', semanas);
+      fillSelect('filter-p1-categ', categs);
+      fillSelect('filter-p1-modalidad', mods);
+      fillSelect('filter-p1-rango', rangos);
+    }
+
+    function fillSelect(id, options) {
+      const sel = document.getElementById(id);
+      sel.innerHTML = '<option value="">Todas</option>';
+      options.forEach(opt => { sel.innerHTML += `<option value="${opt}">${opt}</option>`; });
+    }
+
+    // Renderizar Dashboard P1
+    function renderP1() {
+      let data = appData.DETALLE || [];
+      const fecha = document.getElementById('filter-p1-fecha').value;
+      const sem = document.getElementById('filter-p1-semana').value;
+      const cat = document.getElementById('filter-p1-categ').value;
+      const mod = document.getElementById('filter-p1-modalidad').value;
+      const ran = document.getElementById('filter-p1-rango').value;
+
+      if (sem) data = data.filter(i => String(i.SEMANA) === sem);
+      if (cat) data = data.filter(i => String(i['CATEG. 2026']) === cat);
+      if (mod) data = data.filter(i => String(i.MODALIDAD) === mod);
+      if (ran) data = data.filter(i => String(i['RANGO %']) === ran);
+
+      // Totales
+      const totalKg = data.reduce((acc, curr) => acc + Number(curr['TOTAL KG'] || 0), 0);
+      const totalCump = data.length ? (data.reduce((acc, curr) => acc + Number(curr['CUMP. %'] || 0), 0) / data.length) : 0;
+      const cosechadoresUnicos = new Set(data.map(i => i.DNI)).size;
+
+      document.getElementById('kpi-total-kg').innerText = Math.round(totalKg).toLocaleString();
+      document.getElementById('kpi-total-cump').innerText = Math.round(totalCump * 100) + '%';
+      document.getElementById('kpi-total-cosechadores').innerText = cosechadoresUnicos.toLocaleString();
+
+      renderChartsP1(data);
+      renderTop10P1(data);
+    }
+
+    // Gráficos de Dona P1
+    function renderChartsP1(data) {
+      const modCounts = {};
+      const sexCounts = {};
+
+      data.forEach(i => {
+        modCounts[i.MODALIDAD || 'Otros'] = (modCounts[i.MODALIDAD || 'Otros'] || 0) + 1;
+        sexCounts[i.SEXO || 'Otros'] = (sexCounts[i.SEXO || 'Otros'] || 0) + 1;
+      });
+
+      if (chartMod) chartMod.destroy();
+      if (chartSex) chartSex.destroy();
+
+      chartMod = new Chart(document.getElementById('chartModalidad'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(modCounts),
+          datasets: [{ data: Object.values(modCounts), backgroundColor: ['#C83232', '#2E7D32', '#3B82F6', '#F59E0B'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      chartSex = new Chart(document.getElementById('chartSexo'), {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(sexCounts),
+          datasets: [{ data: Object.values(sexCounts), backgroundColor: ['#EC4899', '#3B82F6', '#10B981'] }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    // Tabla Top 10 P1
+    function renderTop10P1(data) {
+      const map = {};
+      data.forEach(i => {
+        if (!map[i.DNI]) {
+          map[i.DNI] = { name: i['APELLIDOS Y NOMBRES'], mod: i.MODALIDAD, kg: 0, fechas: new Set() };
         }
+        map[i.DNI].kg += Number(i['TOTAL KG'] || 0);
+        if (i.FECHA) map[i.DNI].fechas.add(i.FECHA);
+      });
 
-        async function fetchSheetData() {
-            const syncSpinner = document.getElementById('syncSpinner');
-            if (syncSpinner) syncSpinner.classList.add('fa-spin');
+      const list = Object.values(map).sort((a, b) => b.kg - a.kg).slice(0, 10);
+      const tbody = document.getElementById('p1-top10-body');
+      tbody.innerHTML = '';
 
-            try {
-                const response = await fetch(APPS_SCRIPT_URL + "?sheet=DETALLE", {
-                    method: 'GET',
-                    redirect: 'follow'
-                });
+      list.forEach((item, index) => {
+        const dias = item.fechas.size || 1;
+        const prom = Math.round(item.kg / dias);
+        tbody.innerHTML += `
+          <tr class="border-b border-gray-100 hover:bg-gray-50">
+            <td class="p-2 font-bold text-gray-500">${index + 1}</td>
+            <td class="p-2 font-semibold text-gray-800">${item.name || '-'}</td>
+            <td class="p-2">${item.mod || '-'}</td>
+            <td class="p-2">${dias}</td>
+            <td class="p-2 font-bold text-brand-red">${Math.round(item.kg).toLocaleString()}</td>
+            <td class="p-2">${prom.toLocaleString()}</td>
+          </tr>
+        `;
+      });
+    }
 
-                if (!response.ok) throw new Error("HTTP Status: " + response.status);
+    // Renderizado genérico de tablas paginadas (P2 a P7)
+    function renderGenericTable() {
+      let dataset = [];
+      let columns = [];
 
-                const json = await response.json();
-                if (json && json.status === "success" && Array.isArray(json.data)) {
-                    rawData = processRawRecords(json.data);
-                    localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
-                    updateConnectionStatus(true);
-                } else {
-                    throw new Error("Formato JSON no válido");
-                }
-            } catch (err) {
-                console.warn("Conexión remota no disponible. Cargando desde caché:", err);
-                const cached = localStorage.getItem('agri_huarmey_db');
-                if (cached) rawData = JSON.parse(cached);
-                updateConnectionStatus(false);
-            } finally {
-                if (syncSpinner) syncSpinner.classList.remove('fa-spin');
-                populateFilterDropdowns();
-                applyFilters();
-            }
-        }
+      if (currentTab === 'p2') {
+        dataset = appData.DETALLE || [];
+        columns = ['FECHA', 'DNI', 'APELLIDOS Y NOMBRES', 'HISTORICO', 'MODALIDAD', 'VARIEDAD', 'TOTAL KG', 'CUMP. %', 'CATEG. 2026', 'RANGO %'];
+      } else if (currentTab === 'p3' || currentTab === 'p4') {
+        dataset = appData.TDP || [];
+        columns = ['FECHA', 'DNI', 'APELLIDOS Y NOMBRES', 'MODALIDAD', 'CATEG. 2026', 'PLACA', 'TOTAL KG.', 'CUMP. %'];
+      } else if (currentTab === 'p5') {
+        dataset = appData.UNICOS || [];
+        columns = ['FECHA', 'DNI', 'APELLIDOS Y NOMBRES', 'ACTIVIDAD', 'TOTAL HRS', 'TOTAL KG.', 'CUMP. %', 'MODALIDAD'];
+      } else if (currentTab === 'p6') {
+        dataset = appData.TDP || [];
+        columns = ['PLACA', 'RUTA', 'MODALIDAD', 'TRANSPORTISTA', 'FECHA', 'TOTAL KG.'];
+      } else if (currentTab === 'p7') {
+        dataset = appData.REPORTE || [];
+        columns = ['DNI', 'APELLIDOS Y NOMBRES', 'MODALIDAD', 'HISTORICO', 'CUMP. %', 'CATEG. 2026'];
+      }
 
-        function loadCachedDataOrFetch() {
-            const cached = localStorage.getItem('agri_huarmey_db');
-            if (cached) {
-                rawData = JSON.parse(cached);
-                populateFilterDropdowns();
-                applyFilters();
-            }
-            fetchSheetData();
-        }
+      // Búsqueda
+      const q = document.getElementById('genericSearch').value.toLowerCase();
+      if (q) {
+        dataset = dataset.filter(i => 
+          (i.DNI && String(i.DNI).toLowerCase().includes(q)) || 
+          (i['APELLIDOS Y NOMBRES'] && String(i['APELLIDOS Y NOMBRES']).toLowerCase().includes(q))
+        );
+      }
 
-        function updateConnectionStatus(isOnline) {
-            const badge = document.getElementById('statusBadge');
-            const text = document.getElementById('statusText');
-            const offlineAlert = document.getElementById('offlineNotification');
+      // Encabezados
+      const thead = document.getElementById('genericTableHeader');
+      thead.innerHTML = `<tr>${columns.map(c => `<th class="p-3">${c}</th>`).join('')}</tr>`;
 
-            if (isOnline) {
-                badge.className = "hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm";
-                text.innerText = "Conectado a Google Sheets";
-                offlineAlert.classList.add('hidden');
-            } else {
-                badge.className = "hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200 shadow-sm";
-                text.innerText = "Modo Offline (Local)";
-                offlineAlert.classList.remove('hidden');
-            }
-        }
+      // Paginación
+      const totalPages = Math.ceil(dataset.length / pageSize) || 1;
+      if (currentPage > totalPages) currentPage = totalPages;
+      const start = (currentPage - 1) * pageSize;
+      const paginated = dataset.slice(start, start + pageSize);
 
-        function processRawRecords(records) {
-            return records.map((r, idx) => {
-                const totalKg = Math.round(parseFloat(r['TOTAL KG'] || 0));
-                const meta = Math.round(parseFloat(r['META'] || 0));
-                let cump = parseFloat(r['CUMP. %'] || 0);
-                if (cump <= 1.5 && cump > 0) cump = Math.round(cump * 100);
-                else cump = Math.round(cump);
+      document.getElementById('pageInfo').innerText = `Página ${currentPage} de ${totalPages} (${dataset.length} registros)`;
 
-                return {
-                    id: idx + 1,
-                    DNI: String(r['DNI'] || ''),
-                    FECHA: r['FECHA'] || '',
-                    SUPERVISOR: r['SUPERVISOR'] || '',
-                    MODULO_TURNO: r['MODULO|TURNO'] || r['MODULO_TURNO'] || '',
-                    ACTIVIDAD: r['ACTIVIDAD'] || 'COSECHA',
-                    LABOR: r['LABOR'] || 'COSECHA ARANDANO',
-                    TOTAL_HRS: Math.round(parseFloat(r['TOTAL HRS'] || 8)),
-                    TOTAL_KG: totalKg,
-                    AVANCE: Math.round(parseFloat(r['AVANCE'] || 0)),
-                    ID_META: r['ID META'] || '',
-                    META_PROD: Math.round(parseFloat(r['META (PROD.)'] || meta)),
-                    META: meta,
-                    VARIEDAD: r['VARIEDAD'] || '',
-                    CUMP_PERC: cump,
-                    CATEG_2026: r['CATEG. 2026'] || '',
-                    RANGO_PERC: r['RANGO %'] || calculateRangoLabel(cump),
-                    APELLIDOS_NOMBRES: r['APELLIDOS Y NOMBRES'] || '',
-                    MODALIDAD: r['MODALIDAD'] || '',
-                    HISTORICO: r['HISTORICO'] || '',
-                    SEXO: r['SEXO'] || '',
-                    SEMANA: String(r['SEMANA'] || ''),
-                    DIA: r['DIA'] || '',
-                    PLACA: r['PLACA'] || '',
-                    TIPO_UNIDAD: r['TIPO UNIDAD'] || '',
-                    RUTA: r['RUTA'] || '',
-                    TRANSPORTISTA: r['TRANSPORTISTA'] || ''
-                };
-            });
-        }
+      // Cuerpo
+      const tbody = document.getElementById('genericTableBody');
+      tbody.innerHTML = '';
 
-        function calculateRangoLabel(cump) {
-            if (cump <= 85) return "MALO 0-85%";
-            if (cump <= 99) return "REGULAR 86-99%";
-            if (cump <= 104) return "BUENO 100-104%";
-            return "EXCELENTE 105%+";
-        }
+      paginated.forEach(row => {
+        let tr = '<tr class="hover:bg-gray-50 border-b border-gray-100">';
+        columns.forEach(col => {
+          let val = row[col] !== undefined ? row[col] : '-';
+          if (typeof val === 'number') val = Math.round(val).toLocaleString();
 
-        function populateFilterDropdowns() {
-            const getUnique = (key) => [...new Set(rawData.map(r => r[key]))].filter(Boolean).sort();
-            fillSelect('filterFecha', getUnique('FECHA'));
-            fillSelect('filterSemana', getUnique('SEMANA'));
-            fillSelect('filterCateg', getUnique('CATEG_2026'));
-            fillSelect('filterVariedad', getUnique('VARIEDAD'));
-            fillSelect('filterModalidad', getUnique('MODALIDAD'));
-            fillSelect('filterRango', getUnique('RANGO_PERC'));
-            fillSelect('filterPlaca', getUnique('PLACA'));
-        }
+          if (col === 'CUMP. %') {
+            const num = parseFloat(row[col]) * (row[col] <= 1 ? 100 : 1);
+            let badgeClass = 'badge-malo';
+            if (num >= 105) badgeClass = 'badge-excelente';
+            else if (num >= 100) badgeClass = 'badge-bueno';
+            else if (num >= 86) badgeClass = 'badge-regular';
+            val = `<span class="px-2 py-0.5 rounded-full font-bold ${badgeClass}">${Math.round(num)}%</span>`;
+          }
 
-        function fillSelect(id, items) {
-            const sel = document.getElementById(id);
-            if (!sel) return;
-            sel.innerHTML = `<option value="">Todas</option>` + items.map(i => `<option value="${i}">${i}</option>`).join('');
-        }
+          tr += `<td class="p-3 text-gray-700">${val}</td>`;
+        });
+        tr += '</tr>';
+        tbody.innerHTML += tr;
+      });
+    }
 
-        function applyFilters() {
-            const fecha = document.getElementById('filterFecha')?.value;
-            const modalidad = document.getElementById('filterModalidad')?.value;
-
-            filteredData = rawData.filter(r => {
-                if (fecha && r.FECHA !== fecha) return false;
-                if (modalidad && r.MODALIDAD !== modalidad) return false;
-                return true;
-            });
-
-            renderCurrentPage();
-        }
-
-        function switchTab(tabNum) {
-            currentTab = tabNum;
-            for (let i = 1; i <= 2; i++) {
-                const btn = document.getElementById(`tab-${i}`);
-                const page = document.getElementById(`page-${i}`);
-                if (btn) btn.classList.remove('active');
-                if (page) page.classList.add('hidden');
-            }
-            document.getElementById(`tab-${tabNum}`)?.classList.add('active');
-            document.getElementById(`page-${tabNum}`)?.classList.remove('hidden');
-            renderCurrentPage();
-        }
-
-        function renderCurrentPage() {
-            if (currentTab === 1) renderPage1();
-            if (currentTab === 2) renderPage2();
-        }
-
-        function renderPage1() {
-            const totalKg = filteredData.reduce((acc, r) => acc + r.TOTAL_KG, 0);
-            const totalCosechadores = new Set(filteredData.map(r => r.DNI)).size;
-            const avgCump = filteredData.length > 0 ? Math.round(filteredData.reduce((acc, r) => acc + r.CUMP_PERC, 0) / filteredData.length) : 0;
-
-            document.getElementById('p1_kpi_total_kg').innerText = totalKg.toLocaleString('es-PE');
-            document.getElementById('p1_kpi_total_cosechadores').innerText = totalCosechadores.toLocaleString('es-PE');
-            document.getElementById('p1_kpi_total_cump').innerText = avgCump + "%";
-        }
-
-        function renderPage2() {
-            const tbody = document.getElementById('p2_body');
-            tbody.innerHTML = filteredData.slice(0, 50).map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-bold text-slate-700">${r.FECHA}</td>
-                    <td class="p-2.5 font-mono text-slate-600">${r.DNI}</td>
-                    <td class="p-2.5 font-bold text-slate-900">${r.APELLIDOS_NOMBRES}</td>
-                    <td class="p-2.5 text-slate-600">${r.HISTORICO}</td>
-                    <td class="p-2.5 font-semibold text-slate-700">${r.MODALIDAD}</td>
-                    <td class="p-2.5 text-slate-600">${r.VARIEDAD}</td>
-                    <td class="p-2.5 text-slate-500">${r.MODULO_TURNO}</td>
-                    <td class="p-2.5 text-slate-500">${r.LABOR}</td>
-                    <td class="p-2.5 text-right font-black text-red-600">${r.TOTAL_KG}</td>
-                    <td class="p-2.5 text-right font-medium text-slate-500">${r.META}</td>
-                    <td class="p-2.5 text-center">${r.CUMP_PERC}%</td>
-                    <td class="p-2.5 font-semibold text-slate-700">${r.CATEG_2026}</td>
-                    <td class="p-2.5 text-slate-500">${r.RANGO_PERC}</td>
-                </tr>
-            `).join('') || `<tr><td colspan="13" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-    </script>
+    function prevPage() { if (currentPage > 1) { currentPage--; renderGenericTable(); } }
+    function nextPage() { currentPage++; renderGenericTable(); }
+    function sortGenericTable() { sortAsc = !sortAsc; renderGenericTable(); }
+  </script>
 </body>
 </html>
