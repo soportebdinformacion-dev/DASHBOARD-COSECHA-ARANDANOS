@@ -1,24 +1,21 @@
 {
-  "name": "Agrícola Huarmey - Cosecha de Arándanos",
+  "name": "Agrícola Huarmey - Cosecha Arándanos",
   "short_name": "AgriHuarmey",
-  "description": "Sistema de Gestión de Cosecha de Arándanos para Agrícola Huarmey 2026",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#d32f2f",
-  "orientation": "portrait-primary",
+  "background_color": "#F8FAF8",
+  "theme_color": "#C83232",
+  "orientation": "any",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1135/1135058.png",
+      "src": "logo.png",
       "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     },
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1135/1135058.png",
+      "src": "logo.png",
       "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
   ]
 }
