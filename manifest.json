@@ -1,21 +1,21 @@
 {
-  "name": "Agrícola Huarmey - Cosecha Arándanos",
-  "short_name": "AgriHuarmey",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#F8FAF8",
-  "theme_color": "#C83232",
-  "orientation": "any",
+  "short_name": "Huarmey Cosecha",
+  "name": "Agrícola Huarmey - Gestión Cosecha Arándanos",
   "icons": [
     {
-      "src": "logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
+      "src": "https://placehold.co/192x192/c62828/ffffff?text=AH",
+      "type": "image/png",
+      "sizes": "192x192"
     },
     {
-      "src": "logo.png",
-      "sizes": "512x512",
-      "type": "image/png"
+      "src": "https://placehold.co/512x512/c62828/ffffff?text=Huarmey",
+      "type": "image/png",
+      "sizes": "512x512"
     }
-  ]
+  ],
+  "start_url": "./index.html",
+  "background_color": "#ffffff",
+  "theme_color": "#c62828",
+  "display": "standalone",
+  "orientation": "portrait"
 }
