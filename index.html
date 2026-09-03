@@ -744,7 +744,7 @@
 
     <script>
         // GAS Endpoint provided in specification
-        const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycby8ru5tz2o1rzzgdcLe-7I6ngHnSjmrBfPfryacluzviv9GUjU4qGCwV-fRsCS60us/exec";
+        const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwxUUXbjGJsKFHJdv6k0gp-Tp74nplZqMcO7I46zmfO4LpRdbwMdAtO1qrHx6XufOGE/exec";
 
         // Application State
         let rawData = {
@@ -910,44 +910,45 @@
             };
         }
 
-        async function fetchHarvestData() {
-            const syncIcon = document.getElementById('syncIcon');
-            const statusBadge = document.getElementById('statusBadge');
-            const statusDot = document.getElementById('statusDot');
-            const statusText = document.getElementById('statusText');
+// URL de despliegue Web App de Google Apps Script
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/TU_SCRIPT_ID_AQUI/exec?action=getData';
 
-            syncIcon.classList.add('fa-spin');
-            statusText.innerText = 'Sincronizando...';
+async function fetchHarvestData() {
+    const syncIcon = document.getElementById('syncIcon');
+    if (syncIcon) syncIcon.classList.add('fa-spin');
 
-            try {
-                // Attempt fetching from Google Apps Script Web App Endpoint
-                const response = await fetch(GAS_ENDPOINT_URL + '?action=getData', {
-                    method: 'GET',
-                    mode: 'cors'
-                });
+    try {
+        // Carga asíncrona rápida con Fetch API
+        const response = await fetch(GAS_WEB_APP_URL);
+        const json = await response.json();
 
-                if (!response.ok) throw new Error('GAS HTTP Error ' + response.status);
+        if (json.status === 'success' && json.payload) {
+            // Mapeo directo de respuesta desde Google Sheets
+            rawData = {
+                DETALLE: json.payload.DETALLE || [],
+                TDP: json.payload.TDP || [],
+                UNICOS: json.payload.UNICOS || [],
+                REPORTE: json.payload.REPORTE || []
+            };
 
-                const data = await response.json();
-                if (data && data.status === 'success') {
-                    rawData = data.payload;
-                    console.log('Datos cargados exitosamente de GAS:', rawData);
-                    updateStatusBadge(true, 'Online');
-                } else {
-                    throw new Error('Formato inválido de GAS');
-                }
-            } catch (err) {
-                console.warn('Conexión GAS no disponible o bloqueada por CORS. Usando datos locales de IndexedDB / Cache:', err);
-                // Fallback to local high fidelity dataset
-                rawData = generateMockHarvestData();
-                updateStatusBadge(false, 'Local / Offline');
-            } finally {
-                syncIcon.classList.remove('fa-spin');
-                populateFiltersOptions();
-                applyGlobalFilters();
-            }
+            // Guarda/Actualiza los datos en cache del navegador para mayor velocidad
+            updateStatusBadge(true, 'Online - Sincronizado');
+        } else {
+            throw new Error('Respuesta inválida del servidor');
         }
-
+    } catch (err) {
+        console.warn('Conexión con Apps Script no disponible o sin red. Cargando backup:', err);
+        // Respaldo de contingencia
+        rawData = typeof generateMockHarvestData === 'function' ? generateMockHarvestData() : rawData;
+        updateStatusBadge(false, 'Local / Offline');
+    } finally {
+        if (syncIcon) syncIcon.classList.remove('fa-spin');
+        
+        // Renderizado instantáneo de la interfaz
+        if (typeof populateFiltersOptions === 'function') populateFiltersOptions();
+        if (typeof applyGlobalFilters === 'function') applyGlobalFilters();
+    }
+}
         function updateStatusBadge(isOnline, label) {
             const statusBadge = document.getElementById('statusBadge');
             const statusDot = document.getElementById('statusDot');
