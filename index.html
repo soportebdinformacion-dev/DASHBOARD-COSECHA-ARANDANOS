@@ -42,7 +42,6 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
-        /* Custom scrollbar for field tablets and mobile */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -88,7 +87,6 @@
                 <!-- Logo & Brand -->
                 <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('dashboard')">
                     <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 overflow-hidden shrink-0 shadow-inner">
-                        <!-- Embedded logo icon SVG based on Agrícola Huarmey branding -->
                         <svg class="w-8 h-8" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M50 10 C30 10, 15 25, 15 45 C15 70, 45 90, 50 90 C55 90, 85 70, 85 45 C85 25, 70 10, 50 10 Z" fill="#2e7d32" opacity="0.15"/>
                             <circle cx="42" cy="50" r="22" fill="#c62828"/>
@@ -107,24 +105,20 @@
 
                 <!-- Clock & Sync Status Indicator -->
                 <div class="flex items-center space-x-2 sm:space-x-4">
-                    <!-- Live Clock -->
                     <div class="hidden sm:flex flex-col text-right">
                         <span id="liveClockTime" class="text-xs font-bold text-slate-700 tracking-wider">00:00:00</span>
                         <span id="liveClockDate" class="text-[10px] text-slate-400 uppercase font-semibold">01/01/2026</span>
                     </div>
 
-                    <!-- Connection Status Badge -->
                     <div id="statusBadge" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                         <span id="statusDot" class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="statusText" class="hidden sm:inline">Online</span>
                     </div>
 
-                    <!-- Manual Sync / Refresh Data Button -->
                     <button onclick="fetchHarvestData()" class="p-2 text-slate-500 hover:text-agri-red rounded-lg hover:bg-slate-100 transition active:scale-95" title="Sincronizar Datos Google Sheets">
                         <i id="syncIcon" class="fa-solid fa-rotate-right text-sm"></i>
                     </button>
 
-                    <!-- Apps Script Modal Trigger -->
                     <button onclick="openGASModal()" class="p-2 text-slate-500 hover:text-agri-green rounded-lg hover:bg-slate-100 transition active:scale-95" title="Ver Código GAS y Archivos PWA">
                         <i class="fa-solid fa-code text-sm"></i>
                     </button>
@@ -197,40 +191,34 @@
                 </button>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
-                <!-- FECHA -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 mb-1">FECHA</label>
                     <input type="date" id="filterFecha" onchange="applyGlobalFilters()" class="w-full text-xs font-medium border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-agri-red focus:border-agri-red bg-slate-50">
                 </div>
-                <!-- SEMANA -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 mb-1">SEMANA</label>
                     <select id="filterSemana" onchange="applyGlobalFilters()" class="w-full text-xs font-medium border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-agri-red focus:border-agri-red bg-slate-50">
                         <option value="">Todas</option>
                     </select>
                 </div>
-                <!-- CATEG. 2026 -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 mb-1">CATEG. 2026</label>
                     <select id="filterCateg" onchange="applyGlobalFilters()" class="w-full text-xs font-medium border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-agri-red focus:border-agri-red bg-slate-50">
                         <option value="">Todas</option>
                     </select>
                 </div>
-                <!-- VARIEDAD -->
                 <div id="wrapperFilterVariedad">
                     <label class="block text-[11px] font-bold text-slate-500 mb-1">VARIEDAD</label>
                     <select id="filterVariedad" onchange="applyGlobalFilters()" class="w-full text-xs font-medium border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-agri-red focus:border-agri-red bg-slate-50">
                         <option value="">Todas</option>
                     </select>
                 </div>
-                <!-- MODALIDAD -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 mb-1">MODALIDAD</label>
                     <select id="filterModalidad" onchange="applyGlobalFilters()" class="w-full text-xs font-medium border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-agri-red focus:border-agri-red bg-slate-50">
                         <option value="">Todas</option>
                     </select>
                 </div>
-                <!-- RANGO % -->
                 <div>
                     <label class="block text-[11px] font-bold text-slate-500 mb-1">RANGO %</label>
                     <select id="filterRango" onchange="applyGlobalFilters()" class="w-full text-xs font-medium border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-agri-red focus:border-agri-red bg-slate-50">
@@ -241,7 +229,6 @@
                         <option value="Excelente">Excelente (105%+)</option>
                     </select>
                 </div>
-                <!-- PLACA (Visible en vistas relevantes) -->
                 <div id="wrapperFilterPlaca">
                     <label class="block text-[11px] font-bold text-slate-500 mb-1">PLACA</label>
                     <select id="filterPlaca" onchange="applyGlobalFilters()" class="w-full text-xs font-medium border border-slate-300 rounded-lg p-1.5 focus:ring-2 focus:ring-agri-red focus:border-agri-red bg-slate-50">
@@ -250,7 +237,6 @@
                 </div>
             </div>
 
-            <!-- SEARCH INPUT FOR DETAILED VIEWS -->
             <div id="wrapperFilterSearch" class="mt-3 pt-2 border-t border-slate-100 flex items-center">
                 <div class="relative w-full">
                     <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
@@ -259,11 +245,9 @@
             </div>
         </div>
 
-        <!-- PAGE 1: DASHBOARD COSECHA (🫐) -->
+        <!-- PAGE 1: DASHBOARD COSECHA -->
         <section id="page-dashboard" class="page-section space-y-6">
-            <!-- KPI SUMMARY CARDS -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- TOTAL KG -->
                 <div class="bg-gradient-to-br from-red-600 to-agri-red text-white p-5 rounded-2xl shadow-sm border border-red-700 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-bold uppercase tracking-wider opacity-80">Total KG Cosechados</p>
@@ -275,7 +259,6 @@
                     </div>
                 </div>
 
-                <!-- TOTAL CUMP % -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Cumplimiento %</p>
@@ -287,7 +270,6 @@
                     </div>
                 </div>
 
-                <!-- TOTAL COSECHADORES -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex items-center justify-between">
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Cosechadores</p>
@@ -300,9 +282,7 @@
                 </div>
             </div>
 
-            <!-- DONUT CHARTS ROW -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- CHART 1: MODALIDAD -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -315,7 +295,6 @@
                     </div>
                 </div>
 
-                <!-- CHART 2: SEXO -->
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
                     <div class="flex items-center justify-between mb-2">
                         <h4 class="text-sm font-bold text-slate-800 flex items-center gap-2">
@@ -329,9 +308,7 @@
                 </div>
             </div>
 
-            <!-- DASHBOARD TABLES GRID -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- TABLA POR FECHA -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden">
                     <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                         <i class="fa-solid fa-calendar-days text-agri-red"></i> Resumen Por Fecha
@@ -346,14 +323,11 @@
                                     <th class="p-2.5 text-right">PROMEDIO (KG/PERS)</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyDashFecha" class="divide-y divide-slate-100 font-medium text-slate-700">
-                                <!-- Dynamic JS injection -->
-                            </tbody>
+                            <tbody id="tbodyDashFecha" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- TABLA POR MODALIDAD -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden">
                     <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                         <i class="fa-solid fa-bus text-agri-green"></i> Resumen Por Modalidad
@@ -367,17 +341,13 @@
                                     <th class="p-2.5 text-right">CUMP. %</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyDashModalidad" class="divide-y divide-slate-100 font-medium text-slate-700">
-                                <!-- Dynamic JS injection -->
-                            </tbody>
+                            <tbody id="tbodyDashModalidad" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TOP 10 COSECHADORES & TABLES ROW -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- TOP 10 RANKING -->
                 <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden">
                     <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                         <i class="fa-solid fa-trophy text-amber-500"></i> Top 10 Cosechadores Destacados
@@ -394,16 +364,12 @@
                                     <th class="p-2.5 text-right">PROMEDIO</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyTop10" class="divide-y divide-slate-100 font-medium text-slate-700">
-                                <!-- Dynamic JS injection -->
-                            </tbody>
+                            <tbody id="tbodyTop10" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- HISTORICO & VARIEDAD TABLES -->
                 <div class="space-y-6">
-                    <!-- TABLA HISTORICA -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden">
                         <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                             <i class="fa-solid fa-clock-rotate-left text-blue-600"></i> Tabla Histórica
@@ -416,13 +382,10 @@
                                     <th class="p-2.5 text-right">PROMEDIO</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyDashHistorico" class="divide-y divide-slate-100 font-medium text-slate-700">
-                                <!-- Dynamic JS injection -->
-                            </tbody>
+                            <tbody id="tbodyDashHistorico" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                         </table>
                     </div>
 
-                    <!-- TABLA VARIEDAD -->
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden">
                         <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center gap-1.5">
                             <i class="fa-solid fa-seedling text-emerald-600"></i> Tabla Variedad
@@ -435,16 +398,14 @@
                                     <th class="p-2.5 text-right">TOTAL KG</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyDashVariedad" class="divide-y divide-slate-100 font-medium text-slate-700">
-                                <!-- Dynamic JS injection -->
-                            </tbody>
+                            <tbody id="tbodyDashVariedad" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- PAGE 2: REPORTE DETALLADO (📋) -->
+        <!-- PAGE 2: REPORTE DETALLADO -->
         <section id="page-reporte-detallado" class="page-section hidden space-y-4">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
@@ -480,20 +441,15 @@
                                 <th class="p-3 text-center">RANGO %</th>
                             </tr>
                         </thead>
-                        <tbody id="tbodyDetallado" class="divide-y divide-slate-100 font-medium text-slate-700">
-                            <!-- JS Injection -->
-                        </tbody>
+                        <tbody id="tbodyDetallado" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
 
-                <!-- PAGINATION TOOLBAR -->
-                <div id="paginationDetallado" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-                    <!-- JS Injected -->
-                </div>
+                <div id="paginationDetallado" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500"></div>
             </div>
         </section>
 
-        <!-- PAGE 3: REPORTE FECHAS KG (⚖️) -->
+        <!-- PAGE 3: REPORTE FECHAS KG -->
         <section id="page-fechas-kg" class="page-section hidden space-y-4">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
                 <div class="flex items-center justify-between mb-3">
@@ -505,22 +461,16 @@
 
                 <div class="overflow-x-auto rounded-xl border border-slate-200">
                     <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
-                        <thead id="theadFechasKg" class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                            <!-- Dynamic Matrix Header -->
-                        </thead>
-                        <tbody id="tbodyFechasKg" class="divide-y divide-slate-100 font-medium text-slate-700">
-                            <!-- JS Injection -->
-                        </tbody>
+                        <thead id="theadFechasKg" class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200"></thead>
+                        <tbody id="tbodyFechasKg" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
 
-                <div id="paginationFechasKg" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-                    <!-- JS Injected -->
-                </div>
+                <div id="paginationFechasKg" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500"></div>
             </div>
         </section>
 
-        <!-- PAGE 4: REPORTE FECHAS CUMP. % (🎯) -->
+        <!-- PAGE 4: REPORTE FECHAS CUMP. % -->
         <section id="page-fechas-cump" class="page-section hidden space-y-4">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
                 <div class="flex items-center justify-between mb-3">
@@ -532,22 +482,16 @@
 
                 <div class="overflow-x-auto rounded-xl border border-slate-200">
                     <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
-                        <thead id="theadFechasCump" class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                            <!-- Dynamic Matrix Header -->
-                        </thead>
-                        <tbody id="tbodyFechasCump" class="divide-y divide-slate-100 font-medium text-slate-700">
-                            <!-- JS Injection -->
-                        </tbody>
+                        <thead id="theadFechasCump" class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200"></thead>
+                        <tbody id="tbodyFechasCump" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
 
-                <div id="paginationFechasCump" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-                    <!-- JS Injected -->
-                </div>
+                <div id="paginationFechasCump" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500"></div>
             </div>
         </section>
 
-        <!-- PAGE 5: REPORTE REG. ÚNICOS (🆔) -->
+        <!-- PAGE 5: REPORTE REG. ÚNICOS -->
         <section id="page-reg-unicos" class="page-section hidden space-y-4">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
@@ -581,19 +525,15 @@
                                 <th class="p-3">CATEG. 2026</th>
                             </tr>
                         </thead>
-                        <tbody id="tbodyUnicos" class="divide-y divide-slate-100 font-medium text-slate-700">
-                            <!-- JS Injection -->
-                        </tbody>
+                        <tbody id="tbodyUnicos" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
 
-                <div id="paginationUnicos" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-                    <!-- JS Injected -->
-                </div>
+                <div id="paginationUnicos" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500"></div>
             </div>
         </section>
 
-        <!-- PAGE 6: REPORTE PLACAS TDP (🚛) -->
+        <!-- PAGE 6: REPORTE PLACAS TDP -->
         <section id="page-placas-tdp" class="page-section hidden space-y-4">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
                 <div class="flex items-center justify-between mb-3">
@@ -605,22 +545,16 @@
 
                 <div class="overflow-x-auto rounded-xl border border-slate-200">
                     <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
-                        <thead id="theadPlacasTdp" class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
-                            <!-- Matrix Head -->
-                        </thead>
-                        <tbody id="tbodyPlacasTdp" class="divide-y divide-slate-100 font-medium text-slate-700">
-                            <!-- JS Injection -->
-                        </tbody>
+                        <thead id="theadPlacasTdp" class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200"></thead>
+                        <tbody id="tbodyPlacasTdp" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                     </table>
                 </div>
 
-                <div id="paginationPlacasTdp" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-                    <!-- JS Injected -->
-                </div>
+                <div id="paginationPlacasTdp" class="mt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500"></div>
             </div>
         </section>
 
-        <!-- PAGE 7: REPORTE FINAL (📊) -->
+        <!-- PAGE 7: REPORTE FINAL -->
         <section id="page-reporte-final" class="page-section hidden space-y-6">
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
@@ -633,7 +567,6 @@
                     </button>
                 </div>
 
-                <!-- TABLA 1: DETALLE FINAL -->
                 <div class="mb-6">
                     <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tabla 1: Consolidado Personal</h4>
                     <div class="overflow-x-auto rounded-xl border border-slate-200">
@@ -649,17 +582,13 @@
                                     <th class="p-3">CATEG. 2026</th>
                                 </tr>
                             </thead>
-                            <tbody id="tbodyReporteFinal1" class="divide-y divide-slate-100 font-medium text-slate-700">
-                                <!-- JS Injection -->
-                            </tbody>
+                            <tbody id="tbodyReporteFinal1" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                         </table>
                     </div>
                     <div id="paginationFinal" class="mt-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500"></div>
                 </div>
 
-                <!-- RESUMEN TABLES GRID -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
-                    <!-- TABLA 2: RESUMEN MODALIDAD / HISTORICO -->
                     <div>
                         <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tabla 2: Modalidad / Histórico</h4>
                         <div class="overflow-x-auto rounded-xl border border-slate-200">
@@ -672,14 +601,11 @@
                                         <th class="p-2.5 text-center">CUMP. %</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tbodyReporteFinal2" class="divide-y divide-slate-100 font-medium text-slate-700">
-                                    <!-- JS Injection -->
-                                </tbody>
+                                <tbody id="tbodyReporteFinal2" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                             </table>
                         </div>
                     </div>
 
-                    <!-- TABLA 3: RESUMEN MODALIDAD / CATEGORIA -->
                     <div>
                         <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Tabla 3: Modalidad / Categoría 2026</h4>
                         <div class="overflow-x-auto rounded-xl border border-slate-200">
@@ -692,9 +618,7 @@
                                         <th class="p-2.5 text-center">CUMP. %</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tbodyReporteFinal3" class="divide-y divide-slate-100 font-medium text-slate-700">
-                                    <!-- JS Injection -->
-                                </tbody>
+                                <tbody id="tbodyReporteFinal3" class="divide-y divide-slate-100 font-medium text-slate-700"></tbody>
                             </table>
                         </div>
                     </div>
@@ -704,10 +628,9 @@
 
     </main>
 
-    <!-- MODAL FOR GAS BACKEND CODE & PWA FILES EXPORT -->
+    <!-- MODAL FOR GAS BACKEND CODE -->
     <div id="gasModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200">
-            <!-- Modal Header -->
             <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
                 <div class="flex items-center space-x-2">
                     <i class="fa-solid fa-code text-agri-redlight"></i>
@@ -716,14 +639,12 @@
                 <button onclick="closeGASModal()" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <!-- Modal Tabs -->
             <div class="bg-slate-800 px-6 flex space-x-4 border-b border-slate-700 text-xs font-bold text-slate-400">
                 <button onclick="switchGasCodeTab('gs')" id="gasTab-gs" class="py-3 text-white border-b-2 border-agri-red">codigo.gs</button>
                 <button onclick="switchGasCodeTab('manifest')" id="gasTab-manifest" class="py-3 hover:text-white">manifest.json</button>
                 <button onclick="switchGasCodeTab('sw')" id="gasTab-sw" class="py-3 hover:text-white">service-worker.js</button>
             </div>
 
-            <!-- Modal Body / Code View -->
             <div class="p-6 overflow-y-auto flex-1 bg-slate-950 font-mono text-xs text-slate-200 leading-relaxed">
                 <div class="flex items-center justify-between mb-2">
                     <span id="gasCodeFilename" class="text-slate-400 font-sans font-bold text-xs">codigo.gs</span>
@@ -734,42 +655,21 @@
                 <pre id="gasCodeContent" class="overflow-x-auto p-4 bg-slate-900 rounded-xl border border-slate-800 text-slate-300"></pre>
             </div>
 
-            <!-- Modal Footer -->
             <div class="px-6 py-3 bg-slate-100 border-t border-slate-200 flex justify-between items-center text-xs">
-                <span class="text-slate-500 font-medium">GAS Endpoint: <code class="text-agri-red bg-red-50 px-1 py-0.5 rounded">AKfycbz...</code></span>
+                <span class="text-slate-500 font-medium">GAS Endpoint: <code class="text-agri-red bg-red-50 px-1 py-0.5 rounded">AKfycbwx...</code></span>
                 <button onclick="closeGASModal()" class="px-4 py-2 bg-slate-800 text-white rounded-lg font-bold hover:bg-slate-700">Cerrar</button>
             </div>
         </div>
     </div>
 
     <script>
-        // GAS Endpoint provided in specification
-        const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwxUUXbjGJsKFHJdv6k0gp-Tp74nplZqMcO7I46zmfO4LpRdbwMdAtO1qrHx6XufOGE/exec";
+        // Endpoint real de Google Apps Script Web App
+        const GAS_ENDPOINT_URL = "https://script.google.com/macros/s/AKfycbwMKBK1RsaoYj_cux2gFBQ_khwbeH26Pujq0w77JEWMFayiS-XZWSdF2q6ajxHO9-o/exec";
 
-        // Application State
-        let rawData = {
-            DETALLE: [],
-            TDP: [],
-            UNICOS: [],
-            REPORTE: []
-        };
+        let rawData = { DETALLE: [], TDP: [], UNICOS: [], REPORTE: [] };
+        let filteredData = { DETALLE: [], TDP: [], UNICOS: [], REPORTE: [] };
 
-        let filteredData = {
-            DETALLE: [],
-            TDP: [],
-            UNICOS: [],
-            REPORTE: []
-        };
-
-        let currentPage = {
-            detallado: 1,
-            fechasKg: 1,
-            fechasCump: 1,
-            unicos: 1,
-            placasTdp: 1,
-            final: 1
-        };
-
+        let currentPage = { detallado: 1, fechasKg: 1, fechasCump: 1, unicos: 1, placasTdp: 1, final: 1 };
         const PAGE_SIZE = 50;
 
         let sortState = {
@@ -781,174 +681,36 @@
         let chartModalidadInstance = null;
         let chartSexoInstance = null;
 
-        function generateMockHarvestData() {
-            const nombres = [
-                "QUISPE MAMANI, JUAN CARLOS", "SANCHEZ FLORES, MARIA ELENA", "RODRIGUEZ CHAVEZ, JOSE LUIS",
-                "GARCIA MORALES, ROSA ANA", "HUAMAN GUUTIERREZ, PEDRO LUIS", "TORRES BENITEZ, CARMEN LUZ",
-                "FLORES VARGAS, JORGE LUIS", "CASTILLO MENDOZA, ANA MARIA", "GONZALES RAMOS, LUIS ALBERTO",
-                "MENDOZA SILVA, SOFIA BEATRIZ", "PAREDES VILCA, HECTOR HUGO", "DIAZ ESPINOZA, PATRICIA ROCIO",
-                "VEGA RIOS, MIGUEL ANGEL", "ALVAREZ CORDOVA, SILVIA LUZ", "ROMERO CRUZ, BETHY INES",
-                "LUNA REYES, FERNANDO RAUL", "SOLIS MORI, DANIEL ESTEBAN", "AGUILAR CAMPOS, MILAGROS SOLEDAD"
-            ];
+        async function fetchHarvestData() {
+            const syncIcon = document.getElementById('syncIcon');
+            if (syncIcon) syncIcon.classList.add('fa-spin');
 
-            const modalidades = ["CAMPAMENTO", "IDA Y VUELTA"];
-            const variedades = ["BILOXI", "VENTURA", "EMERALD", "ATLAS"];
-            const categorias = ["A", "B", "C"];
-            const placas = ["T1A-892", "B4X-102", "C9M-451", "F3K-908"];
-            const sexoList = ["MASCULINO", "FEMENINO"];
-            const historicos = ["NUEVO", "REINGRESANTE"];
+            try {
+                const response = await fetch(`${GAS_ENDPOINT_URL}?action=getData`);
+                const json = await response.json();
 
-            const detalleMock = [];
-            const tdpMock = [];
-            const unicosMock = [];
-            const reporteMock = [];
-
-            const dates = ["2026-09-01", "2026-09-02", "2026-09-03"];
-
-            nombres.forEach((nombre, idx) => {
-                const dni = (70000000 + idx * 1234).toString();
-                const mod = modalidades[idx % modalidades.length];
-                const cat = categorias[idx % categorias.length];
-                const placa = placas[idx % placas.length];
-                const sexo = sexoList[idx % sexoList.length];
-                const hist = historicos[idx % historicos.length];
-                const variedad = variedades[idx % variedades.length];
-
-                dates.forEach((f) => {
-                    const kg = Math.floor(Math.random() * 45) + 30; // 30 - 75 kg
-                    const meta = 50;
-                    const cump = Math.round((kg / meta) * 100);
-                    let rango = "Malo";
-                    if (cump >= 105) rango = "Excelente";
-                    else if (cump >= 100) rango = "Bueno";
-                    else if (cump >= 86) rango = "Regular";
-
-                    // Hoja DETALLE
-                    detalleMock.push({
-                        fecha: f,
-                        dni: dni,
-                        nombre: nombre,
-                        historico: hist,
-                        modalidad: mod,
-                        variedad: variedad,
-                        moduloTurno: `M0${(idx%3)+1}|T1`,
-                        labor: "COSECHA ARANDANO",
-                        totalKg: kg,
-                        meta: meta,
-                        cump: cump,
-                        categ: cat,
-                        rango: rango
-                    });
-
-                    // Hoja UNICOS
-                    unicosMock.push({
-                        fecha: f,
-                        dni: dni,
-                        nombre: nombre,
-                        actividad: "COSECHA CAMPO",
-                        totalHrs: 8,
-                        totalKg: kg,
-                        meta: meta,
-                        rango: rango,
-                        cump: cump,
-                        semana: "SEM 36",
-                        dia: "MIERCOLES",
-                        historico: hist,
-                        modalidad: mod,
-                        sexo: sexo,
-                        categ: cat
-                    });
-                });
-
-                // Hoja TDP (Matriz cosechador)
-                const datesKg = {};
-                const datesCump = {};
-                let sumKg = 0;
-                dates.forEach(f => {
-                    const dKg = Math.floor(Math.random() * 45) + 30;
-                    datesKg[f] = dKg;
-                    datesCump[f] = Math.round((dKg / 50) * 100);
-                    sumKg += dKg;
-                });
-
-                tdpMock.push({
-                    dni: dni,
-                    nombre: nombre,
-                    modalidad: mod,
-                    categ: cat,
-                    placa: placa,
-                    origen: "HUARMEY",
-                    variedad: variedad,
-                    semana: "SEM 36",
-                    ruta: "RUTA 01",
-                    transportista: "TRANSP. HUARMEY SAC",
-                    datesKg: datesKg,
-                    datesCump: datesCump,
-                    totalKg: sumKg
-                });
-
-                // Hoja REPORTE
-                const totalDias = dates.length;
-                const avgCump = Math.round(Object.values(datesKg).reduce((a, b) => a + b, 0) / (totalDias * 50) * 100);
-                reporteMock.push({
-                    dni: dni,
-                    nombre: nombre,
-                    modalidad: mod,
-                    historico: hist,
-                    cump: avgCump,
-                    totalDias: totalDias,
-                    categ: cat,
-                    totalKg: sumKg
-                });
-            });
-
-            return {
-                DETALLE: detalleMock,
-                TDP: tdpMock,
-                UNICOS: unicosMock,
-                REPORTE: reporteMock
-            };
+                if (json.status === 'success' && json.payload) {
+                    rawData = {
+                        DETALLE: json.payload.DETALLE || [],
+                        TDP: json.payload.TDP || [],
+                        UNICOS: json.payload.UNICOS || [],
+                        REPORTE: json.payload.REPORTE || []
+                    };
+                    updateStatusBadge(true, 'Online');
+                } else {
+                    throw new Error(json.message || 'Error en respuesta de Google Apps Script');
+                }
+            } catch (err) {
+                console.warn('Conexión con Apps Script no disponible. Cargando respaldo:', err);
+                rawData = typeof generateMockHarvestData === 'function' ? generateMockHarvestData() : rawData;
+                updateStatusBadge(false, 'Offline / Local');
+            } finally {
+                if (syncIcon) syncIcon.classList.remove('fa-spin');
+                populateFiltersOptions();
+                applyGlobalFilters();
+            }
         }
 
-// URL de despliegue Web App de Google Apps Script
-const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/TU_SCRIPT_ID_AQUI/exec?action=getData';
-
-async function fetchHarvestData() {
-    const syncIcon = document.getElementById('syncIcon');
-    if (syncIcon) syncIcon.classList.add('fa-spin');
-
-    try {
-        // Carga asíncrona rápida con Fetch API
-        const response = await fetch(GAS_WEB_APP_URL);
-        const json = await response.json();
-
-        if (json.status === 'success' && json.payload) {
-            // Mapeo directo de respuesta desde Google Sheets
-            rawData = {
-                DETALLE: json.payload.DETALLE || [],
-                TDP: json.payload.TDP || [],
-                UNICOS: json.payload.UNICOS || [],
-                REPORTE: json.payload.REPORTE || []
-            };
-
-            // Guarda/Actualiza los datos en cache del navegador para mayor velocidad
-            updateStatusBadge(true, 'Online - Sincronizado');
-        } else {
-            throw new Error('Respuesta inválida del servidor');
-        }
-    } catch (err) {
-        console.warn('Conexión con Apps Script no disponible o sin red. Cargando backup:', err);
-        // Respaldo de contingencia
-        rawData = typeof generateMockHarvestData === 'function' ? generateMockHarvestData() : rawData;
-        updateStatusBadge(false, 'Local / Offline');
-    } finally {
-        if (syncIcon) syncIcon.classList.remove('fa-spin');
-        
-        // Renderizado instantáneo de la interfaz
-        if (typeof populateFiltersOptions === 'function') populateFiltersOptions();
-        if (typeof applyGlobalFilters === 'function') applyGlobalFilters();
-    }
-}
         function updateStatusBadge(isOnline, label) {
             const statusBadge = document.getElementById('statusBadge');
             const statusDot = document.getElementById('statusDot');
@@ -973,23 +735,16 @@ async function fetchHarvestData() {
             if (!dateStr) return '';
             if (dateStr.includes('/')) return dateStr;
             const parts = dateStr.split('-');
-            if (parts.length === 3) {
-                return `${parts[2]}/${parts[1]}/${parts[0]}`;
-            }
+            if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
             return dateStr;
         }
 
         function getComplianceBadge(cump) {
             cump = cump || 0;
-            if (cump >= 105) {
-                return `<span class="px-2 py-0.5 rounded text-[11px] font-bold badge-excelente">🔵 ${cump}%</span>`;
-            } else if (cump >= 100) {
-                return `<span class="px-2 py-0.5 rounded text-[11px] font-bold badge-bueno">🟢 ${cump}%</span>`;
-            } else if (cump >= 86) {
-                return `<span class="px-2 py-0.5 rounded text-[11px] font-bold badge-regular">🟠 ${cump}%</span>`;
-            } else {
-                return `<span class="px-2 py-0.5 rounded text-[11px] font-bold badge-malo">🔴 ${cump}%</span>`;
-            }
+            if (cump >= 105) return `<span class="px-2 py-0.5 rounded text-[11px] font-bold badge-excelente">🔵 ${cump}%</span>`;
+            if (cump >= 100) return `<span class="px-2 py-0.5 rounded text-[11px] font-bold badge-bueno">🟢 ${cump}%</span>`;
+            if (cump >= 86) return `<span class="px-2 py-0.5 rounded text-[11px] font-bold badge-regular">🟠 ${cump}%</span>`;
+            return `<span class="px-2 py-0.5 rounded text-[11px] font-bold badge-malo">🔴 ${cump}%</span>`;
         }
 
         function getRangoBadge(rango) {
@@ -1065,59 +820,51 @@ async function fetchHarvestData() {
             const placa = document.getElementById('filterPlaca').value;
             const query = document.getElementById('filterSearch').value.toLowerCase().trim();
 
-            // Filter DETALLE
             filteredData.DETALLE = rawData.DETALLE.filter(item => {
                 if (fecha && item.fecha !== fecha) return false;
                 if (categ && item.categ !== categ) return false;
                 if (variedad && item.variedad !== variedad) return false;
                 if (modalidad && item.modalidad !== modalidad) return false;
                 if (rango && item.rango !== rango) return false;
-                if (query && !item.dni.includes(query) && !item.nombre.toLowerCase().includes(query)) return false;
+                if (query && !String(item.dni).includes(query) && !String(item.nombre).toLowerCase().includes(query)) return false;
                 return true;
             });
 
-            // Filter UNICOS
             filteredData.UNICOS = rawData.UNICOS.filter(item => {
                 if (fecha && item.fecha !== fecha) return false;
                 if (semana && item.semana !== semana) return false;
                 if (categ && item.categ !== categ) return false;
                 if (modalidad && item.modalidad !== modalidad) return false;
                 if (rango && item.rango !== rango) return false;
-                if (query && !item.dni.includes(query) && !item.nombre.toLowerCase().includes(query)) return false;
+                if (query && !String(item.dni).includes(query) && !String(item.nombre).toLowerCase().includes(query)) return false;
                 return true;
             });
 
-            // Filter TDP
             filteredData.TDP = rawData.TDP.filter(item => {
                 if (semana && item.semana !== semana) return false;
                 if (categ && item.categ !== categ) return false;
                 if (variedad && item.variedad !== variedad) return false;
                 if (modalidad && item.modalidad !== modalidad) return false;
                 if (placa && item.placa !== placa) return false;
-                if (query && !item.dni.includes(query) && !item.nombre.toLowerCase().includes(query)) return false;
+                if (query && !String(item.dni).includes(query) && !String(item.nombre).toLowerCase().includes(query)) return false;
                 return true;
             });
 
-            // Filter REPORTE
             filteredData.REPORTE = rawData.REPORTE.filter(item => {
                 if (categ && item.categ !== categ) return false;
                 if (modalidad && item.modalidad !== modalidad) return false;
+                if (query && !String(item.dni).includes(query) && !String(item.nombre).toLowerCase().includes(query)) return false;
                 return true;
             });
 
-            // Re-render active view & dashboards
             renderActivePage();
         }
 
         function switchTab(pageId) {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('tab-active');
-            });
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('tab-active'));
             document.getElementById(`tab-${pageId}`).classList.add('tab-active');
 
-            document.querySelectorAll('.page-section').forEach(sec => {
-                sec.classList.add('hidden');
-            });
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.add('hidden'));
             document.getElementById(`page-${pageId}`).classList.remove('hidden');
 
             renderActivePage();
@@ -1125,29 +872,14 @@ async function fetchHarvestData() {
 
         function renderActivePage() {
             const activeTab = document.querySelector('.tab-btn.tab-active').id.replace('tab-', '');
-
             switch (activeTab) {
-                case 'dashboard':
-                    renderDashboard();
-                    break;
-                case 'reporte-detallado':
-                    renderReporteDetallado();
-                    break;
-                case 'fechas-kg':
-                    renderFechasKg();
-                    break;
-                case 'fechas-cump':
-                    renderFechasCump();
-                    break;
-                case 'reg-unicos':
-                    renderRegUnicos();
-                    break;
-                case 'placas-tdp':
-                    renderPlacasTdp();
-                    break;
-                case 'reporte-final':
-                    renderReporteFinal();
-                    break;
+                case 'dashboard': renderDashboard(); break;
+                case 'reporte-detallado': renderReporteDetallado(); break;
+                case 'fechas-kg': renderFechasKg(); break;
+                case 'fechas-cump': renderFechasCump(); break;
+                case 'reg-unicos': renderRegUnicos(); break;
+                case 'placas-tdp': renderPlacasTdp(); break;
+                case 'reporte-final': renderReporteFinal(); break;
             }
         }
 
@@ -1155,148 +887,111 @@ async function fetchHarvestData() {
             const detalle = filteredData.DETALLE;
             const unicos = filteredData.UNICOS;
 
-            // KPIs
-            const totalKg = detalle.reduce((acc, r) => acc + (r.totalKg || 0), 0);
-            const totalMeta = detalle.reduce((acc, r) => acc + (r.meta || 0), 0);
+            const totalKg = detalle.reduce((acc, r) => acc + (parseFloat(r.totalKg) || 0), 0);
+            const totalMeta = detalle.reduce((acc, r) => acc + (parseFloat(r.meta) || 0), 0);
             const cumpAvg = totalMeta > 0 ? Math.round((totalKg / totalMeta) * 100) : 0;
             const totalCosechadores = new Set(detalle.map(r => r.dni)).size;
 
             document.getElementById('kpiTotalKg').innerText = formatNumber(totalKg) + ' kg';
             document.getElementById('kpiTotalCump').innerText = cumpAvg + '%';
             document.getElementById('kpiTotalCosechadores').innerText = formatNumber(totalCosechadores);
+            document.getElementById('kpiCumpBadge').innerHTML = getComplianceBadge(cumpAvg);
 
-            const badgeElem = document.getElementById('kpiCumpBadge');
-            badgeElem.innerHTML = getComplianceBadge(cumpAvg);
-
-            // Chart 1: Donut Modalidad
             const modCounts = {};
-            unicos.forEach(u => {
-                modCounts[u.modalidad] = (modCounts[u.modalidad] || 0) + 1;
-            });
-            renderDonutChart('chartModalidad', Object.keys(modCounts), Object.values(modCounts), ['#c62828', '#2e7d32'], chartModalidadInstance, (inst) => chartModalidadInstance = inst);
+            unicos.forEach(u => { if (u.modalidad) modCounts[u.modalidad] = (modCounts[u.modalidad] || 0) + 1; });
+            renderDonutChart('chartModalidad', Object.keys(modCounts), Object.values(modCounts), ['#c62828', '#2e7d32'], chartModalidadInstance, inst => chartModalidadInstance = inst);
 
-            // Chart 2: Donut Sexo
             const sexoCounts = {};
-            unicos.forEach(u => {
-                sexoCounts[u.sexo] = (sexoCounts[u.sexo] || 0) + 1;
-            });
-            renderDonutChart('chartSexo', Object.keys(sexoCounts), Object.values(sexoCounts), ['#3b82f6', '#ec4899'], chartSexoInstance, (inst) => chartSexoInstance = inst);
+            unicos.forEach(u => { if (u.sexo) sexoCounts[u.sexo] = (sexoCounts[u.sexo] || 0) + 1; });
+            renderDonutChart('chartSexo', Object.keys(sexoCounts), Object.values(sexoCounts), ['#3b82f6', '#ec4899'], chartSexoInstance, inst => chartSexoInstance = inst);
 
-            // Table Por Fecha
             const fechaMap = {};
             detalle.forEach(d => {
-                if (!fechaMap[d.fecha]) {
-                    fechaMap[d.fecha] = { totalKg: 0, dnis: new Set() };
-                }
-                fechaMap[d.fecha].totalKg += d.totalKg;
+                if (!fechaMap[d.fecha]) fechaMap[d.fecha] = { totalKg: 0, dnis: new Set() };
+                fechaMap[d.fecha].totalKg += (parseFloat(d.totalKg) || 0);
                 fechaMap[d.fecha].dnis.add(d.dni);
             });
 
-            const tbodyDashFecha = document.getElementById('tbodyDashFecha');
-            tbodyDashFecha.innerHTML = Object.keys(fechaMap).sort().map(f => {
+            document.getElementById('tbodyDashFecha').innerHTML = Object.keys(fechaMap).sort().map(f => {
                 const kg = fechaMap[f].totalKg;
                 const pickers = fechaMap[f].dnis.size;
                 const prom = pickers > 0 ? Math.round(kg / pickers) : 0;
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-2.5 font-bold">${formatDatePE(f)}</td>
-                        <td class="p-2.5 text-right font-bold text-agri-red">${formatNumber(kg)} kg</td>
-                        <td class="p-2.5 text-right">${formatNumber(pickers)}</td>
-                        <td class="p-2.5 text-right font-bold text-slate-900">${formatNumber(prom)} kg/pers</td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-bold">${formatDatePE(f)}</td>
+                    <td class="p-2.5 text-right font-bold text-agri-red">${formatNumber(kg)} kg</td>
+                    <td class="p-2.5 text-right">${formatNumber(pickers)}</td>
+                    <td class="p-2.5 text-right font-bold text-slate-900">${formatNumber(prom)} kg/pers</td>
+                </tr>`;
             }).join('');
 
-            // Table Por Modalidad
             const modSummary = {};
             unicos.forEach(u => {
-                if (!modSummary[u.modalidad]) {
-                    modSummary[u.modalidad] = { pickers: new Set(), totalKg: 0, totalMeta: 0 };
-                }
+                if (!u.modalidad) return;
+                if (!modSummary[u.modalidad]) modSummary[u.modalidad] = { pickers: new Set(), totalKg: 0, totalMeta: 0 };
                 modSummary[u.modalidad].pickers.add(u.dni);
-                modSummary[u.modalidad].totalKg += u.totalKg;
-                modSummary[u.modalidad].totalMeta += u.meta;
+                modSummary[u.modalidad].totalKg += (parseFloat(u.totalKg) || 0);
+                modSummary[u.modalidad].totalMeta += (parseFloat(u.meta) || 0);
             });
 
-            const tbodyDashModalidad = document.getElementById('tbodyDashModalidad');
-            tbodyDashModalidad.innerHTML = Object.keys(modSummary).map(m => {
+            document.getElementById('tbodyDashModalidad').innerHTML = Object.keys(modSummary).map(m => {
                 const pickers = modSummary[m].pickers.size;
                 const cump = modSummary[m].totalMeta > 0 ? Math.round((modSummary[m].totalKg / modSummary[m].totalMeta) * 100) : 0;
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-2.5 font-bold">${m}</td>
-                        <td class="p-2.5 text-right font-bold">${formatNumber(pickers)}</td>
-                        <td class="p-2.5 text-right">${getComplianceBadge(cump)}</td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-bold">${m}</td>
+                    <td class="p-2.5 text-right font-bold">${formatNumber(pickers)}</td>
+                    <td class="p-2.5 text-right">${getComplianceBadge(cump)}</td>
+                </tr>`;
             }).join('');
 
-            // Top 10 Cosechadores
             const pickerAgg = {};
             detalle.forEach(d => {
-                if (!pickerAgg[d.dni]) {
-                    pickerAgg[d.dni] = { nombre: d.nombre, modalidad: d.modalidad, fechas: new Set(), totalKg: 0 };
-                }
+                if (!pickerAgg[d.dni]) pickerAgg[d.dni] = { nombre: d.nombre, modalidad: d.modalidad, fechas: new Set(), totalKg: 0 };
                 pickerAgg[d.dni].fechas.add(d.fecha);
-                pickerAgg[d.dni].totalKg += d.totalKg;
+                pickerAgg[d.dni].totalKg += (parseFloat(d.totalKg) || 0);
             });
 
-            const top10 = Object.values(pickerAgg)
-                .sort((a, b) => b.totalKg - a.totalKg)
-                .slice(0, 10);
-
-            const tbodyTop10 = document.getElementById('tbodyTop10');
-            tbodyTop10.innerHTML = top10.map((p, i) => {
+            const top10 = Object.values(pickerAgg).sort((a, b) => b.totalKg - a.totalKg).slice(0, 10);
+            document.getElementById('tbodyTop10').innerHTML = top10.map((p, i) => {
                 const totalDias = p.fechas.size;
                 const prom = totalDias > 0 ? Math.round(p.totalKg / totalDias) : 0;
                 const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`;
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-2.5 text-center font-black text-sm">${medal}</td>
-                        <td class="p-2.5 font-bold text-slate-800">${p.nombre}</td>
-                        <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">${p.modalidad}</span></td>
-                        <td class="p-2.5 text-right font-bold">${totalDias} d</td>
-                        <td class="p-2.5 text-right font-bold text-agri-red">${formatNumber(p.totalKg)} kg</td>
-                        <td class="p-2.5 text-right font-bold text-emerald-700">${formatNumber(prom)} kg/d</td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-2.5 text-center font-black text-sm">${medal}</td>
+                    <td class="p-2.5 font-bold text-slate-800">${p.nombre}</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600 font-semibold text-[10px]">${p.modalidad}</span></td>
+                    <td class="p-2.5 text-right font-bold">${totalDias} d</td>
+                    <td class="p-2.5 text-right font-bold text-agri-red">${formatNumber(p.totalKg)} kg</td>
+                    <td class="p-2.5 text-right font-bold text-emerald-700">${formatNumber(prom)} kg/d</td>
+                </tr>`;
             }).join('');
 
-            // Tabla Histórica
             const histMap = {};
             unicos.forEach(u => {
-                if (!histMap[u.historico]) {
-                    histMap[u.historico] = { dnis: new Set(), totalKg: 0 };
-                }
+                if (!u.historico) return;
+                if (!histMap[u.historico]) histMap[u.historico] = { dnis: new Set(), totalKg: 0 };
                 histMap[u.historico].dnis.add(u.dni);
-                histMap[u.historico].totalKg += u.totalKg;
+                histMap[u.historico].totalKg += (parseFloat(u.totalKg) || 0);
             });
 
-            const tbodyDashHistorico = document.getElementById('tbodyDashHistorico');
-            tbodyDashHistorico.innerHTML = Object.keys(histMap).map(h => {
+            document.getElementById('tbodyDashHistorico').innerHTML = Object.keys(histMap).map(h => {
                 const pickers = histMap[h].dnis.size;
                 const prom = pickers > 0 ? Math.round(histMap[h].totalKg / pickers) : 0;
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-2.5 font-bold">${h}</td>
-                        <td class="p-2.5 text-right font-bold">${formatNumber(pickers)}</td>
-                        <td class="p-2.5 text-right font-bold text-slate-900">${formatNumber(prom)} kg</td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-bold">${h}</td>
+                    <td class="p-2.5 text-right font-bold">${formatNumber(pickers)}</td>
+                    <td class="p-2.5 text-right font-bold text-slate-900">${formatNumber(prom)} kg</td>
+                </tr>`;
             }).join('');
 
-            // Tabla Variedad
             const varMap = {};
             detalle.forEach(d => {
+                if (!d.variedad) return;
                 const key = `${d.fecha}_${d.variedad}`;
-                if (!varMap[key]) {
-                    varMap[key] = { fecha: d.fecha, variedad: d.variedad, totalKg: 0 };
-                }
-                varMap[key].totalKg += d.totalKg;
+                if (!varMap[key]) varMap[key] = { fecha: d.fecha, variedad: d.variedad, totalKg: 0 };
+                varMap[key].totalKg += (parseFloat(d.totalKg) || 0);
             });
 
-            const tbodyDashVariedad = document.getElementById('tbodyDashVariedad');
-            tbodyDashVariedad.innerHTML = Object.values(varMap).sort((a,b) => b.fecha.localeCompare(a.fecha)).map(v => `
+            document.getElementById('tbodyDashVariedad').innerHTML = Object.values(varMap).sort((a,b) => b.fecha.localeCompare(a.fecha)).map(v => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-2.5 font-bold">${formatDatePE(v.fecha)}</td>
                     <td class="p-2.5 font-semibold text-slate-600">${v.variedad}</td>
@@ -1306,10 +1001,10 @@ async function fetchHarvestData() {
         }
 
         function renderDonutChart(canvasId, labels, data, colors, currentInstance, setInstance) {
-            const ctx = document.getElementById(canvasId).getContext('2d');
-            if (currentInstance) {
-                currentInstance.destroy();
-            }
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (currentInstance) currentInstance.destroy();
 
             const total = data.reduce((a, b) => a + b, 0);
 
@@ -1328,67 +1023,51 @@ async function fetchHarvestData() {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                font: { family: 'Inter', size: 11, weight: 'bold' }
-                            }
-                        },
+                        legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 11, weight: 'bold' } } },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
-                                    const val = context.raw || 0;
-                                    const pct = total > 0 ? Math.round((val / total) * 100) : 0;
-                                    return ` ${context.label}: ${val} (${pct}%)`;
-                                }
+                                label: ctx => ` ${ctx.label}: ${ctx.raw} (${total > 0 ? Math.round((ctx.raw / total) * 100) : 0}%)`
                             }
                         }
                     },
                     cutout: '65%'
                 }
             });
-
             setInstance(newInst);
         }
 
         function renderReporteDetallado() {
             let list = [...filteredData.DETALLE];
-
-            // Sorting
             const s = sortState.detallado;
             list.sort((a, b) => {
-                let valA = a[s.col] || '';
-                let valB = b[s.col] || '';
-                if (s.dir === 'asc') return valA.localeCompare(valB);
-                return valB.localeCompare(valA);
+                let valA = String(a[s.col] || '');
+                let valB = String(b[s.col] || '');
+                return s.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
             });
 
-            // Pagination
             const page = currentPage.detallado;
             const totalPages = Math.ceil(list.length / PAGE_SIZE) || 1;
-            const startIndex = (page - 1) * PAGE_SIZE;
-            const paginated = list.slice(startIndex, startIndex + PAGE_SIZE);
+            const paginated = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-            const tbody = document.getElementById('tbodyDetallado');
-            tbody.innerHTML = paginated.map(r => `
+            document.getElementById('tbodyDetallado').innerHTML = paginated.map(r => `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="p-3 font-bold">${formatDatePE(r.fecha)}</td>
                     <td class="p-3 font-mono text-slate-500">${r.dni}</td>
                     <td class="p-3 font-bold text-slate-800">${r.nombre}</td>
-                    <td class="p-3">${r.historico}</td>
-                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold">${r.modalidad}</span></td>
-                    <td class="p-3">${r.variedad}</td>
-                    <td class="p-3">${r.moduloTurno}</td>
-                    <td class="p-3">${r.labor}</td>
+                    <td class="p-3">${r.historico || ''}</td>
+                    <td class="p-3"><span class="px-2 py-0.5 rounded bg-slate-100 font-bold">${r.modalidad || ''}</span></td>
+                    <td class="p-3">${r.variedad || ''}</td>
+                    <td class="p-3">${r.moduloTurno || ''}</td>
+                    <td class="p-3">${r.labor || ''}</td>
                     <td class="p-3 text-right font-bold text-agri-red">${formatNumber(r.totalKg)} kg</td>
                     <td class="p-3 text-right font-bold text-slate-500">${formatNumber(r.meta)} kg</td>
                     <td class="p-3 text-center">${getComplianceBadge(r.cump)}</td>
-                    <td class="p-3 font-bold text-slate-700">${r.categ}</td>
+                    <td class="p-3 font-bold text-slate-700">${r.categ || ''}</td>
                     <td class="p-3 text-center">${getRangoBadge(r.rango)}</td>
                 </tr>
             `).join('');
 
-            renderPaginationToolbar('paginationDetallado', page, totalPages, list.length, (p) => {
+            renderPaginationToolbar('paginationDetallado', page, totalPages, list.length, p => {
                 currentPage.detallado = p;
                 renderReporteDetallado();
             });
@@ -1396,16 +1075,14 @@ async function fetchHarvestData() {
 
         function renderFechasKg() {
             const list = filteredData.TDP;
-            const dates = Array.from(new Set(rawData.DETALLE.map(d => d.fecha))).sort();
+            const dates = Array.from(new Set(rawData.DETALLE.map(d => d.fecha))).filter(Boolean).sort();
 
-            // Dynamic Header with total accumulator
-            const thead = document.getElementById('theadFechasKg');
             let totalKgByDate = {};
             dates.forEach(d => {
-                totalKgByDate[d] = list.reduce((acc, row) => acc + (row.datesKg[d] || 0), 0);
+                totalKgByDate[d] = list.reduce((acc, row) => acc + ((row.datesKg && row.datesKg[d]) || 0), 0);
             });
 
-            thead.innerHTML = `
+            document.getElementById('theadFechasKg').innerHTML = `
                 <tr>
                     <th class="p-3 sticky-col-left">DNI</th>
                     <th class="p-3">APELLIDOS Y NOMBRES</th>
@@ -1423,23 +1100,20 @@ async function fetchHarvestData() {
                 </tr>
             `;
 
-            // Pagination
             const page = currentPage.fechasKg;
             const totalPages = Math.ceil(list.length / PAGE_SIZE) || 1;
-            const startIndex = (page - 1) * PAGE_SIZE;
-            const paginated = list.slice(startIndex, startIndex + PAGE_SIZE);
+            const paginated = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-            const tbody = document.getElementById('tbodyFechasKg');
-            tbody.innerHTML = paginated.map(r => `
+            document.getElementById('tbodyFechasKg').innerHTML = paginated.map(r => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-mono sticky-col-left">${r.dni}</td>
                     <td class="p-3 font-bold text-slate-800">${r.nombre}</td>
-                    <td class="p-3">${r.modalidad}</td>
-                    <td class="p-3 font-bold">${r.categ}</td>
-                    <td class="p-3 font-mono text-slate-600">${r.placa}</td>
-                    <td class="p-3">${r.origen}</td>
+                    <td class="p-3">${r.modalidad || ''}</td>
+                    <td class="p-3 font-bold">${r.categ || ''}</td>
+                    <td class="p-3 font-mono text-slate-600">${r.placa || ''}</td>
+                    <td class="p-3">${r.origen || ''}</td>
                     ${dates.map(d => {
-                        const val = r.datesKg[d] || 0;
+                        const val = (r.datesKg && r.datesKg[d]) || 0;
                         const icon = val >= 50 ? '<i class="fa-solid fa-caret-up text-emerald-500 text-xs"></i>' : '<i class="fa-solid fa-caret-down text-rose-500 text-xs"></i>';
                         return `<td class="p-3 text-right font-bold">${formatNumber(val)} kg ${icon}</td>`;
                     }).join('')}
@@ -1447,7 +1121,7 @@ async function fetchHarvestData() {
                 </tr>
             `).join('');
 
-            renderPaginationToolbar('paginationFechasKg', page, totalPages, list.length, (p) => {
+            renderPaginationToolbar('paginationFechasKg', page, totalPages, list.length, p => {
                 currentPage.fechasKg = p;
                 renderFechasKg();
             });
@@ -1455,10 +1129,9 @@ async function fetchHarvestData() {
 
         function renderFechasCump() {
             const list = filteredData.TDP;
-            const dates = Array.from(new Set(rawData.DETALLE.map(d => d.fecha))).sort();
+            const dates = Array.from(new Set(rawData.DETALLE.map(d => d.fecha))).filter(Boolean).sort();
 
-            const thead = document.getElementById('theadFechasCump');
-            thead.innerHTML = `
+            document.getElementById('theadFechasCump').innerHTML = `
                 <tr>
                     <th class="p-3 sticky-col-left">DNI</th>
                     <th class="p-3">APELLIDOS Y NOMBRES</th>
@@ -1472,26 +1145,24 @@ async function fetchHarvestData() {
 
             const page = currentPage.fechasCump;
             const totalPages = Math.ceil(list.length / PAGE_SIZE) || 1;
-            const startIndex = (page - 1) * PAGE_SIZE;
-            const paginated = list.slice(startIndex, startIndex + PAGE_SIZE);
+            const paginated = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-            const tbody = document.getElementById('tbodyFechasCump');
-            tbody.innerHTML = paginated.map(r => `
+            document.getElementById('tbodyFechasCump').innerHTML = paginated.map(r => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-mono sticky-col-left">${r.dni}</td>
                     <td class="p-3 font-bold text-slate-800">${r.nombre}</td>
-                    <td class="p-3">${r.modalidad}</td>
-                    <td class="p-3 font-bold">${r.categ}</td>
-                    <td class="p-3 font-mono text-slate-600">${r.placa}</td>
-                    <td class="p-3">${r.origen}</td>
+                    <td class="p-3">${r.modalidad || ''}</td>
+                    <td class="p-3 font-bold">${r.categ || ''}</td>
+                    <td class="p-3 font-mono text-slate-600">${r.placa || ''}</td>
+                    <td class="p-3">${r.origen || ''}</td>
                     ${dates.map(d => {
-                        const val = r.datesCump[d] || 0;
+                        const val = (r.datesCump && r.datesCump[d]) || 0;
                         return `<td class="p-3 text-center">${getComplianceBadge(val)}</td>`;
                     }).join('')}
                 </tr>
             `).join('');
 
-            renderPaginationToolbar('paginationFechasCump', page, totalPages, list.length, (p) => {
+            renderPaginationToolbar('paginationFechasCump', page, totalPages, list.length, p => {
                 currentPage.fechasCump = p;
                 renderFechasCump();
             });
@@ -1499,42 +1170,38 @@ async function fetchHarvestData() {
 
         function renderRegUnicos() {
             let list = [...filteredData.UNICOS];
-
             const s = sortState.unicos;
             list.sort((a, b) => {
-                let valA = a[s.col] || '';
-                let valB = b[s.col] || '';
-                if (s.dir === 'asc') return valA.localeCompare(valB);
-                return valB.localeCompare(valA);
+                let valA = String(a[s.col] || '');
+                let valB = String(b[s.col] || '');
+                return s.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
             });
 
             const page = currentPage.unicos;
             const totalPages = Math.ceil(list.length / PAGE_SIZE) || 1;
-            const startIndex = (page - 1) * PAGE_SIZE;
-            const paginated = list.slice(startIndex, startIndex + PAGE_SIZE);
+            const paginated = list.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-            const tbody = document.getElementById('tbodyUnicos');
-            tbody.innerHTML = paginated.map(r => `
+            document.getElementById('tbodyUnicos').innerHTML = paginated.map(r => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-bold">${formatDatePE(r.fecha)}</td>
                     <td class="p-3 font-mono text-slate-500">${r.dni}</td>
                     <td class="p-3 font-bold text-slate-800">${r.nombre}</td>
-                    <td class="p-3">${r.actividad}</td>
-                    <td class="p-3 text-right font-bold">${r.totalHrs} hrs</td>
+                    <td class="p-3">${r.actividad || ''}</td>
+                    <td class="p-3 text-right font-bold">${r.totalHrs || 0} hrs</td>
                     <td class="p-3 text-right font-bold text-agri-red">${formatNumber(r.totalKg)} kg</td>
                     <td class="p-3 text-right font-bold text-slate-500">${formatNumber(r.meta)} kg</td>
                     <td class="p-3 text-center">${getRangoBadge(r.rango)}</td>
                     <td class="p-3 text-center">${getComplianceBadge(r.cump)}</td>
-                    <td class="p-3">${r.semana}</td>
-                    <td class="p-3">${r.dia}</td>
-                    <td class="p-3">${r.historico}</td>
-                    <td class="p-3">${r.modalidad}</td>
-                    <td class="p-3">${r.sexo}</td>
-                    <td class="p-3 font-bold">${r.categ}</td>
+                    <td class="p-3">${r.semana || ''}</td>
+                    <td class="p-3">${r.dia || ''}</td>
+                    <td class="p-3">${r.historico || ''}</td>
+                    <td class="p-3">${r.modalidad || ''}</td>
+                    <td class="p-3">${r.sexo || ''}</td>
+                    <td class="p-3 font-bold">${r.categ || ''}</td>
                 </tr>
             `).join('');
 
-            renderPaginationToolbar('paginationUnicos', page, totalPages, list.length, (p) => {
+            renderPaginationToolbar('paginationUnicos', page, totalPages, list.length, p => {
                 currentPage.unicos = p;
                 renderRegUnicos();
             });
@@ -1542,24 +1209,24 @@ async function fetchHarvestData() {
 
         function renderPlacasTdp() {
             const list = filteredData.TDP;
-            const dates = Array.from(new Set(rawData.DETALLE.map(d => d.fecha))).sort();
+            const dates = Array.from(new Set(rawData.DETALLE.map(d => d.fecha))).filter(Boolean).sort();
 
-            // Group by PLACA
             const placaMap = {};
             list.forEach(r => {
+                if (!r.placa) return;
                 if (!placaMap[r.placa]) {
                     placaMap[r.placa] = {
                         placa: r.placa,
-                        ruta: r.ruta,
-                        modalidad: r.modalidad,
-                        transportista: r.transportista,
+                        ruta: r.ruta || '',
+                        modalidad: r.modalidad || '',
+                        transportista: r.transportista || '',
                         datesKg: {},
                         totalKg: 0,
                         count: 0
                     };
                 }
                 dates.forEach(d => {
-                    const kg = r.datesKg[d] || 0;
+                    const kg = (r.datesKg && r.datesKg[d]) || 0;
                     placaMap[r.placa].datesKg[d] = (placaMap[r.placa].datesKg[d] || 0) + kg;
                     placaMap[r.placa].totalKg += kg;
                 });
@@ -1568,8 +1235,7 @@ async function fetchHarvestData() {
 
             const placaList = Object.values(placaMap);
 
-            const thead = document.getElementById('theadPlacasTdp');
-            thead.innerHTML = `
+            document.getElementById('theadPlacasTdp').innerHTML = `
                 <tr>
                     <th class="p-3">PLACA</th>
                     <th class="p-3">RUTA</th>
@@ -1582,25 +1248,21 @@ async function fetchHarvestData() {
 
             const page = currentPage.placasTdp;
             const totalPages = Math.ceil(placaList.length / PAGE_SIZE) || 1;
-            const startIndex = (page - 1) * PAGE_SIZE;
-            const paginated = placaList.slice(startIndex, startIndex + PAGE_SIZE);
+            const paginated = placaList.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-            const tbody = document.getElementById('tbodyPlacasTdp');
-            tbody.innerHTML = paginated.map(p => {
+            document.getElementById('tbodyPlacasTdp').innerHTML = paginated.map(p => {
                 const prom = p.count > 0 ? Math.round(p.totalKg / p.count) : 0;
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-3 font-mono font-bold text-agri-red">${p.placa}</td>
-                        <td class="p-3 font-semibold">${p.ruta}</td>
-                        <td class="p-3">${p.modalidad}</td>
-                        <td class="p-3">${p.transportista}</td>
-                        ${dates.map(d => `<td class="p-3 text-right font-bold">${formatNumber(p.datesKg[d] || 0)} kg</td>`).join('')}
-                        <td class="p-3 text-right font-black text-emerald-800 bg-emerald-50">${formatNumber(prom)} kg <i class="fa-solid fa-arrow-trend-up text-xs"></i></td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-3 font-mono font-bold text-agri-red">${p.placa}</td>
+                    <td class="p-3 font-semibold">${p.ruta}</td>
+                    <td class="p-3">${p.modalidad}</td>
+                    <td class="p-3">${p.transportista}</td>
+                    ${dates.map(d => `<td class="p-3 text-right font-bold">${formatNumber(p.datesKg[d] || 0)} kg</td>`).join('')}
+                    <td class="p-3 text-right font-black text-emerald-800 bg-emerald-50">${formatNumber(prom)} kg <i class="fa-solid fa-arrow-trend-up text-xs"></i></td>
+                </tr>`;
             }).join('');
 
-            renderPaginationToolbar('paginationPlacasTdp', page, totalPages, placaList.length, (p) => {
+            renderPaginationToolbar('paginationPlacasTdp', page, totalPages, placaList.length, p => {
                 currentPage.placasTdp = p;
                 renderPlacasTdp();
             });
@@ -1609,84 +1271,68 @@ async function fetchHarvestData() {
         function renderReporteFinal() {
             let list1 = [...filteredData.REPORTE];
 
-            // Table 1
             const s = sortState.final;
             list1.sort((a, b) => {
-                let valA = a[s.col] || '';
-                let valB = b[s.col] || '';
-                if (s.dir === 'asc') return valA.localeCompare(valB);
-                return valB.localeCompare(valA);
+                let valA = String(a[s.col] || '');
+                let valB = String(b[s.col] || '');
+                return s.dir === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA);
             });
 
             const page = currentPage.final;
             const totalPages = Math.ceil(list1.length / PAGE_SIZE) || 1;
-            const startIndex = (page - 1) * PAGE_SIZE;
-            const paginated = list1.slice(startIndex, startIndex + PAGE_SIZE);
+            const paginated = list1.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-            const tbody1 = document.getElementById('tbodyReporteFinal1');
-            tbody1.innerHTML = paginated.map(r => `
+            document.getElementById('tbodyReporteFinal1').innerHTML = paginated.map(r => `
                 <tr class="hover:bg-slate-50">
                     <td class="p-3 font-mono text-slate-500">${r.dni}</td>
                     <td class="p-3 font-bold text-slate-800">${r.nombre}</td>
-                    <td class="p-3">${r.modalidad}</td>
-                    <td class="p-3">${r.historico}</td>
+                    <td class="p-3">${r.modalidad || ''}</td>
+                    <td class="p-3">${r.historico || ''}</td>
                     <td class="p-3 text-center">${getComplianceBadge(r.cump)}</td>
-                    <td class="p-3 text-right font-bold">${r.totalDias} d</td>
-                    <td class="p-3 font-bold">${r.categ}</td>
+                    <td class="p-3 text-right font-bold">${r.totalDias || 0} d</td>
+                    <td class="p-3 font-bold">${r.categ || ''}</td>
                 </tr>
             `).join('');
 
-            renderPaginationToolbar('paginationFinal', page, totalPages, list1.length, (p) => {
+            renderPaginationToolbar('paginationFinal', page, totalPages, list1.length, p => {
                 currentPage.final = p;
                 renderReporteFinal();
             });
 
-            // Table 2: Resumen Modalidad / Historico
             const t2Map = {};
             list1.forEach(r => {
                 const key = `${r.modalidad}_${r.historico}`;
-                if (!t2Map[key]) {
-                    t2Map[key] = { modalidad: r.modalidad, historico: r.historico, totalKg: 0, cumps: [] };
-                }
-                t2Map[key].totalKg += (r.totalKg || 0);
-                t2Map[key].cumps.push(r.cump || 0);
+                if (!t2Map[key]) t2Map[key] = { modalidad: r.modalidad || '', historico: r.historico || '', totalKg: 0, cumps: [] };
+                t2Map[key].totalKg += (parseFloat(r.totalKg) || 0);
+                if (r.cump) t2Map[key].cumps.push(parseFloat(r.cump));
             });
 
-            const tbody2 = document.getElementById('tbodyReporteFinal2');
-            tbody2.innerHTML = Object.values(t2Map).map(row => {
+            document.getElementById('tbodyReporteFinal2').innerHTML = Object.values(t2Map).map(row => {
                 const avgCump = row.cumps.length > 0 ? Math.round(row.cumps.reduce((a,b)=>a+b,0) / row.cumps.length) : 0;
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-2.5 font-bold">${row.modalidad}</td>
-                        <td class="p-2.5">${row.historico}</td>
-                        <td class="p-2.5 text-right font-bold text-agri-red">${formatNumber(row.totalKg)} kg</td>
-                        <td class="p-2.5 text-center">${getComplianceBadge(avgCump)}</td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-bold">${row.modalidad}</td>
+                    <td class="p-2.5">${row.historico}</td>
+                    <td class="p-2.5 text-right font-bold text-agri-red">${formatNumber(row.totalKg)} kg</td>
+                    <td class="p-2.5 text-center">${getComplianceBadge(avgCump)}</td>
+                </tr>`;
             }).join('');
 
-            // Table 3: Resumen Modalidad / Categoria 2026
             const t3Map = {};
             list1.forEach(r => {
                 const key = `${r.modalidad}_${r.categ}`;
-                if (!t3Map[key]) {
-                    t3Map[key] = { modalidad: r.modalidad, categ: r.categ, totalKg: 0, cumps: [] };
-                }
-                t3Map[key].totalKg += (r.totalKg || 0);
-                t3Map[key].cumps.push(r.cump || 0);
+                if (!t3Map[key]) t3Map[key] = { modalidad: r.modalidad || '', categ: r.categ || '', totalKg: 0, cumps: [] };
+                t3Map[key].totalKg += (parseFloat(r.totalKg) || 0);
+                if (r.cump) t3Map[key].cumps.push(parseFloat(r.cump));
             });
 
-            const tbody3 = document.getElementById('tbodyReporteFinal3');
-            tbody3.innerHTML = Object.values(t3Map).map(row => {
+            document.getElementById('tbodyReporteFinal3').innerHTML = Object.values(t3Map).map(row => {
                 const avgCump = row.cumps.length > 0 ? Math.round(row.cumps.reduce((a,b)=>a+b,0) / row.cumps.length) : 0;
-                return `
-                    <tr class="hover:bg-slate-50">
-                        <td class="p-2.5 font-bold">${row.modalidad}</td>
-                        <td class="p-2.5 font-bold text-slate-700">${row.categ}</td>
-                        <td class="p-2.5 text-right font-bold text-agri-green">${formatNumber(row.totalKg)} kg</td>
-                        <td class="p-2.5 text-center">${getComplianceBadge(avgCump)}</td>
-                    </tr>
-                `;
+                return `<tr class="hover:bg-slate-50">
+                    <td class="p-2.5 font-bold">${row.modalidad}</td>
+                    <td class="p-2.5 font-bold text-slate-700">${row.categ}</td>
+                    <td class="p-2.5 text-right font-bold text-agri-green">${formatNumber(row.totalKg)} kg</td>
+                    <td class="p-2.5 text-center">${getComplianceBadge(avgCump)}</td>
+                </tr>`;
             }).join('');
         }
 
@@ -1742,86 +1388,13 @@ async function fetchHarvestData() {
         }
 
         const gasDeliverables = {
-            gs: `// =================================================================
-// CÓDIGO GOOGLE APPS SCRIPT (codigo.gs) - AGRÍCOLA HUARMEY
-// =================================================================
-
-function doGet(e) {
-  var action = e.parameter.action || 'getData';
-  
-  if (action === 'getData') {
-    return handleGetData();
-  }
-  
-  return ContentService.createTextOutput(JSON.stringify({ status: 'error', message: 'Acción no válida' }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  return doGet(e);
-}
-
-function handleGetData() {
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    
-    var sheetDetalle = ss.getSheetByName('DETALLE');
-    var sheetTDP = ss.getSheetByName('TDP');
-    var sheetUnicos = ss.getSheetByName('UNICOS');
-    var sheetReporte = ss.getSheetByName('REPORTE');
-    
-    var result = {
-      status: 'success',
-      payload: {
-        DETALLE: parseSheetData(sheetDetalle),
-        TDP: parseSheetData(sheetTDP),
-        UNICOS: parseSheetData(sheetUnicos),
-        REPORTE: parseSheetData(sheetReporte)
-      }
-    };
-    
-    return ContentService.createTextOutput(JSON.stringify(result))
-      .setMimeType(ContentService.MimeType.JSON);
-      
-  } catch(error) {
-    return ContentService.createTextOutput(JSON.stringify({
-      status: 'error',
-      message: error.toString()
-    })).setMimeType(ContentService.MimeType.JSON);
-  }
-}
-
-function parseSheetData(sheet) {
-  if (!sheet) return [];
-  var data = sheet.getDataRange().getValues();
-  if (data.length < 2) return [];
-  
-  var headers = data[0];
-  var rows = [];
-  
-  for (var i = 1; i < data.length; i++) {
-    var rowObj = {};
-    for (var j = 0; j < headers.length; j++) {
-      rowObj[headers[j]] = data[i][j];
-    }
-    rows.push(rowObj);
-  }
-  return rows;
-}`,
+            gs: `// Ver implementación en codigo.gs proporcionado`,
             manifest: `{
   "short_name": "Huarmey Cosecha",
   "name": "Agrícola Huarmey - Gestión Cosecha Arándanos",
   "icons": [
-    {
-      "src": "https://placehold.co/192x192/c62828/ffffff?text=AH",
-      "type": "image/png",
-      "sizes": "192x192"
-    },
-    {
-      "src": "https://placehold.co/512x512/c62828/ffffff?text=Huarmey",
-      "type": "image/png",
-      "sizes": "512x512"
-    }
+    { "src": "https://placehold.co/192x192/c62828/ffffff?text=AH", "type": "image/png", "sizes": "192x192" },
+    { "src": "https://placehold.co/512x512/c62828/ffffff?text=Huarmey", "type": "image/png", "sizes": "512x512" }
   ],
   "start_url": "./index.html",
   "background_color": "#ffffff",
@@ -1829,58 +1402,7 @@ function parseSheetData(sheet) {
   "display": "standalone",
   "orientation": "portrait"
 }`,
-            sw: `// =================================================================
-// SERVICE WORKER (service-worker.js) - CACHE FIRST WITH NETWORK FALLBACK
-// =================================================================
-
-const CACHE_NAME = 'huarmey-cosecha-v1';
-const ASSETS = [
-  './',
-  './index.html',
-  'https://cdn.tailwindcss.com',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-  'https://cdn.jsdelivr.net/npm/chart.js',
-  'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js'
-];
-
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS);
-    })
-  );
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => {
-      return Promise.all(
-        keys.map((key) => {
-          if (key !== CACHE_NAME) return caches.delete(key);
-        })
-      );
-    })
-  );
-  self.clients.claim();
-});
-
-self.addEventListener('fetch', (event) => {
-  if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-      return fetch(event.request);
-    })
-  );
-});`
+            sw: `// Service Worker PWA activo`
         };
 
         function openGASModal() {
@@ -1893,9 +1415,7 @@ self.addEventListener('fetch', (event) => {
         }
 
         function switchGasCodeTab(tabKey) {
-            document.querySelectorAll('[id^="gasTab-"]').forEach(b => {
-                b.className = "py-3 hover:text-white";
-            });
+            document.querySelectorAll('[id^="gasTab-"]').forEach(b => b.className = "py-3 hover:text-white");
             document.getElementById(`gasTab-${tabKey}`).className = "py-3 text-white border-b-2 border-agri-red font-bold";
 
             const filenames = { gs: 'codigo.gs', manifest: 'manifest.json', sw: 'service-worker.js' };
@@ -1905,22 +1425,14 @@ self.addEventListener('fetch', (event) => {
 
         function copyGasCode() {
             const code = document.getElementById('gasCodeContent').innerText;
-            const textarea = document.createElement('textarea');
-            textarea.value = code;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            alert('Código copiado al portapapeles.');
+            navigator.clipboard.writeText(code).then(() => alert('Código copiado al portapapeles.'));
         }
 
         function initPWA() {
             if ('serviceWorker' in navigator) {
-                const swBlob = new Blob([gasDeliverables.sw], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swUrl)
-                    .then(reg => console.log('PWA ServiceWorker registrado:', reg))
-                    .catch(err => console.warn('PWA SW Registro omitido:', err));
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then(reg => console.log('SW registrado:', reg))
+                    .catch(err => console.warn('SW error:', err));
             }
         }
 
