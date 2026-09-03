@@ -1,24 +1,18 @@
 {
-  "name": "Agrícola Huarmey - Cosecha de Arándanos",
   "short_name": "AgriHuarmey",
-  "description": "Sistema de Gestión de Cosecha de Arándanos para Agrícola Huarmey 2026",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#f8fafc",
-  "theme_color": "#d32f2f",
-  "orientation": "portrait-primary",
+  "name": "Agrícola Huarmey - Cosecha de Arándanos PWA",
+  "description": "Sistema de Gestión e Indicadores de Cosecha de Arándanos",
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/1135/1135058.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://cdn-icons-png.flaticon.com/512/1135/1135058.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='55' r='30' fill='%232e7d32' opacity='0.2'/><path d='M50 20 C65 20 80 35 80 55 C80 70 65 85 50 85 C35 85 20 70 20 55 C20 35 35 20 50 20 Z' fill='%23d32f2f'/><path d='M45 15 C55 10 65 15 60 28 C50 30 40 22 45 15 Z' fill='%232e7d32'/></svg>",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "start_url": "./index.html",
+  "background_color": "#f8fafc",
+  "theme_color": "#d32f2f",
+  "display": "standalone",
+  "orientation": "portrait-primary"
 }
