@@ -807,7 +807,7 @@
 
     <script>
         // URL desplegada de la API Apps Script
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzbjS5-oVAuXCQ-g-1ti-u5NdCtROYnWD6fUbtf0jiDEjrqJWd12ekTyNYrXzPV71Q8/exec";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzPsb6RfXpMo6GNWmkgb30M1UAoujfy0QQb9LmcFBrwWrJDDt11UXe6a9zEuAwOefT7/exec";
 
         let rawData = [];
         let filteredData = [];
@@ -857,7 +857,7 @@
             if (syncSpinner) syncSpinner.classList.add('fa-spin');
 
             try {
-                // Petición limpia con no-cors fallback dinámico
+                // Modificación en el método de consulta mediante JSONP/Fetch
                 const response = await fetch(APPS_SCRIPT_URL, { 
                     method: 'GET',
                     redirect: 'follow'
@@ -873,16 +873,20 @@
                     throw new Error(json.message || "Error devuelto por Apps Script");
                 }
 
-                if (json && json.data && json.data.length > 0) {
-                    rawData = processRawRecords(json.data);
+                let retrievedData = [];
+                if (Array.isArray(json)) {
+                    retrievedData = json;
+                } else if (json && json.data && Array.isArray(json.data)) {
+                    retrievedData = json.data;
+                }
+
+                if (retrievedData.length > 0) {
+                    rawData = processRawRecords(retrievedData);
                     localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
                     localStorage.setItem('agri_huarmey_sync_time', new Date().toISOString());
                     updateConnectionStatus(true);
-                } else if (json && Array.isArray(json.data)) {
-                    rawData = [];
-                    updateConnectionStatus(true);
                 } else {
-                    throw new Error("Respuesta de datos inválida");
+                    throw new Error("Formato de respuesta no reconocido");
                 }
             } catch (err) {
                 console.warn("Conexión con Apps Script no disponible, recurriendo a local:", err);
@@ -933,7 +937,7 @@
             return records.map((r, idx) => {
                 const totalKg = Math.round(parseFloat(r['TOTAL KG'] || r['TOTAL KG.'] || 0));
                 const meta = Math.round(parseFloat(r['META'] || 0));
-                let cump = parseFloat(r['CUMP. %'] || 0);
+                let cump = parseFloat(r['CUMP. %'] || r['CUMP %'] || 0);
                 if (cump <= 1.5 && cump > 0) cump = Math.round(cump * 100);
                 else cump = Math.round(cump);
 
@@ -1763,37 +1767,38 @@
 
             const tbody = document.getElementById('p6_body');
             tbody.innerHTML = pageData.map(r => {
-                let totalSum = 0;
-                let totalCnt = 0;
+                let totalKgSum = 0;
+                let totalCountSum = 0;
                 dates.forEach(d => {
                     if (r.byDateSum[d]) {
-                        totalSum += r.byDateSum[d];
-                        totalCnt += r.byDateCount[d];
+                        totalKgSum += r.byDateSum[d];
+                        totalCountSum += r.byDateCount[d];
                     }
                 });
-                const totalProm = totalCnt > 0 ? totalSum / totalCnt : 0;
+                const grandAvg = totalCountSum > 0 ? Math.round(totalKgSum / totalCountSum) : 0;
 
                 return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-2.5 font-bold text-slate-900">${r.PLACA}</td>
-                        <td class="p-2.5 text-slate-600">${r.RUTA}</td>
-                        <td class="p-2.5 text-slate-600">${r.MODALIDAD}</td>
-                        <td class="p-2.5 text-slate-500">${r.TRANSPORTISTA}</td>
-                        <td class="p-2.5 text-right font-black bg-amber-50/60 text-amber-900">${formatNumber(totalProm)} kg</td>
-                        ${dates.map(d => {
-                            const sum = r.byDateSum[d] || 0;
-                            const cnt = r.byDateCount[d] || 0;
-                            const prom = cnt > 0 ? sum / cnt : 0;
-                            return `<td class="p-2.5 text-right font-semibold border-l border-slate-100 ${prom > 0 ? 'text-slate-800' : 'text-slate-300'}">${prom > 0 ? formatNumber(prom) + ' kg' : '-'}</td>`;
-                        }).join('')}
-                    </tr>
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-2.5 font-bold text-slate-800">${r.PLACA}</td>
+                    <td class="p-2.5 text-slate-600">${r.RUTA}</td>
+                    <td class="p-2.5 text-slate-600">${r.MODALIDAD}</td>
+                    <td class="p-2.5 text-slate-500">${r.TRANSPORTISTA}</td>
+                    <td class="p-2.5 text-right font-extrabold bg-amber-50 text-amber-900">${formatNumber(grandAvg)} kg</td>
+                    ${dates.map(d => {
+                        const sum = r.byDateSum[d] || 0;
+                        const cnt = r.byDateCount[d] || 0;
+                        const avg = cnt > 0 ? Math.round(sum / cnt) : 0;
+                        return `<td class="p-2.5 text-right font-bold border-l border-slate-100 ${avg > 0 ? 'text-blue-700 bg-blue-50/20' : 'text-slate-300'}">${avg > 0 ? formatNumber(avg) + ' kg' : '-'}</td>`;
+                    }).join('')}
+                </tr>
                 `;
             }).join('') || `<tr><td colspan="${5 + dates.length}" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
         }
 
         function renderPage7() {
-            const data = filteredData;
-
+            let data = [...filteredData];
+            
+            // Consolidado 1: Resumen de Cosechadores
             const harvesters = {};
             data.forEach(r => {
                 if (!harvesters[r.DNI]) {
@@ -1803,17 +1808,26 @@
                         MODALIDAD: r.MODALIDAD,
                         HISTORICO: r.HISTORICO,
                         CATEG_2026: r.CATEG_2026,
+                        fechas: new Set(),
                         sumCump: 0,
-                        count: 0,
-                        fechas: new Set()
+                        count: 0
                     };
                 }
+                harvesters[r.DNI].fechas.add(r.FECHA);
                 harvesters[r.DNI].sumCump += r.CUMP_PERC;
                 harvesters[r.DNI].count++;
-                harvesters[r.DNI].fechas.add(r.FECHA);
             });
 
-            let list1 = Object.values(harvesters);
+            let list1 = Object.values(harvesters).map(h => ({
+                DNI: h.DNI,
+                APELLIDOS_NOMBRES: h.APELLIDOS_NOMBRES,
+                MODALIDAD: h.MODALIDAD,
+                HISTORICO: h.HISTORICO,
+                avgCump: h.count > 0 ? Math.round(h.sumCump / h.count) : 0,
+                totalDias: h.fechas.size,
+                CATEG_2026: h.CATEG_2026
+            }));
+
             const cfg = pagination.p7;
             list1.sort((a, b) => {
                 let valA = a[cfg.sortCol] || '';
@@ -1833,93 +1847,89 @@
             document.getElementById('p7_page_num').innerText = `Pág. ${cfg.page} / ${maxPages}`;
 
             const tbody1 = document.getElementById('p7_t1_body');
-            tbody1.innerHTML = pageData.map(r => {
-                const avgCump = r.count > 0 ? Math.round(r.sumCump / r.count) : 0;
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-2.5 font-mono text-slate-600">${r.DNI}</td>
-                        <td class="p-2.5 font-bold text-slate-900">${r.APELLIDOS_NOMBRES}</td>
-                        <td class="p-2.5 text-slate-600">${r.MODALIDAD}</td>
-                        <td class="p-2.5 text-slate-600">${r.HISTORICO}</td>
-                        <td class="p-2.5 text-center">${getComplianceBadgeHTML(avgCump)}</td>
-                        <td class="p-2.5 text-center font-bold text-slate-700">${r.fechas.size}</td>
-                        <td class="p-2.5 font-semibold text-slate-700">${r.CATEG_2026}</td>
-                    </tr>
-                `;
-            }).join('') || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
+            tbody1.innerHTML = pageData.map(r => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-2.5 font-mono text-slate-600">${r.DNI}</td>
+                    <td class="p-2.5 font-bold text-slate-900">${r.APELLIDOS_NOMBRES}</td>
+                    <td class="p-2.5 text-slate-600">${r.MODALIDAD}</td>
+                    <td class="p-2.5 text-slate-600">${r.HISTORICO}</td>
+                    <td class="p-2.5 text-center">${getComplianceBadgeHTML(r.avgCump)}</td>
+                    <td class="p-2.5 text-center font-bold text-slate-700">${r.totalDias}</td>
+                    <td class="p-2.5 font-semibold text-slate-700">${r.CATEG_2026}</td>
+                </tr>
+            `).join('') || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
 
-            // Tabular Summaries
-            renderP7Table2(data);
-            renderP7Table3(data);
-        }
-
-        function renderP7Table2(data) {
-            const group = {};
+            // Consolidado 2: Modalidad x Histórico
+            const group2 = {};
             data.forEach(r => {
                 const key = `${r.MODALIDAD}_${r.HISTORICO}`;
-                if (!group[key]) {
-                    group[key] = { MODALIDAD: r.MODALIDAD, HISTORICO: r.HISTORICO, totalKg: 0, sumCump: 0, count: 0 };
-                }
-                group[key].totalKg += r.TOTAL_KG;
-                group[key].sumCump += r.CUMP_PERC;
-                group[key].count++;
+                if (!group2[key]) group2[key] = { MODALIDAD: r.MODALIDAD, HISTORICO: r.HISTORICO, totalKg: 0, sumCump: 0, count: 0 };
+                group2[key].totalKg += r.TOTAL_KG;
+                group2[key].sumCump += r.CUMP_PERC;
+                group2[key].count++;
             });
 
-            const list = Object.values(group);
-            const tbody = document.getElementById('p7_t2_body');
-            tbody.innerHTML = list.map(r => {
-                const avgCump = r.count > 0 ? Math.round(r.sumCump / r.count) : 0;
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-2.5 font-bold text-slate-800">${r.MODALIDAD}</td>
-                        <td class="p-2.5 text-slate-600">${r.HISTORICO}</td>
-                        <td class="p-2.5 text-right font-extrabold text-red-600">${formatNumber(r.totalKg)} kg</td>
-                        <td class="p-2.5 text-center">${getComplianceBadgeHTML(avgCump)}</td>
-                    </tr>
-                `;
-            }).join('') || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
+            let list2 = Object.values(group2).map(g => ({
+                MODALIDAD: g.MODALIDAD,
+                HISTORICO: g.HISTORICO,
+                totalKg: g.totalKg,
+                avgCump: g.count > 0 ? Math.round(g.sumCump / g.count) : 0
+            }));
 
-        function renderP7Table3(data) {
-            const group = {};
-            let grandTotalKg = 0;
+            const tbody2 = document.getElementById('p7_t2_body');
+            tbody2.innerHTML = list2.map(r => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-2.5 font-bold text-slate-800">${r.MODALIDAD}</td>
+                    <td class="p-2.5 text-slate-600">${r.HISTORICO}</td>
+                    <td class="p-2.5 text-right font-black text-red-600">${formatNumber(r.totalKg)} kg</td>
+                    <td class="p-2.5 text-center">${getComplianceBadgeHTML(r.avgCump)}</td>
+                </tr>
+            `).join('') || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
+
+            // Consolidado 3: Modalidad x Categ. 2026
+            const group3 = {};
+            let grandTotalKg3 = 0;
             data.forEach(r => {
                 const key = `${r.MODALIDAD}_${r.CATEG_2026}`;
-                if (!group[key]) {
-                    group[key] = { MODALIDAD: r.MODALIDAD, CATEG_2026: r.CATEG_2026, totalKg: 0, sumCump: 0, count: 0 };
-                }
-                group[key].totalKg += r.TOTAL_KG;
-                group[key].sumCump += r.CUMP_PERC;
-                group[key].count++;
-                grandTotalKg += r.TOTAL_KG;
+                if (!group3[key]) group3[key] = { MODALIDAD: r.MODALIDAD, CATEG_2026: r.CATEG_2026, totalKg: 0, sumCump: 0, count: 0 };
+                group3[key].totalKg += r.TOTAL_KG;
+                group3[key].sumCump += r.CUMP_PERC;
+                group3[key].count++;
+                grandTotalKg3 += r.TOTAL_KG;
             });
 
-            const list = Object.values(group);
-            const tbody = document.getElementById('p7_t3_body');
-            tbody.innerHTML = list.map(r => {
-                const avgCump = r.count > 0 ? Math.round(r.sumCump / r.count) : 0;
-                const part = grandTotalKg > 0 ? Math.round((r.totalKg / grandTotalKg) * 100) : 0;
-                return `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="p-2.5 font-bold text-slate-800">${r.MODALIDAD}</td>
-                        <td class="p-2.5 text-slate-600">${r.CATEG_2026}</td>
-                        <td class="p-2.5 text-right font-extrabold text-red-600">${formatNumber(r.totalKg)} kg</td>
-                        <td class="p-2.5 text-center">${getComplianceBadgeHTML(avgCump)}</td>
-                        <td class="p-2.5 text-right font-bold text-slate-700">${part}%</td>
-                    </tr>
-                `;
-            }).join('') || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
+            let list3 = Object.values(group3).map(g => ({
+                MODALIDAD: g.MODALIDAD,
+                CATEG_2026: g.CATEG_2026,
+                totalKg: g.totalKg,
+                avgCump: g.count > 0 ? Math.round(g.sumCump / g.count) : 0,
+                particip: grandTotalKg3 > 0 ? Math.round((g.totalKg / grandTotalKg3) * 100) : 0
+            }));
+
+            const tbody3 = document.getElementById('p7_t3_body');
+            tbody3.innerHTML = list3.map(r => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-2.5 font-bold text-slate-800">${r.MODALIDAD}</td>
+                    <td class="p-2.5 text-slate-600">${r.CATEG_2026}</td>
+                    <td class="p-2.5 text-right font-black text-red-600">${formatNumber(r.totalKg)} kg</td>
+                    <td class="p-2.5 text-center">${getComplianceBadgeHTML(r.avgCump)}</td>
+                    <td class="p-2.5 text-right font-bold text-emerald-700">${r.particip}%</td>
+                </tr>
+            `).join('') || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
         }
 
         function exportCurrentTableToExcel() {
-            if (!filteredData || filteredData.length === 0) {
-                alert("No hay datos para exportar.");
-                return;
-            }
-            const ws = XLSX.utils.json_to_sheet(filteredData);
+            let filename = `Reporte_Cosecha_Pagina_${currentTab}.xlsx`;
+            let elementId = `p${currentTab}_body`;
+            if (currentTab === 1) elementId = 'p1_t1_body';
+
+            const table = document.getElementById(elementId);
+            if (!table) return;
+
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Cosecha_Huarmey");
-            XLSX.writeFile(wb, `Reporte_Cosecha_Huarmey_${new Date().toISOString().slice(0,10)}.xlsx`);
+            const ws = XLSX.utils.table_to_sheet(table.closest('table'));
+            XLSX.utils.book_append_sheet(wb, ws, "Reporte");
+            XLSX.writeFile(wb, filename);
         }
     </script>
 </body>
