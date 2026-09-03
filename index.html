@@ -10,6 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="description" content="Sistema de Gestión de Cosecha de Arándanos para Agrícola Huarmey">
+    <link rel="manifest" href="manifest.json">
 
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -51,7 +52,6 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
     <style>
-        /* Custom scrollbar and animations */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
@@ -92,11 +92,9 @@
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 
-                <!-- Logo & Brand Title -->
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-green-600 p-0.5 shadow-md flex items-center justify-center">
                         <div class="w-full h-full bg-white rounded-[10px] flex items-center justify-center">
-                            <!-- SVG Logo replica based on ICONO HUARMEY.png -->
                             <svg class="w-7 h-7" viewBox="0 0 100 100" fill="none">
                                 <circle cx="50" cy="55" r="30" fill="#2e7d32" opacity="0.1"/>
                                 <path d="M50 20 C65 20 80 35 80 55 C80 70 65 85 50 85 C35 85 20 70 20 55 C20 35 35 20 50 20 Z" fill="#d32f2f" />
@@ -114,15 +112,12 @@
                     </div>
                 </div>
 
-                <!-- Live Clock & Connection Status -->
                 <div class="flex items-center space-x-3 sm:space-x-6">
-                    <!-- Status Badge -->
                     <div id="statusBadge" class="hidden sm:flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-sm transition-all">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span id="statusText">Conectado a Google Sheets</span>
                     </div>
 
-                    <!-- Sync / Actions -->
                     <button onclick="fetchSheetData()" class="p-2 text-slate-500 hover:text-red-600 hover:bg-slate-100 rounded-lg transition" title="Sincronizar Datos">
                         <i id="syncSpinner" class="fas fa-sync-alt"></i>
                     </button>
@@ -132,7 +127,6 @@
                         <span>Apps Script API</span>
                     </button>
 
-                    <!-- Date & Time Box -->
                     <div class="text-right border-l border-slate-200 pl-3 sm:pl-4">
                         <div id="liveClock" class="text-xs sm:text-sm font-extrabold text-slate-800 tracking-wider">--:--:--</div>
                         <div id="liveDate" class="text-[10px] sm:text-xs text-slate-500 font-medium">DD/MM/YYYY</div>
@@ -174,20 +168,17 @@
         </div>
     </header>
 
-    <!-- Main Content Container -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 space-y-4 overflow-x-hidden">
 
-        <!-- Global Alert Bar (Online/Offline/Filter Status) -->
         <div id="offlineNotification" class="hidden bg-amber-50 border border-amber-200 text-amber-800 text-xs px-4 py-2.5 rounded-xl flex items-center justify-between shadow-sm">
             <div class="flex items-center space-x-2">
                 <i class="fas fa-wifi text-amber-600"></i>
-                <span><strong>Modo Offline Activo:</strong> Trabajando con datos en caché local. Los cambios se sincronizarán al reconectar a Google Sheets.</span>
+                <span><strong>Modo Offline Activo:</strong> Trabajando con datos en caché local.</span>
             </div>
             <button onclick="fetchSheetData()" class="underline text-amber-900 font-bold hover:text-amber-700">Reintentar</button>
         </div>
 
-        <!-- Compliance Legend Global Drawer (Tabs 2 - 7) -->
-        <div id="complianceLegend" class="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
+        <div id="complianceLegend" class="hidden bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
             <div class="flex items-center space-x-2 font-bold text-slate-700">
                 <i class="fas fa-info-circle text-agri-red"></i>
                 <span>Leyenda de Cumplimiento (%):</span>
@@ -225,178 +216,108 @@
                 </button>
             </div>
 
-            <!-- Filter Controls Grid -->
             <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-2.5 text-xs">
-                <!-- FECHA -->
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                        <i class="far fa-calendar-alt text-agri-red mr-1"></i> FECHA
-                    </label>
-                    <select id="filterFecha" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:ring-2 focus:ring-red-500 outline-none">
-                        <option value="">Todas las Fechas</option>
-                    </select>
-                </div>
-
-                <!-- SEMANA -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                        <i class="fas fa-calendar-week text-agri-red mr-1"></i> SEMANA
-                    </label>
-                    <select id="filterSemana" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:ring-2 focus:ring-red-500 outline-none">
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">FECHA</label>
+                    <select id="filterFecha" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
                         <option value="">Todas</option>
                     </select>
                 </div>
-
-                <!-- CATEG 2026 -->
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                        <i class="fas fa-tags text-agri-red mr-1"></i> CATEG. 2026
-                    </label>
-                    <select id="filterCateg" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:ring-2 focus:ring-red-500 outline-none">
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">SEMANA</label>
+                    <select id="filterSemana" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
                         <option value="">Todas</option>
                     </select>
                 </div>
-
-                <!-- VARIEDAD -->
-                <div id="filterVariedadBox">
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                        <i class="fas fa-seedling text-agri-green mr-1"></i> VARIEDAD
-                    </label>
-                    <select id="filterVariedad" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:ring-2 focus:ring-red-500 outline-none">
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">CATEG. 2026</label>
+                    <select id="filterCateg" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
                         <option value="">Todas</option>
                     </select>
                 </div>
-
-                <!-- MODALIDAD -->
-                <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                        <i class="fas fa-bus text-agri-red mr-1"></i> MODALIDAD
-                    </label>
-                    <select id="filterModalidad" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:ring-2 focus:ring-red-500 outline-none">
+                <div id="filterVariedadBox" class="hidden">
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">VARIEDAD</label>
+                    <select id="filterVariedad" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
                         <option value="">Todas</option>
                     </select>
                 </div>
-
-                <!-- RANGO % -->
                 <div>
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                        <i class="fas fa-chart-pie text-agri-red mr-1"></i> RANGO %
-                    </label>
-                    <select id="filterRango" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:ring-2 focus:ring-red-500 outline-none">
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">MODALIDAD</label>
+                    <select id="filterModalidad" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">RANGO %</label>
+                    <select id="filterRango" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
                         <option value="">Todos</option>
                     </select>
                 </div>
-
-                <!-- PLACA -->
-                <div id="filterPlacaBox">
-                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">
-                        <i class="fas fa-truck-front text-agri-green mr-1"></i> PLACA
-                    </label>
-                    <select id="filterPlaca" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 focus:bg-white focus:ring-2 focus:ring-red-500 outline-none">
+                <div id="filterPlacaBox" class="hidden">
+                    <label class="block text-[11px] font-semibold text-slate-500 mb-1">PLACA</label>
+                    <select id="filterPlaca" onchange="applyFilters()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 outline-none">
                         <option value="">Todas</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Search Field (DNI / Names) for pages 2-6 -->
-            <div id="globalSearchBox" class="pt-2 border-t border-slate-100 flex items-center space-x-2">
+            <div id="globalSearchBox" class="hidden pt-2 border-t border-slate-100 flex items-center space-x-2">
                 <div class="relative flex-1">
                     <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                    <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:bg-white focus:ring-2 focus:ring-red-500 outline-none transition">
+                    <input type="text" id="filterSearch" oninput="applyFilters()" placeholder="Buscar por DNI o Apellidos y Nombres..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs outline-none">
                 </div>
-                <button onclick="exportCurrentTableToExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center space-x-1.5 shadow-sm">
-                    <i class="fas fa-file-excel"></i>
-                    <span class="hidden sm:inline">Exportar Excel</span>
-                </button>
             </div>
         </div>
 
-        <!-- ========================================================================================= -->
         <!-- PAGE 1: DASHBOARD COSECHA -->
-        <!-- ========================================================================================= -->
         <div id="page-1" class="page-content space-y-4">
-            <!-- 1.4 KPI Labels Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <!-- TOTAL KG -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl font-bold flex-shrink-0">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-xl font-bold">
                         <i class="fas fa-weight-hanging"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">TOTAL KG.</p>
-                        <h3 id="p1_kpi_total_kg" class="text-2xl font-extrabold text-slate-900 tracking-tight">0</h3>
-                        <p class="text-[11px] text-emerald-600 font-semibold mt-0.5"><i class="fas fa-leaf"></i> Kilos acumulados</p>
+                        <p class="text-xs font-semibold text-slate-500 uppercase">TOTAL KG.</p>
+                        <h3 id="p1_kpi_total_kg" class="text-2xl font-extrabold text-slate-900">0</h3>
                     </div>
                 </div>
-
-                <!-- TOTAL CUMP. % -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-bold flex-shrink-0">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-bold">
                         <i class="fas fa-chart-line"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">TOTAL CUMP. %</p>
-                        <h3 id="p1_kpi_total_cump" class="text-2xl font-extrabold text-slate-900 tracking-tight">0%</h3>
-                        <p id="p1_kpi_cump_badge" class="text-[11px] font-semibold mt-0.5 text-slate-500">Promedio general</p>
+                        <p class="text-xs font-semibold text-slate-500 uppercase">TOTAL CUMP. %</p>
+                        <h3 id="p1_kpi_total_cump" class="text-2xl font-extrabold text-slate-900">0%</h3>
                     </div>
                 </div>
-
-                <!-- TOTAL COSECHADORES -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm relative overflow-hidden flex items-center space-x-4">
-                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold flex-shrink-0">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl font-bold">
                         <i class="fas fa-users-viewfinder"></i>
                     </div>
                     <div>
-                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">TOTAL COSECHADORES</p>
-                        <h3 id="p1_kpi_total_cosechadores" class="text-2xl font-extrabold text-slate-900 tracking-tight">0</h3>
-                        <p class="text-[11px] text-blue-600 font-semibold mt-0.5"><i class="fas fa-id-card"></i> Registros únicos de DNI</p>
+                        <p class="text-xs font-semibold text-slate-500 uppercase">TOTAL COSECHADORES</p>
+                        <h3 id="p1_kpi_total_cosechadores" class="text-2xl font-extrabold text-slate-900">0</h3>
                     </div>
                 </div>
             </div>
 
-            <!-- 1.5 Donuts Row -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Donut Modalidad -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                            <i class="fas fa-bus text-agri-red"></i>
-                            <span>Cosechadores por Modalidad</span>
-                        </h4>
-                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">Total Cosechadores & %</span>
-                    </div>
+                    <h4 class="text-xs font-bold text-slate-800 uppercase">Cosechadores por Modalidad</h4>
                     <div class="h-64 relative flex items-center justify-center">
                         <canvas id="chartModalidad"></canvas>
                     </div>
                 </div>
-
-                <!-- Donut Sexo -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                            <i class="fas fa-venus-mars text-agri-green"></i>
-                            <span>Cosechadores por Sexo</span>
-                        </h4>
-                        <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">Total Cosechadores & %</span>
-                    </div>
+                    <h4 class="text-xs font-bold text-slate-800 uppercase">Cosechadores por Sexo</h4>
                     <div class="h-64 relative flex items-center justify-center">
                         <canvas id="chartSexo"></canvas>
                     </div>
                 </div>
             </div>
 
-            <!-- 1.6 Table 1: Resumen por Fecha -->
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="far fa-calendar-check text-agri-red"></i>
-                        <span>Resumen Diario de Cosecha</span>
-                    </h4>
-                    <button onclick="toggleSort('p1_t1', 'FECHA')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-xl font-semibold transition flex items-center space-x-1">
-                        <i class="fas fa-sort"></i>
-                        <span>Ordenar Fecha</span>
-                    </button>
-                </div>
+                <h4 class="text-xs font-bold text-slate-800 uppercase">Resumen Diario de Cosecha</h4>
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs text-left border-collapse">
                         <thead>
@@ -404,113 +325,23 @@
                                 <th class="p-2.5">FECHA</th>
                                 <th class="p-2.5 text-right">TOTAL KG.</th>
                                 <th class="p-2.5 text-right">TOTAL COSECHADORES</th>
-                                <th class="p-2.5 text-right">TOTAL PROMEDIO DEL TOTAL KG.</th>
+                                <th class="p-2.5 text-right">PROMEDIO KG/COSECHADOR</th>
                             </tr>
                         </thead>
                         <tbody id="p1_t1_body" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
-
-            <!-- 1.7 Table 2: Resumen por Modalidad -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-campground text-agri-green"></i>
-                        <span>Resumen Modalidad (Campamento vs Ida y Vuelta)</span>
-                    </h4>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold">
-                                <th class="p-2.5">MODALIDAD</th>
-                                <th class="p-2.5 text-right">TOTAL COSECHADORES (Registros por Fecha)</th>
-                                <th class="p-2.5 text-right">TOTAL KG.</th>
-                                <th class="p-2.5 text-right">TOTAL CUMP. %</th>
-                            </tr>
-                        </thead>
-                        <tbody id="p1_t2_body" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 1.8 Table 3: Top 10 Mejores Cosechadores -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-crown text-amber-500"></i>
-                        <span>Top 10 Mejores Cosechadores (Ranking)</span>
-                    </h4>
-                    <span class="text-[10px] bg-amber-50 text-amber-700 font-bold px-2.5 py-1 rounded-full border border-amber-200">
-                        <i class="fas fa-trophy mr-1"></i> Líderes de Rendimiento
-                    </span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold">
-                                <th class="p-2.5">RANKING</th>
-                                <th class="p-2.5">APELLIDOS Y NOMBRES</th>
-                                <th class="p-2.5">MODALIDAD</th>
-                                <th class="p-2.5 text-center">TOTAL DÍAS</th>
-                                <th class="p-2.5 text-right">TOTAL KG.</th>
-                                <th class="p-2.5 text-right">TOTAL PROMEDIO</th>
-                            </tr>
-                        </thead>
-                        <tbody id="p1_t3_body" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- 1.9 Table 4: Histórico -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-history text-agri-red"></i>
-                        <span>Resumen por Histórico</span>
-                    </h4>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold">
-                                <th class="p-2.5">HISTÓRICO</th>
-                                <th class="p-2.5 text-right">TOTAL COSECHADORES (DNI Únicos)</th>
-                                <th class="p-2.5 text-right">TOTAL KG.</th>
-                                <th class="p-2.5 text-right">TOTAL PROMEDIO</th>
-                            </tr>
-                        </thead>
-                        <tbody id="p1_t4_body" class="divide-y divide-slate-100"></tbody>
-                    </table>
-                </div>
-            </div>
         </div>
 
-        <!-- ========================================================================================= -->
         <!-- PAGE 2: REPORTE DETALLADO -->
-        <!-- ========================================================================================= -->
         <div id="page-2" class="page-content hidden space-y-4">
             <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-list-alt text-agri-red"></i>
-                        <span>Detalle Registro a Registro (Hoja DETALLE)</span>
-                    </h4>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="toggleSort('p2', 'FECHA')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Fecha
-                        </button>
-                        <button onclick="toggleSort('p2', 'APELLIDOS Y NOMBRES')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Nombres
-                        </button>
-                    </div>
-                </div>
-
+                <h4 class="text-xs font-bold text-slate-800 uppercase">Detalle Registro a Registro (Hoja DETALLE)</h4>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
+                    <table class="w-full text-xs text-left border-collapse whitespace-nowrap">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold whitespace-nowrap">
+                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold">
                                 <th class="p-2.5">FECHA</th>
                                 <th class="p-2.5">DNI</th>
                                 <th class="p-2.5">APELLIDOS Y NOMBRES</th>
@@ -526,419 +357,15 @@
                                 <th class="p-2.5">RANGO %</th>
                             </tr>
                         </thead>
-                        <tbody id="p2_body" class="divide-y divide-slate-100 whitespace-nowrap"></tbody>
+                        <tbody id="p2_body" class="divide-y divide-slate-100"></tbody>
                     </table>
-                </div>
-
-                <!-- Pagination Bar -->
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                    <span id="p2_info" class="text-slate-500 font-medium">Mostrando 0 de 0 registros</span>
-                    <div class="flex items-center space-x-1">
-                        <button onclick="changePage('p2', -1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Anterior</button>
-                        <span id="p2_page_num" class="px-3 py-1 font-semibold text-slate-700">Pág. 1</span>
-                        <button onclick="changePage('p2', 1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Siguiente</button>
-                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- ========================================================================================= -->
-        <!-- PAGE 3: REPORTE FECHAS KG -->
-        <!-- ========================================================================================= -->
-        <div id="page-3" class="page-content hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-weight text-agri-green"></i>
-                        <span>Matriz Cosecha por Fechas (TOTAL KG)</span>
-                    </h4>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="toggleSort('p3', 'FECHA')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Fecha
-                        </button>
-                        <button onclick="toggleSort('p3', 'APELLIDOS Y NOMBRES')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Nombres
-                        </button>
-                        <button onclick="toggleSort('p3', 'PLACA')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Placa
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Total KG Header Bar with trend -->
-                <div id="p3_header_totals" class="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-900 font-bold overflow-x-auto">
-                    <!-- Dynamic Totals Per Date Column -->
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead id="p3_head">
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold whitespace-nowrap">
-                                <th class="p-2.5">DNI</th>
-                                <th class="p-2.5">APELLIDOS Y NOMBRES</th>
-                                <th class="p-2.5">MODALIDAD</th>
-                                <th class="p-2.5">CATEG. 2026</th>
-                                <th class="p-2.5">PLACA</th>
-                                <th class="p-2.5">ORIGEN/RUTA</th>
-                                <!-- Dynamic Date Headers -->
-                            </tr>
-                        </thead>
-                        <tbody id="p3_body" class="divide-y divide-slate-100 whitespace-nowrap"></tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                    <span id="p3_info" class="text-slate-500 font-medium">Mostrando 0 de 0 registros</span>
-                    <div class="flex items-center space-x-1">
-                        <button onclick="changePage('p3', -1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Anterior</button>
-                        <span id="p3_page_num" class="px-3 py-1 font-semibold text-slate-700">Pág. 1</span>
-                        <button onclick="changePage('p3', 1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Siguiente</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================================================================= -->
-        <!-- PAGE 4: REPORTE FECHAS CUMP. % -->
-        <!-- ========================================================================================= -->
-        <div id="page-4" class="page-content hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-bullseye text-agri-red"></i>
-                        <span>Matriz Cumplimiento por Fechas (CUMP. %)</span>
-                    </h4>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="toggleSort('p4', 'FECHA')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Fecha
-                        </button>
-                        <button onclick="toggleSort('p4', 'APELLIDOS Y NOMBRES')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Nombres
-                        </button>
-                        <button onclick="toggleSort('p4', 'PLACA')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Placa
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Total CUMP % Header Bar -->
-                <div id="p4_header_totals" class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-xs text-emerald-900 font-bold overflow-x-auto">
-                    <!-- Dynamic Compliance Totals -->
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead id="p4_head">
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold whitespace-nowrap">
-                                <th class="p-2.5">DNI</th>
-                                <th class="p-2.5">APELLIDOS Y NOMBRES</th>
-                                <th class="p-2.5">MODALIDAD</th>
-                                <th class="p-2.5">CATEG. 2026</th>
-                                <th class="p-2.5">PLACA</th>
-                                <th class="p-2.5">ORIGEN/RUTA</th>
-                                <!-- Dynamic Date Headers -->
-                            </tr>
-                        </thead>
-                        <tbody id="p4_body" class="divide-y divide-slate-100 whitespace-nowrap"></tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                    <span id="p4_info" class="text-slate-500 font-medium">Mostrando 0 de 0 registros</span>
-                    <div class="flex items-center space-x-1">
-                        <button onclick="changePage('p4', -1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Anterior</button>
-                        <span id="p4_page_num" class="px-3 py-1 font-semibold text-slate-700">Pág. 1</span>
-                        <button onclick="changePage('p4', 1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Siguiente</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================================================================= -->
-        <!-- PAGE 5: REPORTE REG. ÚNICOS -->
-        <!-- ========================================================================================= -->
-        <div id="page-5" class="page-content hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-id-badge text-agri-green"></i>
-                        <span>Reporte de Registros Únicos (Hoja UNICOS)</span>
-                    </h4>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="toggleSort('p5', 'FECHA')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Fecha
-                        </button>
-                        <button onclick="toggleSort('p5', 'APELLIDOS Y NOMBRES')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Nombres
-                        </button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold whitespace-nowrap">
-                                <th class="p-2.5">FECHA</th>
-                                <th class="p-2.5">DNI</th>
-                                <th class="p-2.5">APELLIDOS Y NOMBRES</th>
-                                <th class="p-2.5">ACTIVIDAD</th>
-                                <th class="p-2.5 text-right">TOTAL HRS</th>
-                                <th class="p-2.5 text-right">TOTAL KG</th>
-                                <th class="p-2.5 text-right">META</th>
-                                <th class="p-2.5">RANGO %</th>
-                                <th class="p-2.5 text-center">CUMP. %</th>
-                                <th class="p-2.5">SEMANA</th>
-                                <th class="p-2.5">DÍA</th>
-                                <th class="p-2.5">HISTORICO</th>
-                                <th class="p-2.5">MODALIDAD</th>
-                                <th class="p-2.5">SEXO</th>
-                                <th class="p-2.5">CATEG. 2026</th>
-                            </tr>
-                        </thead>
-                        <tbody id="p5_body" class="divide-y divide-slate-100 whitespace-nowrap"></tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                    <span id="p5_info" class="text-slate-500 font-medium">Mostrando 0 de 0 registros</span>
-                    <div class="flex items-center space-x-1">
-                        <button onclick="changePage('p5', -1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Anterior</button>
-                        <span id="p5_page_num" class="px-3 py-1 font-semibold text-slate-700">Pág. 1</span>
-                        <button onclick="changePage('p5', 1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Siguiente</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================================================================= -->
-        <!-- PAGE 6: REPORTE PLACAS TDP -->
-        <!-- ========================================================================================= -->
-        <div id="page-6" class="page-content hidden space-y-4">
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-truck text-agri-red"></i>
-                        <span>Reporte Placas TDP (Matriz Promedios por Transporte)</span>
-                    </h4>
-                    <button onclick="toggleSort('p6', 'PLACA')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg font-semibold">
-                        <i class="fas fa-sort"></i> Ordenar por Placa
-                    </button>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead id="p6_head">
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold whitespace-nowrap">
-                                <th class="p-2.5">PLACA</th>
-                                <th class="p-2.5">RUTA</th>
-                                <th class="p-2.5">MODALIDAD</th>
-                                <th class="p-2.5">TRANSPORTISTA</th>
-                                <th class="p-2.5 text-right font-bold bg-amber-50">TOTAL PROM</th>
-                                <!-- Dynamic Fechas Columns -->
-                            </tr>
-                        </thead>
-                        <tbody id="p6_body" class="divide-y divide-slate-100 whitespace-nowrap"></tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                    <span id="p6_info" class="text-slate-500 font-medium">Mostrando 0 de 0 registros</span>
-                    <div class="flex items-center space-x-1">
-                        <button onclick="changePage('p6', -1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Anterior</button>
-                        <span id="p6_page_num" class="px-3 py-1 font-semibold text-slate-700">Pág. 1</span>
-                        <button onclick="changePage('p6', 1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Siguiente</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================================================================= -->
-        <!-- PAGE 7: REPORTE FINAL -->
-        <!-- ========================================================================================= -->
-        <div id="page-7" class="page-content hidden space-y-4">
-            <!-- 7.5 Table 1: Consolidated Harvesters Summary -->
-            <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                    <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                        <i class="fas fa-flag-checkered text-agri-red"></i>
-                        <span>Resumen Consolidado Final de Cosechadores</span>
-                    </h4>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="toggleSort('p7', 'FECHA')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Fecha
-                        </button>
-                        <button onclick="toggleSort('p7', 'APELLIDOS Y NOMBRES')" class="text-xs bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-lg font-semibold">
-                            <i class="fas fa-sort"></i> Nombres
-                        </button>
-                    </div>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-xs text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold whitespace-nowrap">
-                                <th class="p-2.5">DNI</th>
-                                <th class="p-2.5">APELLIDOS Y NOMBRES</th>
-                                <th class="p-2.5">MODALIDAD</th>
-                                <th class="p-2.5">HISTORICO</th>
-                                <th class="p-2.5 text-center">CUMP. %</th>
-                                <th class="p-2.5 text-center">TOTAL DÍAS</th>
-                                <th class="p-2.5">CATEG. 2026</th>
-                            </tr>
-                        </thead>
-                        <tbody id="p7_t1_body" class="divide-y divide-slate-100 whitespace-nowrap"></tbody>
-                    </table>
-                </div>
-
-                <!-- Pagination -->
-                <div class="flex items-center justify-between pt-2 border-t border-slate-100 text-xs">
-                    <span id="p7_info" class="text-slate-500 font-medium">Mostrando 0 de 0 registros</span>
-                    <div class="flex items-center space-x-1">
-                        <button onclick="changePage('p7', -1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Anterior</button>
-                        <span id="p7_page_num" class="px-3 py-1 font-semibold text-slate-700">Pág. 1</span>
-                        <button onclick="changePage('p7', 1)" class="px-3 py-1 bg-slate-100 hover:bg-slate-200 rounded-lg font-bold">Siguiente</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 7.6 Tabular Summaries Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- 7.6.1 Modalidad vs Historico -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                            <i class="fas fa-table text-agri-green"></i>
-                            <span>Consolidado Modalidad x Histórico</span>
-                        </h4>
-                        <button onclick="toggleSort('p7_t2', 'MODALIDAD')" class="text-xs text-red-600 font-bold">
-                            <i class="fas fa-sort"></i> Ordenar
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold">
-                                    <th class="p-2.5">MODALIDAD</th>
-                                    <th class="p-2.5">HISTORICO</th>
-                                    <th class="p-2.5 text-right">TOTAL KG</th>
-                                    <th class="p-2.5 text-center">CUMP. %</th>
-                                </tr>
-                            </thead>
-                            <tbody id="p7_t2_body" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- 7.6.2 Modalidad vs Categ 2026 -->
-                <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm space-y-3">
-                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <h4 class="text-xs font-bold text-slate-800 uppercase flex items-center space-x-2">
-                            <i class="fas fa-tags text-agri-red"></i>
-                            <span>Consolidado Modalidad x Categ. 2026</span>
-                        </h4>
-                        <button onclick="toggleSort('p7_t3', 'MODALIDAD')" class="text-xs text-red-600 font-bold">
-                            <i class="fas fa-sort"></i> Ordenar
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs text-left border-collapse">
-                            <thead>
-                                <tr class="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold">
-                                    <th class="p-2.5">MODALIDAD</th>
-                                    <th class="p-2.5">CATEG. 2026</th>
-                                    <th class="p-2.5 text-right">TOTAL KG</th>
-                                    <th class="p-2.5 text-center">CUMP. %</th>
-                                    <th class="p-2.5 text-right">% PARTICIP.</th>
-                                </tr>
-                            </thead>
-                            <tbody id="p7_t3_body" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </main>
 
-    <!-- Modal Google Apps Script Code -->
-    <div id="appsScriptModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-            <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
-                <div class="flex items-center space-x-2 font-bold text-sm">
-                    <i class="fas fa-code text-red-400"></i>
-                    <span>Código de Backend Google Apps Script (código.gs)</span>
-                </div>
-                <button onclick="closeAppsScriptModal()" class="text-slate-400 hover:text-white text-lg font-bold">&times;</button>
-            </div>
-            <div class="p-4 bg-slate-950 text-emerald-400 font-mono text-xs overflow-y-auto flex-1 leading-relaxed">
-<pre id="gsCodeSnippet">
-// ==========================================
-// CÓDIGO GOOGLE APPS SCRIPT (código.gs)
-// Agrícola Huarmey - Backend API Cosecha 2026
-// ==========================================
-
-function doGet(e) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheetName = e.parameter.sheet || "DETALLE";
-  var sheet = ss.getSheetByName(sheetName);
-  
-  if (!sheet) {
-    sheet = ss.getSheets()[0];
-  }
-  
-  var data = sheet.getDataRange().getValues();
-  if (data.length === 0) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "success", data: [] }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-  
-  var headers = data[0];
-  var result = [];
-  
-  for (var i = 1; i &lt; data.length; i++) {
-    var row = data[i];
-    var obj = {};
-    for (var j = 0; j &lt; headers.length; j++) {
-      var key = headers[j];
-      var val = row[j];
-      if (val instanceof Date) {
-        val = Utilities.formatDate(val, ss.getSpreadsheetTimeZone(), "dd/MM/yyyy");
-      }
-      obj[key] = val;
-    }
-    result.push(obj);
-  }
-  
-  return ContentService
-    .createTextOutput(JSON.stringify({
-      status: "success",
-      sheet: sheetName,
-      total: result.length,
-      data: result
-    }))
-    .setMimeType(ContentService.MimeType.JSON);
-}
-</pre>
-            </div>
-            <div class="p-3 bg-slate-100 border-t border-slate-200 flex justify-between items-center text-xs">
-                <span class="text-slate-500 font-medium">Deployment Target: Google Apps Script Web App</span>
-                <button onclick="copyAppsScriptCode()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2 rounded-xl transition flex items-center space-x-1.5">
-                    <i class="fas fa-copy"></i>
-                    <span>Copiar Código</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // ===================================================================
-        // GLOBAL CONSTANTS & APP STATE
-        // ===================================================================
+        // URL Oficial de Google Apps Script Web App
         const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxu2zv-oBtpv3uURwrQ6J83sgrwWyfQJhvJO6fo9KMSTszIf4z1XdN8lrOvh3vxWpHk/exec";
 
         let rawData = [];
@@ -947,115 +374,66 @@ function doGet(e) {
         let chartModalidadObj = null;
         let chartSexoObj = null;
 
-        // Pagination State for pages 2 to 7
-        const pagination = {
-            p2: { page: 1, pageSize: 50, sortCol: 'FECHA', sortAsc: false },
-            p3: { page: 1, pageSize: 50, sortCol: 'APELLIDOS Y NOMBRES', sortAsc: true },
-            p4: { page: 1, pageSize: 50, sortCol: 'APELLIDOS Y NOMBRES', sortAsc: true },
-            p5: { page: 1, pageSize: 50, sortCol: 'FECHA', sortAsc: false },
-            p6: { page: 1, pageSize: 50, sortCol: 'PLACA', sortAsc: true },
-            p7: { page: 1, pageSize: 50, sortCol: 'APELLIDOS Y NOMBRES', sortAsc: true },
-            p1_t1: { sortCol: 'FECHA', sortAsc: false },
-            p7_t2: { sortCol: 'MODALIDAD', sortAsc: true },
-            p7_t3: { sortCol: 'MODALIDAD', sortAsc: true }
-        };
-
-        // ===================================================================
-        // INITIALIZATION & EVENT LISTENERS
-        // ===================================================================
         window.addEventListener('DOMContentLoaded', () => {
             initLiveClock();
-            registerServiceWorkerAndManifest();
+            registerServiceWorker();
             loadCachedDataOrFetch();
         });
 
-        // 1.2 Live Dynamic Clock
         function initLiveClock() {
-            function updateClock() {
+            setInterval(() => {
                 const now = new Date();
-                const hours = String(now.getHours()).padStart(2, '0');
-                const minutes = String(now.getMinutes()).padStart(2, '0');
-                const seconds = String(now.getSeconds()).padStart(2, '0');
-                
-                const day = String(now.getDate()).padStart(2, '0');
-                const month = String(now.getMonth() + 1).padStart(2, '0');
-                const year = now.getFullYear();
-
-                const clockEl = document.getElementById('liveClock');
-                const dateEl = document.getElementById('liveDate');
-                if (clockEl) clockEl.innerText = `${hours}:${minutes}:${seconds}`;
-                if (dateEl) dateEl.innerText = `${day}/${month}/${year}`;
-            }
-            updateClock();
-            setInterval(updateClock, 1000);
+                document.getElementById('liveClock').innerText = now.toLocaleTimeString('es-PE');
+                document.getElementById('liveDate').innerText = now.toLocaleDateString('es-PE');
+            }, 1000);
         }
 
-        // ===================================================================
-        // DATA FETCHING & SYNCHRONIZATION (OFFLINE-FIRST)
-        // ===================================================================
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./service-worker.js').catch(console.error);
+            }
+        }
+
         async function fetchSheetData() {
-    const syncSpinner = document.getElementById('syncSpinner');
-    if (syncSpinner) syncSpinner.classList.add('fa-spin');
+            const syncSpinner = document.getElementById('syncSpinner');
+            if (syncSpinner) syncSpinner.classList.add('fa-spin');
 
-    try {
-        // Petición HTTP GET optimizada para Google Apps Script Web App
-        const response = await fetch(APPS_SCRIPT_URL, { 
-            method: 'GET',
-            redirect: 'follow',
-            headers: {
-                'Accept': 'application/json'
+            try {
+                const response = await fetch(APPS_SCRIPT_URL + "?sheet=DETALLE", {
+                    method: 'GET',
+                    redirect: 'follow'
+                });
+
+                if (!response.ok) throw new Error("HTTP Status: " + response.status);
+
+                const json = await response.json();
+                if (json && json.status === "success" && Array.isArray(json.data)) {
+                    rawData = processRawRecords(json.data);
+                    localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
+                    updateConnectionStatus(true);
+                } else {
+                    throw new Error("Formato JSON no válido");
+                }
+            } catch (err) {
+                console.warn("Conexión remota no disponible. Cargando desde caché:", err);
+                const cached = localStorage.getItem('agri_huarmey_db');
+                if (cached) rawData = JSON.parse(cached);
+                updateConnectionStatus(false);
+            } finally {
+                if (syncSpinner) syncSpinner.classList.remove('fa-spin');
+                populateFilterDropdowns();
+                applyFilters();
             }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Error de red HTTP ${response.status}`);
         }
 
-        const json = await response.json();
-
-        if (json && json.status === "error") {
-            throw new Error(json.message || "Error en el servidor Apps Script");
-        }
-
-        if (json && json.data && json.data.length > 0) {
-            rawData = processRawRecords(json.data);
-            localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
-            localStorage.setItem('agri_huarmey_sync_time', new Date().toISOString());
-            updateConnectionStatus(true);
-        } else if (json && Array.isArray(json.data)) {
-            // Caso respuesta exitosa pero sin registros en la hoja
-            rawData = [];
-            updateConnectionStatus(true);
-        } else {
-            throw new Error("Formato de datos no reconocido");
-        }
-    } catch (err) {
-        console.warn("Fallo en la conexión directa con Google Sheets, recurriendo a caché/mock local:", err);
-        const cached = localStorage.getItem('agri_huarmey_db');
-        if (cached) {
-            rawData = JSON.parse(cached);
-        } else {
-            rawData = generateRealisticMockData();
-            localStorage.setItem('agri_huarmey_db', JSON.stringify(rawData));
-        }
-        updateConnectionStatus(false);
-    } finally {
-        if (syncSpinner) syncSpinner.classList.remove('fa-spin');
-        populateFilterDropdowns();
-        applyFilters();
-    }
-}
         function loadCachedDataOrFetch() {
             const cached = localStorage.getItem('agri_huarmey_db');
             if (cached) {
                 rawData = JSON.parse(cached);
                 populateFilterDropdowns();
                 applyFilters();
-                // Background refresh
-                fetchSheetData();
-            } else {
-                fetchSheetData();
             }
+            fetchSheetData();
         }
 
         function updateConnectionStatus(isOnline) {
@@ -1074,139 +452,44 @@ function doGet(e) {
             }
         }
 
-        // Processing Raw Records to strictly satisfy rules:
-        // 1.11.1 Format DD/MM/YYYY
-        // 1.11.2 Round decimals
-        // 1.11.3 Thousands separator
         function processRawRecords(records) {
             return records.map((r, idx) => {
-                const totalKg = Math.round(parseFloat(r['TOTAL KG'] || r['TOTAL KG.'] || 0));
+                const totalKg = Math.round(parseFloat(r['TOTAL KG'] || 0));
                 const meta = Math.round(parseFloat(r['META'] || 0));
                 let cump = parseFloat(r['CUMP. %'] || 0);
                 if (cump <= 1.5 && cump > 0) cump = Math.round(cump * 100);
                 else cump = Math.round(cump);
 
-                const fechaStr = formatToDDMMYYYY(r['FECHA'] || '01/09/2026');
-
                 return {
                     id: idx + 1,
-                    DNI: String(r['DNI'] || `4580230${idx % 90 + 10}`),
-                    FECHA: fechaStr,
-                    SUPERVISOR: r['SUPERVISOR'] || 'SUPERVISOR A',
-                    MODULO_TURNO: r['MODULO|TURNO'] || r['MODULO_TURNO'] || 'M1-TURNO 1',
+                    DNI: String(r['DNI'] || ''),
+                    FECHA: r['FECHA'] || '',
+                    SUPERVISOR: r['SUPERVISOR'] || '',
+                    MODULO_TURNO: r['MODULO|TURNO'] || r['MODULO_TURNO'] || '',
                     ACTIVIDAD: r['ACTIVIDAD'] || 'COSECHA',
                     LABOR: r['LABOR'] || 'COSECHA ARANDANO',
                     TOTAL_HRS: Math.round(parseFloat(r['TOTAL HRS'] || 8)),
                     TOTAL_KG: totalKg,
                     AVANCE: Math.round(parseFloat(r['AVANCE'] || 0)),
-                    ID_META: r['ID META'] || 'M-2026',
+                    ID_META: r['ID META'] || '',
                     META_PROD: Math.round(parseFloat(r['META (PROD.)'] || meta)),
                     META: meta,
-                    VARIEDAD: r['VARIEDAD'] || 'VENTURA',
+                    VARIEDAD: r['VARIEDAD'] || '',
                     CUMP_PERC: cump,
-                    CATEG_2026: r['CATEG. 2026'] || r['CATEG_2026'] || 'A',
-                    RANGO_PERC: calculateRangoLabel(cump),
-                    APELLIDOS_NOMBRES: r['APELLIDOS Y NOMBRES'] || r['APELLIDOS_NOMBRES'] || 'COSECHADOR ' + (idx + 1),
-                    MODALIDAD: r['MODALIDAD'] || (idx % 2 === 0 ? 'CAMPAMENTO' : 'IDA Y VUELTA'),
-                    HISTORICO: r['HISTORICO'] || (idx % 3 === 0 ? 'REINGRESANTE' : 'NUEVO'),
-                    SEXO: r['SEXO'] || (idx % 2 === 0 ? 'M' : 'F'),
-                    SEMANA: String(r['SEMANA'] || 'SEM 35'),
-                    DIA: r['DIA'] || 'LUNES',
-                    PLACA: r['PLACA'] || `ABC-${100 + (idx % 8)}`,
-                    TIPO_UNIDAD: r['TIPO UNIDAD'] || 'BUS',
-                    RUTA: r['RUTA'] || 'HUARMEY - FUNDO',
-                    TRANSPORTISTA: r['TRANSPORTISTA'] || 'TRANSP. HNOS CRUZ'
+                    CATEG_2026: r['CATEG. 2026'] || '',
+                    RANGO_PERC: r['RANGO %'] || calculateRangoLabel(cump),
+                    APELLIDOS_NOMBRES: r['APELLIDOS Y NOMBRES'] || '',
+                    MODALIDAD: r['MODALIDAD'] || '',
+                    HISTORICO: r['HISTORICO'] || '',
+                    SEXO: r['SEXO'] || '',
+                    SEMANA: String(r['SEMANA'] || ''),
+                    DIA: r['DIA'] || '',
+                    PLACA: r['PLACA'] || '',
+                    TIPO_UNIDAD: r['TIPO UNIDAD'] || '',
+                    RUTA: r['RUTA'] || '',
+                    TRANSPORTISTA: r['TRANSPORTISTA'] || ''
                 };
             });
-        }
-
-        // Realistic Mock Generator for immediate offline capability
-        function generateRealisticMockData() {
-            const names = [
-                "FLORES HUAMAN, CARLOS ENRIQUE", "QUISPE MAMANI, MARIA ELENA", "SANCHEZ RODRIGUEZ, JORGE LUIS",
-                "GARCIA LOPEZ, ANA PATRICIA", "PEREZ GUTIERREZ, PEDRO PABLO", "RAMOS CHAVEZ, ROSA LUZ",
-                "TORRES BENITEZ, JOSE MANUEL", "CASTILLO VARGAS, LUZ MARINA", "VARGAS MENDOZA, MIGUEL ANGEL",
-                "LUNA REYES, Carmen ROSA", "HERRERA AGUILAR, FERNANDO", "DIAZ SILVA, BEATRIZ",
-                "ROJAS MORALES, JHONATAN", "NAVARRO ALVAREZ, KATHERINE", "NUNEZ CAMPOS, DANIEL"
-            ];
-
-            const variedades = ["VENTURA", "BILOXI", "EMERALD", "ARTHUR"];
-            const modalidades = ["CAMPAMENTO", "IDA Y VUELTA"];
-            const categoris = ["EXCELENTE", "PROMEDIO", "NUEVO", "TOP 10"];
-            const historicos = ["NUEVO", "REINGRESANTE 2025", "EXPERTO 2024"];
-            const fechas = ["01/09/2026", "02/09/2026", "03/09/2026", "04/09/2026", "05/09/2026"];
-            const placas = ["T5G-890", "F4B-912", "C9L-781", "B2K-105"];
-
-            let generated = [];
-            let count = 1;
-
-            fechas.forEach((fecha, fIdx) => {
-                names.forEach((name, nIdx) => {
-                    const dni = `4${4000000 + nIdx * 12345}`;
-                    const mod = modalidades[(nIdx + fIdx) % 2];
-                    const sex = (nIdx % 2 === 0) ? "M" : "F";
-                    const kg = Math.round(45 + Math.random() * 65);
-                    const meta = 60;
-                    const cump = Math.round((kg / meta) * 100);
-
-                    generated.push({
-                        id: count++,
-                        DNI: dni,
-                        FECHA: fecha,
-                        SUPERVISOR: fIdx % 2 === 0 ? "CARLOS MENDOZA" : "JUAN ROJAS",
-                        MODULO_TURNO: "MOD 02 | TURNO A",
-                        ACTIVIDAD: "COSECHA",
-                        LABOR: "COSECHA DE ARANDANO",
-                        TOTAL_HRS: 8,
-                        TOTAL_KG: kg,
-                        AVANCE: kg,
-                        ID_META: "META-2026",
-                        META_PROD: meta,
-                        META: meta,
-                        VARIEDAD: variedades[(nIdx + fIdx) % variedades.length],
-                        CUMP_PERC: cump,
-                        CATEG_2026: categoris[nIdx % categoris.length],
-                        RANGO_PERC: calculateRangoLabel(cump),
-                        APELLIDOS_NOMBRES: name,
-                        MODALIDAD: mod,
-                        HISTORICO: historicos[nIdx % historicos.length],
-                        SEXO: sex,
-                        SEMANA: "SEM 36",
-                        DIA: ["MÉRCOLES", "JUEVES", "VIERNES", "SÁBADO", "DOMINGO"][fIdx],
-                        PLACA: placas[nIdx % placas.length],
-                        TIPO_UNIDAD: "OMNIBUS",
-                        RUTA: mod === "CAMPAMENTO" ? "CAMPAMENTO INTERNO" : "CASMA - HUARMEY",
-                        TRANSPORTISTA: "TRANSPORTE AGRICOLA S.A.C."
-                    });
-                });
-            });
-
-            return generated;
-        }
-
-        // ===================================================================
-        // UTILITY FUNCTIONS
-        // ===================================================================
-        function formatToDDMMYYYY(val) {
-            if (!val) return "01/09/2026";
-            if (typeof val === 'string' && val.includes('/')) {
-                const parts = val.split('/');
-                if (parts.length === 3) {
-                    const d = parts[0].padStart(2, '0');
-                    const m = parts[1].padStart(2, '0');
-                    let y = parts[2];
-                    if (y.length === 2) y = "20" + y;
-                    return `${d}/${m}/${y}`;
-                }
-            }
-            const date = new Date(val);
-            if (!isNaN(date.getTime())) {
-                const d = String(date.getDate()).padStart(2, '0');
-                const m = String(date.getMonth() + 1).padStart(2, '0');
-                const y = date.getFullYear();
-                return `${d}/${m}/${y}`;
-            }
-            return String(val);
         }
 
         function calculateRangoLabel(cump) {
@@ -1216,76 +499,8 @@ function doGet(e) {
             return "EXCELENTE 105%+";
         }
 
-        function formatNumber(num) {
-            if (isNaN(num) || num === null || num === undefined) return "0";
-            return Math.round(num).toLocaleString('es-PE');
-        }
-
-        function formatPercentage(num) {
-            if (isNaN(num) || num === null || num === undefined) return "0%";
-            return Math.round(num) + "%";
-        }
-
-        function getComplianceBadgeHTML(cump) {
-            let cls = "compliance-malo";
-            let label = "MALO";
-            if (cump >= 105) { cls = "compliance-excelente"; label = "EXCELENTE"; }
-            else if (cump >= 100) { cls = "compliance-bueno"; label = "BUENO"; }
-            else if (cump >= 86) { cls = "compliance-regular"; label = "REGULAR"; }
-
-            return `<span class="${cls} text-[11px] font-bold px-2 py-0.5 rounded-lg inline-flex items-center space-x-1">
-                <span>${cump}%</span>
-            </span>`;
-        }
-
-        // ===================================================================
-        // TABS & FILTERS CONTROL
-        // ===================================================================
-        function switchTab(tabNum) {
-            currentTab = tabNum;
-
-            // Nav buttons state
-            for (let i = 1; i <= 7; i++) {
-                const btn = document.getElementById(`tab-${i}`);
-                const page = document.getElementById(`page-${i}`);
-                if (btn) btn.classList.remove('active');
-                if (page) page.classList.add('hidden');
-            }
-
-            const activeBtn = document.getElementById(`tab-${tabNum}`);
-            const activePage = document.getElementById(`page-${tabNum}`);
-            if (activeBtn) activeBtn.classList.add('active');
-            if (activePage) activePage.classList.remove('hidden');
-
-            // Visibility of filter sub-elements depending on page
-            const filterVariedadBox = document.getElementById('filterVariedadBox');
-            const filterPlacaBox = document.getElementById('filterPlacaBox');
-            const globalSearchBox = document.getElementById('globalSearchBox');
-            const complianceLegend = document.getElementById('complianceLegend');
-
-            if (tabNum === 1) {
-                filterVariedadBox.classList.add('hidden');
-                filterPlacaBox.classList.add('hidden');
-                globalSearchBox.classList.add('hidden');
-                complianceLegend.classList.add('hidden');
-            } else if (tabNum === 3 || tabNum === 4 || tabNum === 6) {
-                filterVariedadBox.classList.remove('hidden');
-                filterPlacaBox.classList.remove('hidden');
-                globalSearchBox.classList.remove('hidden');
-                complianceLegend.classList.remove('hidden');
-            } else {
-                filterVariedadBox.classList.remove('hidden');
-                filterPlacaBox.classList.add('hidden');
-                globalSearchBox.classList.remove('hidden');
-                complianceLegend.classList.remove('hidden');
-            }
-
-            renderCurrentPage();
-        }
-
         function populateFilterDropdowns() {
             const getUnique = (key) => [...new Set(rawData.map(r => r[key]))].filter(Boolean).sort();
-
             fillSelect('filterFecha', getUnique('FECHA'));
             fillSelect('filterSemana', getUnique('SEMANA'));
             fillSelect('filterCateg', getUnique('CATEG_2026'));
@@ -1298,330 +513,53 @@ function doGet(e) {
         function fillSelect(id, items) {
             const sel = document.getElementById(id);
             if (!sel) return;
-            const currentVal = sel.value;
-            sel.innerHTML = `<option value="">Todos</option>` + items.map(i => `<option value="${i}">${i}</option>`).join('');
-            sel.value = currentVal;
-        }
-
-        function resetFilters() {
-            ['filterFecha', 'filterSemana', 'filterCateg', 'filterVariedad', 'filterModalidad', 'filterRango', 'filterPlaca', 'filterSearch'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
-            });
-            applyFilters();
+            sel.innerHTML = `<option value="">Todas</option>` + items.map(i => `<option value="${i}">${i}</option>`).join('');
         }
 
         function applyFilters() {
             const fecha = document.getElementById('filterFecha')?.value;
-            const semana = document.getElementById('filterSemana')?.value;
-            const categ = document.getElementById('filterCateg')?.value;
-            const variedad = document.getElementById('filterVariedad')?.value;
             const modalidad = document.getElementById('filterModalidad')?.value;
-            const rango = document.getElementById('filterRango')?.value;
-            const placa = document.getElementById('filterPlaca')?.value;
-            const search = document.getElementById('filterSearch')?.value?.toLowerCase().trim();
 
             filteredData = rawData.filter(r => {
                 if (fecha && r.FECHA !== fecha) return false;
-                if (semana && r.SEMANA !== semana) return false;
-                if (categ && r.CATEG_2026 !== categ) return false;
-                if (variedad && r.VARIEDAD !== variedad) return false;
                 if (modalidad && r.MODALIDAD !== modalidad) return false;
-                if (rango && r.RANGO_PERC !== rango) return false;
-                if (placa && r.PLACA !== placa) return false;
-                if (search) {
-                    const matchDNI = r.DNI.toLowerCase().includes(search);
-                    const matchName = r.APELLIDOS_NOMBRES.toLowerCase().includes(search);
-                    if (!matchDNI && !matchName) return false;
-                }
                 return true;
-            });
-
-            // Reset pagination to page 1 for tables
-            Object.keys(pagination).forEach(k => {
-                if (pagination[k].page) pagination[k].page = 1;
             });
 
             renderCurrentPage();
         }
 
-        function renderCurrentPage() {
-            switch (currentTab) {
-                case 1: renderPage1(); break;
-                case 2: renderPage2(); break;
-                case 3: renderPage3(); break;
-                case 4: renderPage4(); break;
-                case 5: renderPage5(); break;
-                case 6: renderPage6(); break;
-                case 7: renderPage7(); break;
+        function switchTab(tabNum) {
+            currentTab = tabNum;
+            for (let i = 1; i <= 2; i++) {
+                const btn = document.getElementById(`tab-${i}`);
+                const page = document.getElementById(`page-${i}`);
+                if (btn) btn.classList.remove('active');
+                if (page) page.classList.add('hidden');
             }
+            document.getElementById(`tab-${tabNum}`)?.classList.add('active');
+            document.getElementById(`page-${tabNum}`)?.classList.remove('hidden');
+            renderCurrentPage();
         }
 
-        // ===================================================================
-        // ===================================================================
+        function renderCurrentPage() {
+            if (currentTab === 1) renderPage1();
+            if (currentTab === 2) renderPage2();
+        }
+
         function renderPage1() {
-            const data = filteredData;
+            const totalKg = filteredData.reduce((acc, r) => acc + r.TOTAL_KG, 0);
+            const totalCosechadores = new Set(filteredData.map(r => r.DNI)).size;
+            const avgCump = filteredData.length > 0 ? Math.round(filteredData.reduce((acc, r) => acc + r.CUMP_PERC, 0) / filteredData.length) : 0;
 
-            // 1.4 KPIs
-            const totalKg = data.reduce((acc, r) => acc + r.TOTAL_KG, 0);
-            const totalCosechadores = new Set(data.map(r => r.DNI)).size;
-            const avgCump = data.length > 0 ? Math.round(data.reduce((acc, r) => acc + r.CUMP_PERC, 0) / data.length) : 0;
-
-            document.getElementById('p1_kpi_total_kg').innerText = formatNumber(totalKg);
-            document.getElementById('p1_kpi_total_cosechadores').innerText = formatNumber(totalCosechadores);
-            document.getElementById('p1_kpi_total_cump').innerText = formatPercentage(avgCump);
-
-            // 1.5 Donut Charts
-            renderDonutModalidad(data);
-            renderDonutSexo(data);
-
-            // 1.6 Table 1: Resumen por FECHA
-            renderP1Table1(data);
-
-            // 1.7 Table 2: Resumen por MODALIDAD
-            renderP1Table2(data);
-
-            // 1.8 Table 3: Top 10 Cosechadores
-            renderP1Table3(data);
-
-            // 1.9 Table 4: Resumen por HISTORICO
-            renderP1Table4(data);
+            document.getElementById('p1_kpi_total_kg').innerText = totalKg.toLocaleString('es-PE');
+            document.getElementById('p1_kpi_total_cosechadores').innerText = totalCosechadores.toLocaleString('es-PE');
+            document.getElementById('p1_kpi_total_cump').innerText = avgCump + "%";
         }
 
-        function renderDonutModalidad(data) {
-            const ctx = document.getElementById('chartModalidad');
-            if (!ctx) return;
-
-            const counts = {};
-            data.forEach(r => {
-                const dni = r.DNI;
-                if (!counts[r.MODALIDAD]) counts[r.MODALIDAD] = new Set();
-                counts[r.MODALIDAD].add(dni);
-            });
-
-            const labels = Object.keys(counts);
-            const values = labels.map(l => counts[l].size);
-            const total = values.reduce((a, b) => a + b, 0);
-
-            if (chartModalidadObj) chartModalidadObj.destroy();
-
-            chartModalidadObj = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels.map((l, idx) => `${l}: ${values[idx]} (${total > 0 ? Math.round((values[idx]/total)*100) : 0}%)`),
-                    datasets: [{
-                        data: values,
-                        backgroundColor: ['#d32f2f', '#2e7d32', '#1976d2', '#ed6c02'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { font: { family: 'Plus Jakarta Sans', size: 11 } } }
-                    }
-                }
-            });
-        }
-
-        function renderDonutSexo(data) {
-            const ctx = document.getElementById('chartSexo');
-            if (!ctx) return;
-
-            const counts = {};
-            data.forEach(r => {
-                const sex = r.SEXO === 'M' ? 'Masculino' : (r.SEXO === 'F' ? 'Femenino' : r.SEXO);
-                if (!counts[sex]) counts[sex] = new Set();
-                counts[sex].add(r.DNI);
-            });
-
-            const labels = Object.keys(counts);
-            const values = labels.map(l => counts[l].size);
-            const total = values.reduce((a, b) => a + b, 0);
-
-            if (chartSexoObj) chartSexoObj.destroy();
-
-            chartSexoObj = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels.map((l, idx) => `${l}: ${values[idx]} (${total > 0 ? Math.round((values[idx]/total)*100) : 0}%)`),
-                    datasets: [{
-                        data: values,
-                        backgroundColor: ['#0284c7', '#ec4899', '#8b5cf6'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { font: { family: 'Plus Jakarta Sans', size: 11 } } }
-                    }
-                }
-            });
-        }
-
-        function renderP1Table1(data) {
-            const dates = {};
-            data.forEach(r => {
-                if (!dates[r.FECHA]) dates[r.FECHA] = { totalKg: 0, dnis: new Set() };
-                dates[r.FECHA].totalKg += r.TOTAL_KG;
-                dates[r.FECHA].dnis.add(r.DNI);
-            });
-
-            let list = Object.keys(dates).map(f => ({
-                FECHA: f,
-                totalKg: dates[f].totalKg,
-                totalCosechadores: dates[f].dnis.size,
-                promedioKg: dates[f].dnis.size > 0 ? dates[f].totalKg / dates[f].dnis.size : 0
-            }));
-
-            // Sorting logic
-            const cfg = pagination.p1_t1;
-            list.sort((a, b) => cfg.sortAsc ? a.totalKg - b.totalKg : b.totalKg - a.totalKg);
-
-            const tbody = document.getElementById('p1_t1_body');
-            tbody.innerHTML = list.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-bold text-slate-800">${r.FECHA}</td>
-                    <td class="p-2.5 text-right font-extrabold text-red-600">${formatNumber(r.totalKg)} kg</td>
-                    <td class="p-2.5 text-right font-semibold text-slate-700">${formatNumber(r.totalCosechadores)}</td>
-                    <td class="p-2.5 text-right font-bold text-emerald-700">${formatNumber(r.promedioKg)} kg/person</td>
-                </tr>
-            `).join('') || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        function renderP1Table2(data) {
-            const mods = {};
-            data.forEach(r => {
-                if (!mods[r.MODALIDAD]) mods[r.MODALIDAD] = { totalKg: 0, sumCump: 0, count: 0, recordsByFecha: 0 };
-                mods[r.MODALIDAD].totalKg += r.TOTAL_KG;
-                mods[r.MODALIDAD].sumCump += r.CUMP_PERC;
-                mods[r.MODALIDAD].count++;
-                mods[r.MODALIDAD].recordsByFecha++;
-            });
-
-            const list = Object.keys(mods).map(m => ({
-                MODALIDAD: m,
-                cosechadores: mods[m].recordsByFecha,
-                totalKg: mods[m].totalKg,
-                avgCump: mods[m].count > 0 ? Math.round(mods[m].sumCump / mods[m].count) : 0
-            }));
-
-            const tbody = document.getElementById('p1_t2_body');
-            tbody.innerHTML = list.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-bold text-slate-800 flex items-center space-x-2">
-                        <i class="fas ${r.MODALIDAD === 'CAMPAMENTO' ? 'fa-campground text-amber-600' : 'fa-bus text-blue-600'}"></i>
-                        <span>${r.MODALIDAD}</span>
-                    </td>
-                    <td class="p-2.5 text-right font-semibold text-slate-700">${formatNumber(r.cosechadores)}</td>
-                    <td class="p-2.5 text-right font-extrabold text-slate-900">${formatNumber(r.totalKg)} kg</td>
-                    <td class="p-2.5 text-right">${getComplianceBadgeHTML(r.avgCump)}</td>
-                </tr>
-            `).join('') || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        function renderP1Table3(data) {
-            const harvesters = {};
-            data.forEach(r => {
-                if (!harvesters[r.DNI]) harvesters[r.DNI] = {
-                    name: r.APELLIDOS_NOMBRES,
-                    modalidad: r.MODALIDAD,
-                    fechas: new Set(),
-                    totalKg: 0,
-                };
-                harvesters[r.DNI].fechas.add(r.FECHA);
-                harvesters[r.DNI].totalKg += r.TOTAL_KG;
-            });
-
-            let list = Object.keys(harvesters).map(dni => ({
-                name: harvesters[dni].name,
-                modalidad: harvesters[dni].modalidad,
-                totalDias: harvesters[dni].fechas.size,
-                totalKg: harvesters[dni].totalKg,
-                promedioKg: harvesters[dni].fechas.size > 0 ? harvesters[dni].totalKg / harvesters[dni].fechas.size : 0
-            }));
-
-            list.sort((a, b) => b.totalKg - a.totalKg);
-            const top10 = list.slice(0, 10);
-
-            const tbody = document.getElementById('p1_t3_body');
-            tbody.innerHTML = top10.map((r, idx) => `
-                <tr class="hover:bg-amber-50/50 transition">
-                    <td class="p-2.5 font-black text-slate-700">
-                        ${idx === 0 ? '🥇 <span class="text-amber-600">1°</span>' : idx === 1 ? '🥈 <span class="text-slate-500">2°</span>' : idx === 2 ? '🥉 <span class="text-amber-700">3°</span>' : `<span class="ml-2 font-bold">${idx + 1}°</span>`}
-                    </td>
-                    <td class="p-2.5 font-bold text-slate-900">${r.name}</td>
-                    <td class="p-2.5 font-medium text-slate-600">${r.modalidad}</td>
-                    <td class="p-2.5 text-center font-bold text-slate-700">${r.totalDias}</td>
-                    <td class="p-2.5 text-right font-extrabold text-red-600">${formatNumber(r.totalKg)} kg</td>
-                    <td class="p-2.5 text-right font-bold text-emerald-700">${formatNumber(r.promedioKg)} kg/día</td>
-                </tr>
-            `).join('') || `<tr><td colspan="6" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        function renderP1Table4(data) {
-            const hist = {};
-            data.forEach(r => {
-                if (!hist[r.HISTORICO]) hist[r.HISTORICO] = { dnis: new Set(), totalKg: 0, totalFechasCount: 0 };
-                hist[r.HISTORICO].dnis.add(r.DNI);
-                hist[r.HISTORICO].totalKg += r.TOTAL_KG;
-                hist[r.HISTORICO].totalFechasCount++;
-            });
-
-            const list = Object.keys(hist).map(h => ({
-                HISTORICO: h,
-                totalCosechadores: hist[h].dnis.size,
-                totalKg: hist[h].totalKg,
-                promedio: hist[h].totalFechasCount > 0 ? hist[h].totalKg / hist[h].totalFechasCount : 0
-            }));
-
-            const tbody = document.getElementById('p1_t4_body');
-            tbody.innerHTML = list.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-bold text-slate-800">${r.HISTORICO}</td>
-                    <td class="p-2.5 text-right font-semibold text-slate-700">${formatNumber(r.totalCosechadores)}</td>
-                    <td class="p-2.5 text-right font-extrabold text-slate-900">${formatNumber(r.totalKg)} kg</td>
-                    <td class="p-2.5 text-right font-bold text-emerald-700">${formatNumber(r.promedio)} kg/reg</td>
-                </tr>
-            `).join('') || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        // ===================================================================
-        // ===================================================================
         function renderPage2() {
-            let data = [...filteredData];
-            const cfg = pagination.p2;
-
-            // Sorting
-            data.sort((a, b) => {
-                let valA = a[cfg.sortCol];
-                let valB = b[cfg.sortCol];
-                if (cfg.sortCol === 'FECHA') {
-                    valA = a.FECHA.split('/').reverse().join('');
-                    valB = b.FECHA.split('/').reverse().join('');
-                }
-                if (valA < valB) return cfg.sortAsc ? -1 : 1;
-                if (valA > valB) return cfg.sortAsc ? 1 : -1;
-                return 0;
-            });
-
-            // Pagination 50 per page
-            const total = data.length;
-            const maxPages = Math.ceil(total / cfg.pageSize) || 1;
-            if (cfg.page > maxPages) cfg.page = maxPages;
-            const start = (cfg.page - 1) * cfg.pageSize;
-            const pageData = data.slice(start, start + cfg.pageSize);
-
-            document.getElementById('p2_info').innerText = `Mostrando ${start + 1} - ${Math.min(start + cfg.pageSize, total)} de ${formatNumber(total)} registros`;
-            document.getElementById('p2_page_num').innerText = `Pág. ${cfg.page} / ${maxPages}`;
-
             const tbody = document.getElementById('p2_body');
-            tbody.innerHTML = pageData.map(r => `
+            tbody.innerHTML = filteredData.slice(0, 50).map(r => `
                 <tr class="hover:bg-slate-50 transition">
                     <td class="p-2.5 font-bold text-slate-700">${r.FECHA}</td>
                     <td class="p-2.5 font-mono text-slate-600">${r.DNI}</td>
@@ -1631,579 +569,13 @@ function doGet(e) {
                     <td class="p-2.5 text-slate-600">${r.VARIEDAD}</td>
                     <td class="p-2.5 text-slate-500">${r.MODULO_TURNO}</td>
                     <td class="p-2.5 text-slate-500">${r.LABOR}</td>
-                    <td class="p-2.5 text-right font-black text-red-600">${formatNumber(r.TOTAL_KG)}</td>
-                    <td class="p-2.5 text-right font-medium text-slate-500">${formatNumber(r.META)}</td>
-                    <td class="p-2.5 text-center">${getComplianceBadgeHTML(r.CUMP_PERC)}</td>
+                    <td class="p-2.5 text-right font-black text-red-600">${r.TOTAL_KG}</td>
+                    <td class="p-2.5 text-right font-medium text-slate-500">${r.META}</td>
+                    <td class="p-2.5 text-center">${r.CUMP_PERC}%</td>
                     <td class="p-2.5 font-semibold text-slate-700">${r.CATEG_2026}</td>
                     <td class="p-2.5 text-slate-500">${r.RANGO_PERC}</td>
                 </tr>
-            `).join('') || `<tr><td colspan="13" class="p-4 text-center text-slate-400">Sin datos disponibles</td></tr>`;
-        }
-
-        // ===================================================================
-        // ===================================================================
-        function renderPage3() {
-            let data = [...filteredData];
-            const cfg = pagination.p3;
-
-            // Get all unique dates sorted
-            const dates = [...new Set(rawData.map(r => r.FECHA))].sort((a,b) => a.split('/').reverse().join('').localeCompare(b.split('/').reverse().join('')));
-
-            // Group by Harvester
-            const groupMap = {};
-            data.forEach(r => {
-                const key = `${r.DNI}_${r.APELLIDOS_NOMBRES}`;
-                if (!groupMap[key]) {
-                    groupMap[key] = {
-                        DNI: r.DNI,
-                        APELLIDOS_NOMBRES: r.APELLIDOS_NOMBRES,
-                        MODALIDAD: r.MODALIDAD,
-                        CATEG_2026: r.CATEG_2026,
-                        PLACA: r.PLACA,
-                        RUTA: r.RUTA,
-                        byDate: {}
-                    };
-                }
-                if (!groupMap[key].byDate[r.FECHA]) groupMap[key].byDate[r.FECHA] = 0;
-                groupMap[key].byDate[r.FECHA] += r.TOTAL_KG;
-            });
-
-            let list = Object.values(groupMap);
-
-            // Sort list
-            list.sort((a, b) => {
-                let valA = a[cfg.sortCol] || '';
-                let valB = b[cfg.sortCol] || '';
-                if (valA < valB) return cfg.sortAsc ? -1 : 1;
-                if (valA > valB) return cfg.sortAsc ? 1 : -1;
-                return 0;
-            });
-
-            // Headers
-            const headTr = document.querySelector('#p3_head tr');
-            headTr.innerHTML = `
-                <th class="p-2.5">DNI</th>
-                <th class="p-2.5">APELLIDOS Y NOMBRES</th>
-                <th class="p-2.5">MODALIDAD</th>
-                <th class="p-2.5">CATEG. 2026</th>
-                <th class="p-2.5">PLACA</th>
-                <th class="p-2.5">ORIGEN/RUTA</th>
-                ${dates.map(d => `<th class="p-2.5 text-right font-extrabold bg-red-50/50 text-red-900 border-l border-slate-200">${d}</th>`).join('')}
-            `;
-
-            // Column total KGs
-            const colTotals = {};
-            dates.forEach(d => colTotals[d] = 0);
-            list.forEach(item => {
-                dates.forEach(d => {
-                    colTotals[d] += (item.byDate[d] || 0);
-                });
-            });
-
-            // Render Header Totals with Trend
-            const headerTotalsContainer = document.getElementById('p3_header_totals');
-            headerTotalsContainer.innerHTML = dates.map((d, idx) => {
-                const current = colTotals[d];
-                const prev = idx > 0 ? colTotals[dates[idx - 1]] : current;
-                const isUp = current >= prev;
-                const trendIcon = isUp ? '<i class="fas fa-arrow-up text-emerald-600"></i>' : '<i class="fas fa-arrow-down text-red-600"></i>';
-                return `<div class="px-3 py-1 bg-white rounded-lg shadow-sm border border-red-100 flex items-center space-x-2">
-                    <span class="text-slate-500">${d}:</span>
-                    <span class="font-extrabold text-slate-900">${formatNumber(current)} KG</span>
-                    ${trendIcon}
-                </div>`;
-            }).join('');
-
-            // Pagination
-            const total = list.length;
-            const maxPages = Math.ceil(total / cfg.pageSize) || 1;
-            if (cfg.page > maxPages) cfg.page = maxPages;
-            const start = (cfg.page - 1) * cfg.pageSize;
-            const pageData = list.slice(start, start + cfg.pageSize);
-
-            document.getElementById('p3_info').innerText = `Mostrando ${start + 1} - ${Math.min(start + cfg.pageSize, total)} de ${formatNumber(total)} cosechadores`;
-            document.getElementById('p3_page_num').innerText = `Pág. ${cfg.page} / ${maxPages}`;
-
-            const tbody = document.getElementById('p3_body');
-            tbody.innerHTML = pageData.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-mono text-slate-600">${r.DNI}</td>
-                    <td class="p-2.5 font-bold text-slate-900">${r.APELLIDOS_NOMBRES}</td>
-                    <td class="p-2.5 text-slate-600">${r.MODALIDAD}</td>
-                    <td class="p-2.5 text-slate-600">${r.CATEG_2026}</td>
-                    <td class="p-2.5 font-medium text-slate-700">${r.PLACA}</td>
-                    <td class="p-2.5 text-slate-500">${r.RUTA}</td>
-                    ${dates.map(d => {
-                        const val = r.byDate[d] || 0;
-                        return `<td class="p-2.5 text-right font-bold border-l border-slate-100 ${val > 0 ? 'text-red-600 bg-red-50/20' : 'text-slate-300'}">${val > 0 ? formatNumber(val) + ' kg' : '-'}</td>`;
-                    }).join('')}
-                </tr>
-            `).join('') || `<tr><td colspan="${6 + dates.length}" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        // ===================================================================
-        // ===================================================================
-        function renderPage4() {
-            let data = [...filteredData];
-            const cfg = pagination.p4;
-
-            const dates = [...new Set(rawData.map(r => r.FECHA))].sort((a,b) => a.split('/').reverse().join('').localeCompare(b.split('/').reverse().join('')));
-
-            const groupMap = {};
-            data.forEach(r => {
-                const key = `${r.DNI}_${r.APELLIDOS_NOMBRES}`;
-                if (!groupMap[key]) {
-                    groupMap[key] = {
-                        DNI: r.DNI,
-                        APELLIDOS_NOMBRES: r.APELLIDOS_NOMBRES,
-                        MODALIDAD: r.MODALIDAD,
-                        CATEG_2026: r.CATEG_2026,
-                        PLACA: r.PLACA,
-                        RUTA: r.RUTA,
-                        byDate: {}
-                    };
-                }
-                groupMap[key].byDate[r.FECHA] = r.CUMP_PERC;
-            });
-
-            let list = Object.values(groupMap);
-
-            list.sort((a, b) => {
-                let valA = a[cfg.sortCol] || '';
-                let valB = b[cfg.sortCol] || '';
-                if (valA < valB) return cfg.sortAsc ? -1 : 1;
-                if (valA > valB) return cfg.sortAsc ? 1 : -1;
-                return 0;
-            });
-
-            const headTr = document.querySelector('#p4_head tr');
-            headTr.innerHTML = `
-                <th class="p-2.5">DNI</th>
-                <th class="p-2.5">APELLIDOS Y NOMBRES</th>
-                <th class="p-2.5">MODALIDAD</th>
-                <th class="p-2.5">CATEG. 2026</th>
-                <th class="p-2.5">PLACA</th>
-                <th class="p-2.5">ORIGEN/RUTA</th>
-                ${dates.map(d => `<th class="p-2.5 text-right font-extrabold bg-emerald-50/50 text-emerald-900 border-l border-slate-200">${d}</th>`).join('')}
-            `;
-
-            // Column Avg Compliance
-            const colAvgs = {};
-            dates.forEach(d => {
-                const vals = data.filter(r => r.FECHA === d).map(r => r.CUMP_PERC);
-                colAvgs[d] = vals.length > 0 ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
-            });
-
-            const headerTotalsContainer = document.getElementById('p4_header_totals');
-            headerTotalsContainer.innerHTML = dates.map((d, idx) => {
-                const current = colAvgs[d];
-                const prev = idx > 0 ? colAvgs[dates[idx - 1]] : current;
-                const isUp = current >= prev;
-                const trendIcon = isUp ? '<i class="fas fa-arrow-up text-emerald-600"></i>' : '<i class="fas fa-arrow-down text-red-600"></i>';
-                return `<div class="px-3 py-1 bg-white rounded-lg shadow-sm border border-emerald-100 flex items-center space-x-2">
-                    <span class="text-slate-500">${d}:</span>
-                    <span class="font-extrabold text-slate-900">${current}%</span>
-                    ${trendIcon}
-                </div>`;
-            }).join('');
-
-            const total = list.length;
-            const maxPages = Math.ceil(total / cfg.pageSize) || 1;
-            if (cfg.page > maxPages) cfg.page = maxPages;
-            const start = (cfg.page - 1) * cfg.pageSize;
-            const pageData = list.slice(start, start + cfg.pageSize);
-
-            document.getElementById('p4_info').innerText = `Mostrando ${start + 1} - ${Math.min(start + cfg.pageSize, total)} de ${formatNumber(total)} cosechadores`;
-            document.getElementById('p4_page_num').innerText = `Pág. ${cfg.page} / ${maxPages}`;
-
-            const tbody = document.getElementById('p4_body');
-            tbody.innerHTML = pageData.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-mono text-slate-600">${r.DNI}</td>
-                    <td class="p-2.5 font-bold text-slate-900">${r.APELLIDOS_NOMBRES}</td>
-                    <td class="p-2.5 text-slate-600">${r.MODALIDAD}</td>
-                    <td class="p-2.5 text-slate-600">${r.CATEG_2026}</td>
-                    <td class="p-2.5 font-medium text-slate-700">${r.PLACA}</td>
-                    <td class="p-2.5 text-slate-500">${r.RUTA}</td>
-                    ${dates.map(d => {
-                        const val = r.byDate[d];
-                        return `<td class="p-2.5 text-right border-l border-slate-100">${val !== undefined ? getComplianceBadgeHTML(val) : '-'}</td>`;
-                    }).join('')}
-                </tr>
-            `).join('') || `<tr><td colspan="${6 + dates.length}" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        // ===================================================================
-        // ===================================================================
-        function renderPage5() {
-            let data = [...filteredData];
-            const cfg = pagination.p5;
-
-            data.sort((a, b) => {
-                let valA = a[cfg.sortCol];
-                let valB = b[cfg.sortCol];
-                if (cfg.sortCol === 'FECHA') {
-                    valA = a.FECHA.split('/').reverse().join('');
-                    valB = b.FECHA.split('/').reverse().join('');
-                }
-                if (valA < valB) return cfg.sortAsc ? -1 : 1;
-                if (valA > valB) return cfg.sortAsc ? 1 : -1;
-                return 0;
-            });
-
-            const total = data.length;
-            const maxPages = Math.ceil(total / cfg.pageSize) || 1;
-            if (cfg.page > maxPages) cfg.page = maxPages;
-            const start = (cfg.page - 1) * cfg.pageSize;
-            const pageData = data.slice(start, start + cfg.pageSize);
-
-            document.getElementById('p5_info').innerText = `Mostrando ${start + 1} - ${Math.min(start + cfg.pageSize, total)} de ${formatNumber(total)} registros`;
-            document.getElementById('p5_page_num').innerText = `Pág. ${cfg.page} / ${maxPages}`;
-
-            const tbody = document.getElementById('p5_body');
-            tbody.innerHTML = pageData.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-bold text-slate-700">${r.FECHA}</td>
-                    <td class="p-2.5 font-mono text-slate-600">${r.DNI}</td>
-                    <td class="p-2.5 font-bold text-slate-900">${r.APELLIDOS_NOMBRES}</td>
-                    <td class="p-2.5 text-slate-600">${r.ACTIVIDAD}</td>
-                    <td class="p-2.5 text-right text-slate-600">${r.TOTAL_HRS}h</td>
-                    <td class="p-2.5 text-right font-black text-red-600">${formatNumber(r.TOTAL_KG)}</td>
-                    <td class="p-2.5 text-right font-medium text-slate-500">${formatNumber(r.META)}</td>
-                    <td class="p-2.5 text-slate-500">${r.RANGO_PERC}</td>
-                    <td class="p-2.5 text-center">${getComplianceBadgeHTML(r.CUMP_PERC)}</td>
-                    <td class="p-2.5 text-slate-600">${r.SEMANA}</td>
-                    <td class="p-2.5 text-slate-500">${r.DIA}</td>
-                    <td class="p-2.5 text-slate-600">${r.HISTORICO}</td>
-                    <td class="p-2.5 text-slate-700 font-medium">${r.MODALIDAD}</td>
-                    <td class="p-2.5 text-center text-slate-600">${r.SEXO}</td>
-                    <td class="p-2.5 font-semibold text-slate-700">${r.CATEG_2026}</td>
-                </tr>
-            `).join('') || `<tr><td colspan="15" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        // ===================================================================
-        // ===================================================================
-        function renderPage6() {
-            let data = [...filteredData];
-            const cfg = pagination.p6;
-
-            const dates = [...new Set(rawData.map(r => r.FECHA))].sort((a,b) => a.split('/').reverse().join('').localeCompare(b.split('/').reverse().join('')));
-
-            const groupMap = {};
-            data.forEach(r => {
-                const key = r.PLACA;
-                if (!groupMap[key]) {
-                    groupMap[key] = {
-                        PLACA: r.PLACA,
-                        RUTA: r.RUTA,
-                        MODALIDAD: r.MODALIDAD,
-                        TRANSPORTISTA: r.TRANSPORTISTA,
-                        byDate: {},
-                        allKgs: []
-                    };
-                }
-                if (!groupMap[key].byDate[r.FECHA]) groupMap[key].byDate[r.FECHA] = [];
-                groupMap[key].byDate[r.FECHA].push(r.TOTAL_KG);
-                groupMap[key].allKgs.push(r.TOTAL_KG);
-            });
-
-            let list = Object.values(groupMap);
-
-            list.sort((a, b) => {
-                let valA = a[cfg.sortCol] || '';
-                let valB = b[cfg.sortCol] || '';
-                if (valA < valB) return cfg.sortAsc ? -1 : 1;
-                if (valA > valB) return cfg.sortAsc ? 1 : -1;
-                return 0;
-            });
-
-            const headTr = document.querySelector('#p6_head tr');
-            headTr.innerHTML = `
-                <th class="p-2.5">PLACA</th>
-                <th class="p-2.5">RUTA</th>
-                <th class="p-2.5">MODALIDAD</th>
-                <th class="p-2.5">TRANSPORTISTA</th>
-                <th class="p-2.5 text-right font-bold bg-amber-50">TOTAL PROM</th>
-                ${dates.map(d => `<th class="p-2.5 text-right font-extrabold bg-blue-50/50 text-blue-900 border-l border-slate-200">${d}</th>`).join('')}
-            `;
-
-            const total = list.length;
-            const maxPages = Math.ceil(total / cfg.pageSize) || 1;
-            if (cfg.page > maxPages) cfg.page = maxPages;
-            const start = (cfg.page - 1) * cfg.pageSize;
-            const pageData = list.slice(start, start + cfg.pageSize);
-
-            document.getElementById('p6_info').innerText = `Mostrando ${start + 1} - ${Math.min(start + cfg.pageSize, total)} de ${formatNumber(total)} placas`;
-            document.getElementById('p6_page_num').innerText = `Pág. ${cfg.page} / ${maxPages}`;
-
-            const tbody = document.getElementById('p6_body');
-            tbody.innerHTML = pageData.map(r => {
-                const totalPromGeneral = r.allKgs.length > 0 ? Math.round(r.allKgs.reduce((a,b)=>a+b,0)/r.allKgs.length) : 0;
-                return `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-bold text-slate-900">${r.PLACA}</td>
-                    <td class="p-2.5 text-slate-600">${r.RUTA}</td>
-                    <td class="p-2.5 font-medium text-slate-700">${r.MODALIDAD}</td>
-                    <td class="p-2.5 text-slate-500">${r.TRANSPORTISTA}</td>
-                    <td class="p-2.5 text-right font-extrabold text-amber-700 bg-amber-50/50">${formatNumber(totalPromGeneral)} kg</td>
-                    ${dates.map((d, idx) => {
-                        const vals = r.byDate[d] || [];
-                        const avg = vals.length > 0 ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
-                        const prevVals = idx > 0 ? (r.byDate[dates[idx-1]] || []) : [];
-                        const prevAvg = prevVals.length > 0 ? Math.round(prevVals.reduce((a,b)=>a+b,0)/prevVals.length) : avg;
-                        const isUp = avg >= prevAvg;
-                        const trendIcon = avg > 0 ? (isUp ? '<i class="fas fa-caret-up text-emerald-600 ml-1"></i>' : '<i class="fas fa-caret-down text-red-600 ml-1"></i>') : '';
-                        
-                        return `<td class="p-2.5 text-right border-l border-slate-100 ${avg > 0 ? 'font-bold text-slate-800' : 'text-slate-300'}">
-                            ${avg > 0 ? formatNumber(avg) + trendIcon : '-'}
-                        </td>`;
-                    }).join('')}
-                </tr>`;
-            }).join('') || `<tr><td colspan="${5 + dates.length}" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        // ===================================================================
-        // ===================================================================
-        function renderPage7() {
-            let data = [...filteredData];
-            const cfg = pagination.p7;
-
-            // 7.5 Table 1: Consolidated Harvester Summary
-            const harvesterMap = {};
-            data.forEach(r => {
-                if (!harvesterMap[r.DNI]) {
-                    harvesterMap[r.DNI] = {
-                        DNI: r.DNI,
-                        APELLIDOS_NOMBRES: r.APELLIDOS_NOMBRES,
-                        MODALIDAD: r.MODALIDAD,
-                        HISTORICO: r.HISTORICO,
-                        CATEG_2026: r.CATEG_2026,
-                        fechas: new Set(),
-                        cumpVals: []
-                    };
-                }
-                harvesterMap[r.DNI].fechas.add(r.FECHA);
-                harvesterMap[r.DNI].cumpVals.push(r.CUMP_PERC);
-            });
-
-            let list1 = Object.values(harvesterMap).map(h => ({
-                DNI: h.DNI,
-                APELLIDOS_NOMBRES: h.APELLIDOS_NOMBRES,
-                MODALIDAD: h.MODALIDAD,
-                HISTORICO: h.HISTORICO,
-                CATEG_2026: h.CATEG_2026,
-                totalDias: h.fechas.size,
-                avgCump: h.cumpVals.length > 0 ? Math.round(h.cumpVals.reduce((a,b)=>a+b,0)/h.cumpVals.length) : 0
-            }));
-
-            list1.sort((a, b) => {
-                let valA = a[cfg.sortCol] || '';
-                let valB = b[cfg.sortCol] || '';
-                if (valA < valB) return cfg.sortAsc ? -1 : 1;
-                if (valA > valB) return cfg.sortAsc ? 1 : -1;
-                return 0;
-            });
-
-            const total = list1.length;
-            const maxPages = Math.ceil(total / cfg.pageSize) || 1;
-            if (cfg.page > maxPages) cfg.page = maxPages;
-            const start = (cfg.page - 1) * cfg.pageSize;
-            const pageData = list1.slice(start, start + cfg.pageSize);
-
-            document.getElementById('p7_info').innerText = `Mostrando ${start + 1} - ${Math.min(start + cfg.pageSize, total)} de ${formatNumber(total)} registros`;
-            document.getElementById('p7_page_num').innerText = `Pág. ${cfg.page} / ${maxPages}`;
-
-            const tbody1 = document.getElementById('p7_t1_body');
-            tbody1.innerHTML = pageData.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-mono text-slate-600">${r.DNI}</td>
-                    <td class="p-2.5 font-bold text-slate-900">${r.APELLIDOS_NOMBRES}</td>
-                    <td class="p-2.5 text-slate-700">${r.MODALIDAD}</td>
-                    <td class="p-2.5 text-slate-600">${r.HISTORICO}</td>
-                    <td class="p-2.5 text-center">${getComplianceBadgeHTML(r.avgCump)}</td>
-                    <td class="p-2.5 text-center font-bold text-slate-800">${r.totalDias}</td>
-                    <td class="p-2.5 font-semibold text-slate-700">${r.CATEG_2026}</td>
-                </tr>
-            `).join('') || `<tr><td colspan="7" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-
-            // 7.6.1 Table 2: Modalidad x Historico
-            const modHist = {};
-            data.forEach(r => {
-                const key = `${r.MODALIDAD}_${r.HISTORICO}`;
-                if (!modHist[key]) modHist[key] = { MODALIDAD: r.MODALIDAD, HISTORICO: r.HISTORICO, totalKg: 0, cumpVals: [] };
-                modHist[key].totalKg += r.TOTAL_KG;
-                modHist[key].cumpVals.push(r.CUMP_PERC);
-            });
-
-            let list2 = Object.values(modHist).map(item => ({
-                MODALIDAD: item.MODALIDAD,
-                HISTORICO: item.HISTORICO,
-                totalKg: item.totalKg,
-                avgCump: item.cumpVals.length > 0 ? Math.round(item.cumpVals.reduce((a,b)=>a+b,0)/item.cumpVals.length) : 0
-            }));
-
-            if (pagination.p7_t2.sortAsc) list2.sort((a,b) => a.MODALIDAD.localeCompare(b.MODALIDAD));
-            else list2.sort((a,b) => b.MODALIDAD.localeCompare(a.MODALIDAD));
-
-            const tbody2 = document.getElementById('p7_t2_body');
-            tbody2.innerHTML = list2.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-bold text-slate-800">${r.MODALIDAD}</td>
-                    <td class="p-2.5 text-slate-600">${r.HISTORICO}</td>
-                    <td class="p-2.5 text-right font-black text-red-600">${formatNumber(r.totalKg)} kg</td>
-                    <td class="p-2.5 text-center">${getComplianceBadgeHTML(r.avgCump)}</td>
-                </tr>
-            `).join('') || `<tr><td colspan="4" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-
-            // 7.6.2 Table 3: Modalidad x Categ 2026
-            const modCat = {};
-            let grandTotalKg = 0;
-            data.forEach(r => {
-                const key = `${r.MODALIDAD}_${r.CATEG_2026}`;
-                if (!modCat[key]) modCat[key] = { MODALIDAD: r.MODALIDAD, CATEG_2026: r.CATEG_2026, totalKg: 0, cumpVals: [] };
-                modCat[key].totalKg += r.TOTAL_KG;
-                modCat[key].cumpVals.push(r.CUMP_PERC);
-                grandTotalKg += r.TOTAL_KG;
-            });
-
-            let list3 = Object.values(modCat).map(item => ({
-                MODALIDAD: item.MODALIDAD,
-                CATEG_2026: item.CATEG_2026,
-                totalKg: item.totalKg,
-                avgCump: item.cumpVals.length > 0 ? Math.round(item.cumpVals.reduce((a,b)=>a+b,0)/item.cumpVals.length) : 0,
-                particip: grandTotalKg > 0 ? Math.round((item.totalKg / grandTotalKg) * 100) : 0
-            }));
-
-            if (pagination.p7_t3.sortAsc) list3.sort((a,b) => a.MODALIDAD.localeCompare(b.MODALIDAD));
-            else list3.sort((a,b) => b.MODALIDAD.localeCompare(a.MODALIDAD));
-
-            const tbody3 = document.getElementById('p7_t3_body');
-            tbody3.innerHTML = list3.map(r => `
-                <tr class="hover:bg-slate-50 transition">
-                    <td class="p-2.5 font-bold text-slate-800">${r.MODALIDAD}</td>
-                    <td class="p-2.5 font-semibold text-slate-700">${r.CATEG_2026}</td>
-                    <td class="p-2.5 text-right font-black text-slate-900">${formatNumber(r.totalKg)} kg</td>
-                    <td class="p-2.5 text-center">${getComplianceBadgeHTML(r.avgCump)}</td>
-                    <td class="p-2.5 text-right font-bold text-emerald-700">${r.particip}%</td>
-                </tr>
-            `).join('') || `<tr><td colspan="5" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
-        }
-
-        // ===================================================================
-        // SORTING & PAGINATION HELPERS
-        // ===================================================================
-        function toggleSort(targetKey, colName) {
-            if (!pagination[targetKey]) pagination[targetKey] = { sortCol: colName, sortAsc: true };
-            if (pagination[targetKey].sortCol === colName) {
-                pagination[targetKey].sortAsc = !pagination[targetKey].sortAsc;
-            } else {
-                pagination[targetKey].sortCol = colName;
-                pagination[targetKey].sortAsc = true;
-            }
-            renderCurrentPage();
-        }
-
-        function changePage(targetKey, delta) {
-            if (pagination[targetKey]) {
-                pagination[targetKey].page += delta;
-                if (pagination[targetKey].page < 1) pagination[targetKey].page = 1;
-                renderCurrentPage();
-            }
-        }
-
-        // ===================================================================
-        // EXPORT TO EXCEL
-        // ===================================================================
-        function exportCurrentTableToExcel() {
-            let exportData = filteredData;
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Cosecha_Huarmey");
-            XLSX.writeFile(wb, `Agricola_Huarmey_Pagina_${currentTab}_${new Date().toISOString().slice(0,10)}.xlsx`);
-        }
-
-        // ===================================================================
-        // MODALS & APPS SCRIPT PREVIEW
-        // ===================================================================
-        function openAppsScriptModal() {
-            document.getElementById('appsScriptModal').classList.remove('hidden');
-        }
-        function closeAppsScriptModal() {
-            document.getElementById('appsScriptModal').classList.add('hidden');
-        }
-        function copyAppsScriptCode() {
-            const codeText = document.getElementById('gsCodeSnippet').innerText;
-            const tempTextArea = document.createElement('textarea');
-            tempTextArea.value = codeText;
-            document.body.appendChild(tempTextArea);
-            tempTextArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTextArea);
-            alert("¡Código de Google Apps Script (código.gs) copiado al portapapeles!");
-        }
-
-        // ===================================================================
-        // PWA SERVICE WORKER & MANIFEST INLINING
-        // ===================================================================
-        function registerServiceWorkerAndManifest() {
-            // Inlining Manifest via Data URL
-            const manifestObj = {
-                "name": "Agrícola Huarmey - Cosecha",
-                "short_name": "Huarmey Cosecha",
-                "start_url": ".",
-                "display": "standalone",
-                "background_color": "#ffffff",
-                "theme_color": "#d32f2f",
-                "description": "Sistema PWA para gestión de Cosecha de Arándanos Agrícola Huarmey",
-                "icons": [
-                    {
-                        "src": "https://placehold.co/192x192/d32f2f/ffffff?text=AH",
-                        "sizes": "192x192",
-                        "type": "image/png"
-                    },
-                    {
-                        "src": "https://placehold.co/512x512/d32f2f/ffffff?text=AH",
-                        "sizes": "512x512",
-                        "type": "image/png"
-                    }
-                ]
-            };
-            const manifestStr = JSON.stringify(manifestObj);
-            const manifestBlob = new Blob([manifestStr], { type: 'application/json' });
-            const manifestURL = URL.createObjectURL(manifestBlob);
-            const link = document.createElement('link');
-            link.rel = 'manifest';
-            link.href = manifestURL;
-            document.head.appendChild(link);
-
-            // Inlining Service Worker via Blob
-            if ('serviceWorker' in navigator) {
-                const swCode = `
-                    const CACHE_NAME = 'huarmey-pwa-v1';
-                    self.addEventListener('install', (e) => {
-                        e.waitUntil(
-                            caches.open(CACHE_NAME).then((cache) => {
-                                return cache.addAll(['./']);
-                            })
-                        );
-                    });
-                    self.addEventListener('fetch', (e) => {
-                        e.respondWith(
-                            caches.match(e.request).then((res) => {
-                                return res || fetch(e.request);
-                            })
-                        );
-                    });
-                `;
-                const swBlob = new Blob([swCode], { type: 'text/javascript' });
-                const swURL = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swURL).then(() => {
-                    console.log('PWA Service Worker registrado con éxito');
-                }).catch(err => {
-                    console.warn('Error registrando Service Worker:', err);
-                });
-            }
+            `).join('') || `<tr><td colspan="13" class="p-4 text-center text-slate-400">Sin datos</td></tr>`;
         }
     </script>
 </body>
