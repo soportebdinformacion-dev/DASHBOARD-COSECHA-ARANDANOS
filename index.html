@@ -54,12 +54,19 @@
         </div>
       </div>
 
-      <div class="flex items-center space-x-4">
-        <!-- Notificación de estado de conexión GS -->
+      <div class="flex items-center space-x-3">
+        <!-- Estado de conexión -->
         <div id="connectionStatus" class="flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300">
           <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>
           <span id="statusText">Conectando...</span>
         </div>
+
+        <!-- Botón de Sincronización Manual -->
+        <button onclick="fetchData()" class="p-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-xs font-semibold border border-gray-300 transition-colors flex items-center gap-1">
+          <i class="fa-solid fa-rotate text-brand-red"></i>
+          <span class="hidden sm:inline">Sincronizar</span>
+        </button>
+
         <!-- Fecha y hora dinámicas -->
         <div class="hidden md:flex flex-col items-end text-xs text-gray-600 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
           <div id="liveClock" class="font-bold text-brand-dark">00:00:00 AM</div>
@@ -68,11 +75,11 @@
       </div>
     </div>
 
-    <!-- Menú de navegación de 7 Páginas -->
+    <!-- Navegación 7 Páginas -->
     <nav class="bg-white border-t border-gray-100 px-4 overflow-x-auto custom-scrollbar">
       <div class="max-w-7xl mx-auto flex space-x-1 py-1 text-xs font-medium whitespace-nowrap">
         <button onclick="switchTab('p1')" id="tab-p1" class="px-3 py-2 rounded-lg flex items-center space-x-1.5 transition-colors bg-brand-red text-white">
-          <i class="fa-solid fa-file-contract text-blue-500"></i><span>Dashboard Cosecha</span>
+          <i class="fa-solid fa-chart-line"></i><span>Dashboard Cosecha</span>
         </button>
         <button onclick="switchTab('p2')" id="tab-p2" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
           <i class="fa-solid fa-list-check text-green-600"></i><span>Reporte Detallado</span>
@@ -81,7 +88,7 @@
           <i class="fa-solid fa-weight-hanging text-purple-600"></i><span>Reporte Fechas KG</span>
         </button>
         <button onclick="switchTab('p4')" id="tab-p4" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
-          <i class="fa-solid fa-chart-line text-emerald-600"></i><span>Reporte Fechas CUMP. %</span>
+          <i class="fa-solid fa-bullseye text-emerald-600"></i><span>Reporte Fechas CUMP. %</span>
         </button>
         <button onclick="switchTab('p5')" id="tab-p5" class="px-3 py-2 rounded-lg text-gray-600 hover:bg-gray-100 flex items-center space-x-1.5">
           <i class="fa-solid fa-users text-indigo-600"></i><span>Reporte Reg. Únicos</span>
@@ -99,7 +106,7 @@
   <!-- CONTENIDO PRINCIPAL -->
   <main class="flex-grow max-w-7xl w-full mx-auto p-4 space-y-4">
 
-    <!-- LEYENDA DE CUMPLIMIENTO GLOBAL -->
+    <!-- Leyenda de cumplimiento -->
     <div id="legendContainer" class="bg-white p-3 rounded-xl border border-gray-200 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs">
       <span class="font-bold text-gray-700 flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-brand-red"></i> Leyenda CUMP. %:</span>
       <div class="flex flex-wrap gap-2">
@@ -110,7 +117,7 @@
       </div>
     </div>
 
-    <!-- PÁGINA 1: DASHBOARD COSECHA -->
+    <!-- PÁGINA 1: DASHBOARD -->
     <section id="page-p1" class="space-y-4">
       <!-- Filtros P1 -->
       <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm grid grid-cols-2 md:grid-cols-5 gap-3 text-xs">
@@ -136,7 +143,7 @@
         </div>
       </div>
 
-      <!-- Tarjetas KPIs -->
+      <!-- KPIs -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center justify-between">
           <div>
@@ -161,7 +168,7 @@
         </div>
       </div>
 
-      <!-- Gráficos de Dona -->
+      <!-- Gráficos -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
           <h4 class="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2"><i class="fa-solid fa-chart-pie text-brand-red"></i> Distribución por Modalidad</h4>
@@ -173,7 +180,7 @@
         </div>
       </div>
 
-      <!-- Tabla Ranking Top 10 -->
+      <!-- Tabla Top 10 -->
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 overflow-x-auto">
         <h4 class="text-xs font-bold text-gray-700 mb-3 flex items-center gap-2"><i class="fa-solid fa-trophy text-amber-500"></i> Top 10 Cosechadores</h4>
         <table class="w-full text-left text-xs border-collapse">
@@ -192,7 +199,7 @@
       </div>
     </section>
 
-    <!-- TABLA PAGINADA GENÉRICA PARA P2-P7 -->
+    <!-- TABLA GENÉRICA PAGINADA PARA P2 A P7 -->
     <section id="page-generic" class="hidden space-y-4">
       <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
         <div class="flex items-center space-x-2 flex-grow max-w-md">
@@ -213,7 +220,6 @@
         </table>
       </div>
 
-      <!-- Paginador 50 registros -->
       <div class="flex items-center justify-between text-xs bg-white p-3 rounded-xl border border-gray-200">
         <span id="pageInfo" class="text-gray-500">Página 1 de 1</span>
         <div class="flex space-x-1">
@@ -227,16 +233,13 @@
 
   <script>
     // URL Backend Google Apps Script
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbztYV9H3h7LCMT2wA-CefMW3X9nsCQsOHrbbABqwgIT8mTFN7k7In4woNpIBv_OHktV/exec';
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbz0yrfg95nUDAXbJl0uMKsRRMDfIUp-FFb1VNrluyMGf9WudEmE6_qPlemEUBqKWPuU/exec';
 
-    // Estado global de la aplicación
     let appData = { DETALLE: [], TDP: [], UNICOS: [], REPORTE: [] };
     let currentTab = 'p1';
     let currentPage = 1;
     const pageSize = 50;
     let sortAsc = true;
-
-    // Inicialización de gráficos
     let chartMod, chartSex;
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -246,7 +249,6 @@
       fetchData();
     });
 
-    // Reloj dinámico
     function initClock() {
       setInterval(() => {
         const now = new Date();
@@ -255,25 +257,21 @@
       }, 1000);
     }
 
-    // Registro del Service Worker
     function registerSW() {
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('./service-worker.js')
-          .then(() => console.log('Service Worker Registrado'))
-          .catch(err => console.error('Error SW:', err));
+          .then(() => console.log('SW ok'))
+          .catch(err => console.error('SW err:', err));
       }
     }
 
-    // Base de datos local IndexedDB
     let db;
     function initDB() {
       const request = indexedDB.open('AgrícolaHuarmeyDB', 1);
       request.onupgradeneeded = (e) => {
         db = e.target.result;
         ['DETALLE', 'TDP', 'UNICOS', 'REPORTE'].forEach(sheet => {
-          if (!db.objectStoreNames.contains(sheet)) {
-            db.createObjectStore(sheet, { autoIncrement: true });
-          }
+          if (!db.objectStoreNames.contains(sheet)) db.createObjectStore(sheet, { autoIncrement: true });
         });
       };
       request.onsuccess = (e) => { db = e.target.result; loadFromIndexedDB(); };
@@ -282,50 +280,75 @@
     function saveToIndexedDB(data) {
       if (!db) return;
       Object.keys(data).forEach(sheet => {
+        if (!db.objectStoreNames.contains(sheet)) return;
         const tx = db.transaction(sheet, 'readwrite');
         const store = tx.objectStore(sheet);
         store.clear();
-        data[sheet].forEach(item => store.add(item));
+        if (Array.isArray(data[sheet])) {
+          data[sheet].forEach(item => store.add(item));
+        }
       });
     }
 
     function loadFromIndexedDB() {
       if (!db) return;
       Object.keys(appData).forEach(sheet => {
+        if (!db.objectStoreNames.contains(sheet)) return;
         const tx = db.transaction(sheet, 'readonly');
         const store = tx.objectStore(sheet);
         const req = store.getAll();
         req.onsuccess = () => {
           if (req.result && req.result.length > 0) {
             appData[sheet] = req.result;
+            populateFilters();
             if (currentTab === 'p1') renderP1();
           }
         };
       });
     }
 
-    // Conexión y sincronización con Apps Script
+    // FUNCIÓN DE CONEXIÓN CORREGIDA
     async function fetchData() {
       const statusEl = document.getElementById('connectionStatus');
       const statusText = document.getElementById('statusText');
+
+      statusEl.className = "flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800 border border-yellow-300";
+      statusText.innerText = "Conectando...";
+
       try {
-        const res = await fetch(GAS_URL + '?action=getAllData');
-        const json = await res.json();
-        if (json.status === 'success') {
+        // Redirección explícita y timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+        const response = await fetch(`${GAS_URL}?action=getAllData`, {
+          method: 'GET',
+          redirect: 'follow',
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error('Error HTTP: ' + response.status);
+
+        const json = await response.json();
+        if (json.status === 'success' && json.data) {
           appData = json.data;
           saveToIndexedDB(appData);
           statusEl.className = "flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800 border border-green-300";
           statusText.innerText = "Conectado a Google Sheets";
           populateFilters();
-          renderP1();
+          if (currentTab === 'p1') renderP1();
+          else renderGenericTable();
+        } else {
+          throw new Error('Respuesta inválida del backend');
         }
       } catch (err) {
+        console.warn('Conexión fallida, cargando datos locales:', err);
         statusEl.className = "flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800 border border-red-300";
-        statusText.innerText = "Modo Offline (Cache)";
+        statusText.innerText = "Modo Offline (Datos Locales)";
+        loadFromIndexedDB();
       }
     }
 
-    // Navegación por pestañas
     function switchTab(tabId) {
       currentTab = tabId;
       document.querySelectorAll('nav button').forEach(btn => {
@@ -345,7 +368,6 @@
       }
     }
 
-    // Filtros dinámicos P1
     function populateFilters() {
       const detalle = appData.DETALLE || [];
       const semanas = [...new Set(detalle.map(i => i.SEMANA).filter(Boolean))];
@@ -361,11 +383,11 @@
 
     function fillSelect(id, options) {
       const sel = document.getElementById(id);
+      if(!sel) return;
       sel.innerHTML = '<option value="">Todas</option>';
       options.forEach(opt => { sel.innerHTML += `<option value="${opt}">${opt}</option>`; });
     }
 
-    // Renderizar Dashboard P1
     function renderP1() {
       let data = appData.DETALLE || [];
       const fecha = document.getElementById('filter-p1-fecha').value;
@@ -379,7 +401,6 @@
       if (mod) data = data.filter(i => String(i.MODALIDAD) === mod);
       if (ran) data = data.filter(i => String(i['RANGO %']) === ran);
 
-      // Totales
       const totalKg = data.reduce((acc, curr) => acc + Number(curr['TOTAL KG'] || 0), 0);
       const totalCump = data.length ? (data.reduce((acc, curr) => acc + Number(curr['CUMP. %'] || 0), 0) / data.length) : 0;
       const cosechadoresUnicos = new Set(data.map(i => i.DNI)).size;
@@ -392,7 +413,6 @@
       renderTop10P1(data);
     }
 
-    // Gráficos de Dona P1
     function renderChartsP1(data) {
       const modCounts = {};
       const sexCounts = {};
@@ -405,26 +425,32 @@
       if (chartMod) chartMod.destroy();
       if (chartSex) chartSex.destroy();
 
-      chartMod = new Chart(document.getElementById('chartModalidad'), {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(modCounts),
-          datasets: [{ data: Object.values(modCounts), backgroundColor: ['#C83232', '#2E7D32', '#3B82F6', '#F59E0B'] }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
+      const ctxMod = document.getElementById('chartModalidad');
+      const ctxSex = document.getElementById('chartSexo');
 
-      chartSex = new Chart(document.getElementById('chartSexo'), {
-        type: 'doughnut',
-        data: {
-          labels: Object.keys(sexCounts),
-          datasets: [{ data: Object.values(sexCounts), backgroundColor: ['#EC4899', '#3B82F6', '#10B981'] }]
-        },
-        options: { responsive: true, maintainAspectRatio: false }
-      });
+      if (ctxMod) {
+        chartMod = new Chart(ctxMod, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(modCounts),
+            datasets: [{ data: Object.values(modCounts), backgroundColor: ['#C83232', '#2E7D32', '#3B82F6', '#F59E0B'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
+
+      if (ctxSex) {
+        chartSex = new Chart(ctxSex, {
+          type: 'doughnut',
+          data: {
+            labels: Object.keys(sexCounts),
+            datasets: [{ data: Object.values(sexCounts), backgroundColor: ['#EC4899', '#3B82F6', '#10B981'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false }
+        });
+      }
     }
 
-    // Tabla Top 10 P1
     function renderTop10P1(data) {
       const map = {};
       data.forEach(i => {
@@ -437,6 +463,7 @@
 
       const list = Object.values(map).sort((a, b) => b.kg - a.kg).slice(0, 10);
       const tbody = document.getElementById('p1-top10-body');
+      if(!tbody) return;
       tbody.innerHTML = '';
 
       list.forEach((item, index) => {
@@ -455,7 +482,6 @@
       });
     }
 
-    // Renderizado genérico de tablas paginadas (P2 a P7)
     function renderGenericTable() {
       let dataset = [];
       let columns = [];
@@ -477,7 +503,6 @@
         columns = ['DNI', 'APELLIDOS Y NOMBRES', 'MODALIDAD', 'HISTORICO', 'CUMP. %', 'CATEG. 2026'];
       }
 
-      // Búsqueda
       const q = document.getElementById('genericSearch').value.toLowerCase();
       if (q) {
         dataset = dataset.filter(i => 
@@ -486,11 +511,9 @@
         );
       }
 
-      // Encabezados
       const thead = document.getElementById('genericTableHeader');
       thead.innerHTML = `<tr>${columns.map(c => `<th class="p-3">${c}</th>`).join('')}</tr>`;
 
-      // Paginación
       const totalPages = Math.ceil(dataset.length / pageSize) || 1;
       if (currentPage > totalPages) currentPage = totalPages;
       const start = (currentPage - 1) * pageSize;
@@ -498,7 +521,6 @@
 
       document.getElementById('pageInfo').innerText = `Página ${currentPage} de ${totalPages} (${dataset.length} registros)`;
 
-      // Cuerpo
       const tbody = document.getElementById('genericTableBody');
       tbody.innerHTML = '';
 
